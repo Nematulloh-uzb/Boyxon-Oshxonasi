@@ -1,0 +1,41 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Expo: bog‘liqliklarni o‘rnatish",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"boyxon-oshxona\\mobile",
+				"install",
+				"--no-audit",
+				"--no-fund"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Expo: Boyxon mobil ilovasi",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"boyxon-oshxona\\mobile",
+				"run",
+				"start",
+				"--",
+				"--clear"
+			],
+			"isBackground": true,
+			"problemMatcher": [],
+			"dependsOn": "Expo: bog‘liqliklarni o‘rnatish",
+			"dependsOrder": "sequence",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"clear": true
+			}
+		}
+	]
+}
