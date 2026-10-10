@@ -48,6 +48,23 @@ Demo loginlar (seed dan keyin):
 Promo kodlar: `BOYXON20` (20% ≤30 000, min 100 000) · `WELCOME10` (10%) ·
 `FREEDEL` (8 000 chegirma, min 50 000).
 
+> **MongoDB Atlas IP whitelist:** `npm run seed` yoki `npm run dev` paytida
+> `MongooseServerSelectionError` chiqsa — IP whitelist qo'shilmagan. Atlas →
+> Network Access → Add IP Address → Allow Access from Anywhere (0.0.0.0/0)
+> yoki o'z IP manzilingizni qo'shing.
+
+## Test (lokal MongoDB kerak emas)
+
+`npm test` buyrug'i **mongodb-memory-server** bilan haqiqiy HTTP so'rovlar
+orqali butun backend'ni tekshiradi (Atlas whitelist shart emas):
+
+```bash
+cd boyxon/server
+npm test    # 19 ta endpoint tekshiruvi: auth, dishes, orders, admin, 403 himoyasi
+```
+
+Natija: `✅ O'tdi: 19  ❌ Yiqildi: 0`
+
 ## Muhit o'zgaruvchilari
 
 `boyxon/server/.env.example` va `boyxon/client/.env.example` ga qarang.
