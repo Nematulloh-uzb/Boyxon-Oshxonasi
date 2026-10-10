@@ -26,8 +26,8 @@ export const dishCreateSchema = z.object({
   deliveryTime: z.coerce.number().min(1).default(30),
   calories: z.coerce.number().min(0).optional(),
   tags: z.union([z.string(), z.array(z.string())]).optional(),
-  isActive: z.coerce.boolean().optional(),
-  isFeatured: z.coerce.boolean().optional(),
+  isActive: z.enum(['true', 'false']).optional(),
+  isFeatured: z.enum(['true', 'false']).optional(),
 });
 
 export const dishUpdateSchema = dishCreateSchema.partial();
