@@ -66,4 +66,8 @@ DishSchema.pre('save', function (next) {
   next();
 });
 
+DishSchema.virtual('hasImage').get(function (this: DishDoc) {
+  return Boolean((this as unknown as { image?: string | null }).image);
+});
+
 export const Dish = model<DishDoc>('Dish', DishSchema);

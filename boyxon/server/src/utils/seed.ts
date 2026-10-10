@@ -22,6 +22,17 @@ type SeedDish = {
   tags?: string[]; rating: number; featured?: boolean; time?: number;
 };
 
+function slugify(name: string): string {
+  return (
+    name
+      .toLowerCase()
+      .replace(/['"]/g, '')
+      .replace(/[^a-z0-9\u0400-\u04FF]+/gi, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 60) + '-' + Math.random().toString(36).slice(2, 7)
+  );
+}
+
 const DISHES: SeedDish[] = [
   { cat: 'shorvalar', name: 'Mastava', desc: 'Mol gushti, guruch va sabzavotlar bilan quyuq mastava.', price: 28000, rating: 4.7, time: 20 },
   { cat: 'shorvalar', name: 'Shurva', desc: 'Quy gushtidan ananaviy shurva, nuxat bilan.', price: 30000, rating: 4.6, time: 25 },
@@ -67,9 +78,9 @@ async function seed(): Promise<void> {
   await Dish.deleteMany({});
   await Dish.insertMany(
     DISHES.map((d) => ({
-      name: d.name, description: d.desc, price: d.price, oldPrice: d.oldPrice,
+      name: d.name, slug: slugify(d.name), description: d.desc, price: d.price, oldPrice: d.oldPrice,
       category: catId(d.cat), image: null, deliveryTime: d.time ?? 30,
-      tags: d.tags ?? [], rating: d.rating, reviewCount: Math.floor(d.rating * 137) % 900 + 40,
+      tags: d.tags ?? [], rating: d.rating, reviewCount: 40 + (d.rating * 100) % 400 | 0,
       isFeatured: d.featured ?? false, isActive: true,
     })),
   );

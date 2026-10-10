@@ -13,6 +13,15 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom', 'react-router-dom'],
+          vendor: ['@tanstack/react-query', 'zustand', 'axios', 'framer-motion', 'socket.io-client'],
+          i18n: ['i18next', 'react-i18next'],
+        },
+      },
+    },
   },
   preview: { port: 4173 },
 });
