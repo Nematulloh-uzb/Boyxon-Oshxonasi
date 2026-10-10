@@ -73,7 +73,7 @@ export default function HomePage() {
 
       <div className="mb-5 flex gap-2">
         <div className="relative flex-1">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 h-5 w-5 -translate-y-1/2 text-ink-300" />
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-300" />
           <input
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
@@ -124,4 +124,48 @@ export default function HomePage() {
           {Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-72 w-64 shrink-0 animate-pulse rounded-card bg-[#E8E1DA]" />)}
         </div>
       )}
+
+      {/* Barcha taomlar */}
+      <section>
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="font-display text-lg font-bold">{t('home.all')}</h2>
+          <span className="text-sm text-ink-300">{data?.pagination.total ?? 0} ta</span>
+        </div>
+
+        {isError ? (
+          <div className="rounded-card bg-danger/10 p-6 text-center">
+            <p className="text-sm text-danger">Ma’lumotni yuklab bo‘lmadi</p>
+            <button onClick={() => void refetch()} className="mt-2 text-sm font-semibold text-primary-600">
+              Qayta urinish
+            </button>
+          </div>
+        ) : (
+          <DishGrid dishes={data?.data} loading={isLoading || isFetching} />
+        )}
+
+        {pages > 1 && (
+          <div className="mt-6 flex items-center justify-center gap-2">
+            <button
+              disabled={page <= 1}
+              onClick={() => setPage((p) => p - 1)}
+              className="h-10 rounded-full border border-ink-line px-4 text-sm disabled:opacity-40"
+            >
+              ← Oldingi
+            </button>
+            <span className="px-2 text-sm text-ink-300">{page} / {pages}</span>
+            <button
+              disabled={page >= pages}
+              onClick={() => setPage((p) => p + 1)}
+              className="h-10 rounded-full border border-ink-line px-4 text-sm disabled:opacity-40"
+            >
+              Keyingi →
+            </button>
+          </div>
+        )}
+      </section>
+
+      <DishFilterSheet open={filterOpen} onClose={() => setFilterOpen(false)} value={filters} onApply={applyFilters} />
+    </div>
+  );
+}
 
