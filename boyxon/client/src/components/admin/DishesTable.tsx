@@ -37,7 +37,7 @@ export function DishesTable({ dishes, loading, onEdit, onToggle, onDelete }: Pro
                     {d.image ? (
                       <img src={d.image} alt={d.name} className="h-full w-full object-cover" />
                     ) : (
-                      <div className="scale-[0.3] origin-top-left w-[466px] h-[350px]"><DishPlaceholder /></div>
+                      <div className="grid h-full w-full place-items-center bg-[#F5EFE7] text-[10px] text-ink-300">yo‘q</div>
                     )}
                   </div>
                   <span className="font-medium">{d.name}</span>
