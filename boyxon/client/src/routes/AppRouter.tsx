@@ -14,6 +14,7 @@ const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard'));
 const AdminDishes = lazy(() => import('../pages/admin/AdminDishes'));
 const AdminOrders = lazy(() => import('../pages/admin/AdminOrders'));
 const AdminUsers = lazy(() => import('../pages/admin/AdminUsers'));
+const AdminCategories = lazy(() => import('../pages/admin/AdminCategories'));
 const AdminPromos = lazy(() => import('../pages/admin/AdminPromos'));
 const AdminPush = lazy(() => import('../pages/admin/AdminPush'));
 
@@ -37,6 +38,7 @@ export function AppRouter() {
           <Route path="dishes" element={<AdminDishes />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="users" element={<AdminUsers />} />
+          <Route path="categories" element={<AdminCategories />} />
           <Route path="promos" element={<AdminPromos />} />
           <Route path="push" element={<AdminPush />} />
         </Route>
