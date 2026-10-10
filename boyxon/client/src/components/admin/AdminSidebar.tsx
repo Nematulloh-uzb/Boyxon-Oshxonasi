@@ -37,7 +37,7 @@ export function AdminSidebar() {
                 )
               }
             >
-              <Icon className="h-4.5 w-4.5 h-5 w-5" />
+              <Icon className="h-5 w-5" />
               {label}
             </NavLink>
           ))}
