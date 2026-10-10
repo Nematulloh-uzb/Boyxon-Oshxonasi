@@ -1,0 +1,13 @@
+{
+  "name": "Boyxon Oshxonasi",
+  "short_name": "Boyxon",
+  "description": "O'zbek milliy taomlari yetkazib berish",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFF8F0",
+  "theme_color": "#E67E22",
+  "lang": "uz",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
