@@ -1,0 +1,67 @@
+import { Plus, Star, Timer } from 'lucide-react';
+import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
+import type { Dish } from '../../types';
+import { formatPrice } from '../../lib/format';
+import { useCart } from '../../hooks/useCart';
+import { DishPlaceholder } from './DishPlaceholder';
+import { Badge } from '../ui/Badge';
+
+export function DishCard({ dish }: { dish: Dish }) {
+  const { add } = useCart();
+
+  const addToCart = (): void => {
+    add({ dishId: dish._id, name: dish.name, price: dish.price, image: dish.image }, 1);
+    toast.success(`${dish.name} savatchaga qo‘shildi`);
+  };
+
+  return (
+    <article className="group overflow-hidden rounded-card border border-ink-line/60 bg-white shadow-sm transition hover:shadow-md">
+      <Link to={`/dish/${dish.slug || dish._id}`} className="block">
+        {dish.image ? (
+          <img
+            src={dish.image}
+            alt={dish.name}
+            loading="lazy"
+            className="aspect-[4/3] w-full rounded-t-[20px] object-cover"
+          />
+        ) : (
+          <DishPlaceholder />
+        )}
+      </Link>
+      <div className="flex flex-col gap-2 p-3">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="line-clamp-1 font-display font-semibold text-ink-900">{dish.name}</h3>
+          <span className="flex shrink-0 items-center gap-1 text-xs font-semibold text-ink-700">
+            <Star className="h-3.5 w-3.5 fill-[#FDAB12] text-[#FDAB12]" />
+            {dish.rating.toFixed(1)}
+          </span>
+        </div>
+        <p className="line-clamp-2 text-sm text-ink-300">{dish.description}</p>
+        <div className="flex items-center gap-3 text-xs text-ink-300">
+          <span className="flex items-center gap-1">
+            <Timer className="h-3.5 w-3.5" />
+            {dish.deliveryTime} daq
+          </span>
+          {dish.tags.includes('vegetarian') && <Badge tone="success">Parhez</Badge>}
+          {dish.isFeatured && <Badge tone="promo">Top</Badge>}
+        </div>
+        <div className="mt-1 flex items-center justify-between gap-2">
+          <div>
+            <p className="text-base font-bold text-ink-900">{formatPrice(dish.price)}</p>
+            {dish.oldPrice ? (
+              <p className="text-xs text-ink-300 line-through">{formatPrice(dish.oldPrice)}</p>
+            ) : null}
+          </div>
+          <button
+            onClick={addToCart}
+            aria-label="Savatchaga qo‘shish"
+            className="grid h-10 w-10 place-items-center rounded-full bg-primary-500 text-white transition hover:bg-primary-600 active:scale-95"
+          >
+            <Plus className="h-5 w-5" />
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+}
