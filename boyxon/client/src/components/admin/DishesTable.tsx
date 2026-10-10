@@ -1,7 +1,6 @@
 import { Pencil, Power, Trash2 } from 'lucide-react';
 import type { Dish } from '../../types';
 import { formatPrice } from '../../lib/format';
-import { DishPlaceholder } from '../dish/DishPlaceholder';
 
 interface Props {
   dishes: Dish[];
