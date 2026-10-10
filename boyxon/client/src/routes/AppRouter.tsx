@@ -1,5 +1,5 @@
 import { Suspense, lazy } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { Layout } from '../components/layout/Layout';
 import { ProtectedRoute } from './ProtectedRoute';
 import { AdminRoute } from './AdminRoute';
@@ -17,6 +17,7 @@ const AdminUsers = lazy(() => import('../pages/admin/AdminUsers'));
 const AdminCategories = lazy(() => import('../pages/admin/AdminCategories'));
 const AdminPromos = lazy(() => import('../pages/admin/AdminPromos'));
 const AdminPush = lazy(() => import('../pages/admin/AdminPush'));
+const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 
 function Fallback() {
   return <div className="min-h-screen grid place-items-center text-ink-300">Yuklanmoqda...</div>;
@@ -42,7 +43,7 @@ export function AppRouter() {
           <Route path="promos" element={<AdminPromos />} />
           <Route path="push" element={<AdminPush />} />
         </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
   );

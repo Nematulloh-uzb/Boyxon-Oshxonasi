@@ -110,9 +110,14 @@ e) Notification prefs → push hurmat qiladi. f) Til uz/ru/en → matn yangilana
 ## Tuzilma
 
 ```
-boyxon/
-├── client/   # React 18 + Vite + TS + Tailwind + shadcn
-├── server/   # Express + TS + Mongoose + Socket.IO
-├── docker-compose.yml
-└── README.md (shu fayl)
+boyxon-oshxonasi/        # repo ildizi
+├── boyxon/
+│   ├── client/          # React 18 + Vite + TS + Tailwind + shadcn
+│   ├── server/          # Express + TS + Mongoose + Socket.IO
+│   └── README.md        # shu fayl
+└── docker-compose.yml   # lokal Mongo (repo ildizida)
 ```
+
+> `docker-compose.yml` — Atlas o'rniga lokal MongoDB ishlatmoqchi bo'lsangiz:
+> `docker compose up -d`, so'ng `server/.env` da
+> `MONGODB_URI=mongodb://localhost:27017/boyxon`.
