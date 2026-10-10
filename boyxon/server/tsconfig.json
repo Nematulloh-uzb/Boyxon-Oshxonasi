@@ -16,5 +16,5 @@
     "types": ["node"]
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "src/utils/test-e2e.ts", "src/utils/test-seed-data.ts"]
+  "exclude": ["node_modules", "dist", "src/utils/test-e2e.ts", "src/utils/test-seed-data.ts", "src/run-local.ts"]
 }
