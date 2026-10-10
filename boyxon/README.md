@@ -19,23 +19,42 @@ Cloudinary rasmlar, to'liq admin panel.
 
 ## Tez boshlash (local)
 
-```bash
-# 1) MongoDB Atlas URI ni sozlash
-cp boyxon/server/.env.example boyxon/server/.env
-# .env ichida MONGODB_URI ni to'ldiring
+Backend MongoDB'ga ulanishi kerak. Ikki yo'l bor:
 
+**A) `dev:local` — hoziroq ishlaydi (Atlas whitelist shart emas).**
+MongoDB'ni xotirada ko'taradi, demo ma'lumotlarni avtomatik yozadi.
+Ishlab bo'lgach ma'lumotlar tozalanadi (faqat lokal sinov uchun):
+
+```bash
+# 1) Frontend env (backend uchun .env shart emas)
 cp boyxon/client/.env.example boyxon/client/.env
 
-# 2) Backend
+# 2) Backend — xotira MongoDB + avtomatik seed
 cd boyxon/server
 npm install
-npm run seed     # admin + demo + 8 kategoriya + 24 taom + 3 promo + 5 buyurtma
-npm run dev      # http://localhost:5000
+npm run dev:local    # http://localhost:5000 (admin + 24 taom avtomatik)
 
 # 3) Frontend (yangi terminal)
 cd boyxon/client
 npm install
-npm run dev      # http://localhost:5173
+npm run dev          # http://localhost:5173
+```
+
+**B) `dev` — MongoDB Atlas (doimiy ma'lumot).**
+Atlas IP whitelist qilingandan keyin:
+
+```bash
+cp boyxon/server/.env.example boyxon/server/.env
+# .env ichida MONGODB_URI ni to'ldiring
+
+cd boyxon/server
+npm install
+npm run seed         # admin + demo + 8 kategoriya + 24 taom + 3 promo + 5 buyurtma
+npm run dev          # http://localhost:5000
+
+cd boyxon/client
+npm install
+npm run dev          # http://localhost:5173
 ```
 
 Demo loginlar (seed dan keyin):
@@ -48,10 +67,12 @@ Demo loginlar (seed dan keyin):
 Promo kodlar: `BOYXON20` (20% ≤30 000, min 100 000) · `WELCOME10` (10%) ·
 `FREEDEL` (8 000 chegirma, min 50 000).
 
-> **MongoDB Atlas IP whitelist:** `npm run seed` yoki `npm run dev` paytida
-> `MongooseServerSelectionError` chiqsa — IP whitelist qo'shilmagan. Atlas →
-> Network Access → Add IP Address → Allow Access from Anywhere (0.0.0.0/0)
-> yoki o'z IP manzilingizni qo'shing.
+> **MongoDB Atlas IP whitelist:** `npm run dev` (Atlas) paytida
+> `MongooseServerSelectionError: ... from an IP that isn't whitelisted`
+> chiqsa — hozirgi IP ruxsat etilmagan. Atlas → Network Access → Add IP
+> Address → Allow Access from Anywhere (0.0.0.0/0) yoki o'z IP manzilingizni
+> qo'shing. Shoshilsangiz — `npm run dev:local` ishlatishingiz mumkin
+> (whitelist shart emas).
 
 ## Test (lokal MongoDB kerak emas)
 

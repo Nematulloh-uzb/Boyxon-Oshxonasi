@@ -60,8 +60,7 @@ const DISHES: SeedDish[] = [
   { cat: 'non', name: 'Gijda Non', desc: 'Samarqandcha gijda — qalin va tuyimli.', price: 6000, rating: 4.7, time: 5 },
 ];
 
-async function seed(): Promise<void> {
-  await connectDb();
+async function seedData(): Promise<void> {
   console.log('🌱 Seed boshlandi...');
 
   await User.deleteMany({});
@@ -110,10 +109,24 @@ async function seed(): Promise<void> {
 
   void admin;
   console.log('✅ Seed tayyor: 1 admin, 1 demo, 8 kategoriya, 24 taom, 3 promo, 5 buyurtma');
-  await disconnectDb();
 }
 
-seed().catch((e) => {
-  console.error('❌ Seed xatosi:', e);
-  process.exit(1);
-});
+/**
+ * Seed ma'lumotini yozadi. DB allaqachon ulangan bo'lishi kerak.
+ * `npm run seed` (standalone) va `dev:local` (avtomatik) uchun ishlatiladi.
+ */
+export async function runSeed(): Promise<void> {
+  await seedData();
+}
+
+// Faqat to'g'ridan-to'g'ri ishga tushirilganda (npm run seed) DB ulanadi.
+if (require.main === module) {
+  connectDb()
+    .then(runSeed)
+    .then(disconnectDb)
+    .then(() => process.exit(0))
+    .catch((e) => {
+      console.error('❌ Seed xatosi:', e);
+      process.exit(1);
+    });
+}

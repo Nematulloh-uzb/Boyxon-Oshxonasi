@@ -7,7 +7,6 @@ build/
 # Boyxon oshxonasi (full-stack web)
 # ---------------------------------------------------------
 
-boyxon/
 boyxon/client/node_modules/
 boyxon/server/node_modules/
 boyxon/client/dist/
