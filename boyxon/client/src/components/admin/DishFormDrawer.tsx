@@ -50,15 +50,16 @@ export function DishFormDrawer({ open, onClose, dish, categories, onSaved }: Pro
 
   const pick = (f?: File | null): void => {
     if (!f) return;
-    if (!f.type.startsWith('image/')) return toast.error('Faqat rasm');
-    if (f.size > 5 * 1024 * 1024) return toast.error('5 MB dan kichik bo‘lsin');
+    if (!f.type.startsWith('image/')) { toast.error('Faqat rasm'); return; }
+    if (f.size > 5 * 1024 * 1024) { toast.error('5 MB dan kichik bo‘lsin'); return; }
     setFile(f);
     setPreview(URL.createObjectURL(f));
   };
 
   const submit = async (): Promise<void> => {
     if (!form.name.trim() || !form.description.trim() || !form.price || !form.category) {
-      return toast.error('Majburiy maydonlarni to‘ldiring');
+      toast.error('Majburiy maydonlarni to‘ldiring');
+      return;
     }
     setSaving(true);
     try {

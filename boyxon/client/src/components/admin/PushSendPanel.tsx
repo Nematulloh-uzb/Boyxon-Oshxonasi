@@ -18,7 +18,7 @@ export function PushSendPanel() {
   const [sending, setSending] = useState(false);
 
   const send = async (): Promise<void> => {
-    if (!title.trim() || !message.trim()) return toast.error('Sarlavha va matn kiriting');
+    if (!title.trim() || !message.trim()) { toast.error('Sarlavha va matn kiriting'); return; }
     setSending(true);
     try {
       const r = await adminApi.sendPush({ title, message, audience });

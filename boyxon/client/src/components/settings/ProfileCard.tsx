@@ -12,7 +12,7 @@ export function ProfileCard({ user }: { user: UserType }) {
 
   const onPick = async (file?: File): Promise<void> => {
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) return toast.error('Rasm 5 MB dan kichik bo‘lsin');
+    if (file.size > 5 * 1024 * 1024) { toast.error('Rasm 5 MB dan kichik bo‘lsin'); return; }
     const reader = new FileReader();
     reader.onload = async () => {
       try {

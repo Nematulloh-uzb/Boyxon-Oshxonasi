@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { pushApi } from '../api/notifications.api';
 
-function urlSafeToUint8(base64: string): Uint8Array {
+function urlSafeToUint8(base64: string): ArrayBuffer {
   const padding = '='.repeat((4 - (base64.length % 4)) % 4);
   const b64 = (base64 + padding).replace(/-/g, '+').replace(/_/g, '/');
   const raw = window.atob(b64);
-  return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
+  return Uint8Array.from([...raw].map((c) => c.charCodeAt(0))).buffer as ArrayBuffer;
 }
 
 export function usePush() {
