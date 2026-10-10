@@ -1,0 +1,40 @@
+{
+  "nav": { "home": "Menyu", "cart": "Savatcha", "settings": "Sozlamalar", "admin": "Admin" },
+  "home": {
+    "greeting": "Xush kelibsiz",
+    "search": "Taom qidirish...",
+    "featured": "Mashhur taomlar",
+    "all": "Barcha taomlar",
+    "add": "Qo‘shish",
+    "empty": "Taom topilmadi",
+    "filter": "Filtr"
+  },
+  "cart": {
+    "title": "Savatcha",
+    "empty": "Savatcha bo‘sh",
+    "emptyHint": "Menyudan mazali taomlarni tanlang",
+    "toMenu": "Menyuga o‘tish",
+    "promo": "Promo kod",
+    "apply": "Qo‘llash",
+    "delivery": "Yetkazib berish",
+    "pickup": "Olib ketish",
+    "subtotal": "Oraliq jami",
+    "deliveryFee": "Yetkazish",
+    "discount": "Chegirma",
+    "total": "Jami",
+    "checkout": "To‘lovni tasdiqlash",
+    "success": "Buyurtma qabul qilindi!",
+    "free": "Bepul"
+  },
+  "auth": {
+    "signin": "Kirish",
+    "signup": "Ro‘yxatdan o‘tish",
+    "name": "Ismingiz",
+    "email": "Email",
+    "password": "Parol",
+    "google": "Google bilan kirish",
+    "logout": "Chiqish",
+    "welcome": "Xush kelibsiz!"
+  },
+  "common": { "loading": "Yuklanmoqda...", "retry": "Qayta urinish", "save": "Saqlash", "cancel": "Bekor qilish", "close": "Yopish" }
+}

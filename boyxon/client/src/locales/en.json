@@ -1,0 +1,40 @@
+{
+  "nav": { "home": "Menu", "cart": "Cart", "settings": "Settings", "admin": "Admin" },
+  "home": {
+    "greeting": "Welcome",
+    "search": "Search dishes...",
+    "featured": "Featured dishes",
+    "all": "All dishes",
+    "add": "Add",
+    "empty": "No dishes found",
+    "filter": "Filter"
+  },
+  "cart": {
+    "title": "Cart",
+    "empty": "Cart is empty",
+    "emptyHint": "Pick tasty dishes from the menu",
+    "toMenu": "Go to menu",
+    "promo": "Promo code",
+    "apply": "Apply",
+    "delivery": "Delivery",
+    "pickup": "Pickup",
+    "subtotal": "Subtotal",
+    "deliveryFee": "Delivery",
+    "discount": "Discount",
+    "total": "Total",
+    "checkout": "Confirm payment",
+    "success": "Order accepted!",
+    "free": "Free"
+  },
+  "auth": {
+    "signin": "Sign in",
+    "signup": "Sign up",
+    "name": "Your name",
+    "email": "Email",
+    "password": "Password",
+    "google": "Continue with Google",
+    "logout": "Log out",
+    "welcome": "Welcome!"
+  },
+  "common": { "loading": "Loading...", "retry": "Retry", "save": "Save", "cancel": "Cancel", "close": "Close" }
+}

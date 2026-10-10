@@ -1,0 +1,280 @@
+import type { Request, Response } from 'express';
+import { asyncHandler } from '../utils/asyncHandler';
+import { ok, paginated } from '../utils/ApiResponse';
+import { ApiError } from '../utils/ApiError';
+import { User } from '../models/User.model';
+import { Dish } from '../models/Dish.model';
+import { Order } from '../models/Order.model';
+import { uploadBufferToCloudinary, deleteFromCloudinary } from '../services/cloudinary.service';
+import { Category } from '../models/Category.model';
+import { Promo } from '../models/Promo.model';
+import { Notification } from '../models/Notification.model';
+import { sendPushToUsers } from '../services/push.service';
+import { getIo } from '../socket';
+
+/** GET /api/admin/orders — barcha buyurtmalar (status/date filtri). */
+export const adminOrders = asyncHandler(async (req: Request, res: Response) => {
+  const page = Math.max(1, Number(req.query.page) || 1);
+  const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
+  const filter: Record<string, unknown> = {};
+  if (req.query.status) filter.status = req.query.status;
+  if (req.query.from || req.query.to) {
+    const createdAt: Record<string, Date> = {};
+    if (req.query.from) createdAt.$gte = new Date(req.query.from as string);
+    if (req.query.to) createdAt.$lte = new Date(req.query.to as string);
+    filter.createdAt = createdAt;
+  }
+  const [items, total] = await Promise.all([
+    Order.find(filter).populate('user', 'name email phone').sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit),
+    Order.countDocuments(filter),
+  ]);
+  res.json(paginated(items, page, limit, total, 'OK'));
+});
+
+/** GET /api/admin/orders/:id — buyurtma tafsiloti. */
+export const adminOrderDetail = asyncHandler(async (req: Request, res: Response) => {
+  const order = await Order.findById(req.params.id).populate('user', 'name email phone');
+  if (!order) throw ApiError.notFound('Buyurtma topilmadi');
+  res.json(ok(order, 'OK'));
+});
+
+/** PATCH /api/admin/orders/:id/status — status + socket + notification + push. */
+export const updateOrderStatus = asyncHandler(async (req: Request, res: Response) => {
+  const { status, note } = req.body as { status: string; note?: string };
+  const order = await Order.findById(req.params.id);
+  if (!order) throw ApiError.notFound('Buyurtma topilmadi');
+  order.status = status as typeof order.status;
+  order.statusHistory.push({ status, timestamp: new Date(), note });
+  if (status === 'delivered') order.deliveredAt = new Date();
+  await order.save();
+  const labels: Record<string, string> = {
+    confirmed: 'Tasdiqlandi', preparing: 'Tayyorlanmoqda', on_way: 'Yo‘lda',
+    delivered: 'Yetkazildi', cancelled: 'Bekor qilindi',
+  };
+  const msg = `Buyurtma ${order.orderNumber}: ${labels[status] ?? status}`;
+  const userId = order.user.toString();
+  await Notification.create({ user: userId, type: 'order', title: 'Buyurtma holati', message: msg, link: `/orders/${order.id}` });
+  const u = await User.findById(userId);
+  if (u?.notificationPrefs.pushEnabled && u?.notificationPrefs.orderUpdates) {
+    sendPushToUsers([userId], { title: 'Boyxon Oshxonasi', message: msg, url: `/orders/${order.id}` }).catch(() => undefined);
+  }
+  getIo()?.to(`user:${userId}`).emit('order:status', { orderId: order.id, status, message: msg });
+  getIo()?.to('admin').emit('order:updated', { orderId: order.id, status });
+  res.json(ok(order, msg));
+});
+
+/** GET /api/admin/categories — barcha kategoriyalar. */
+export const adminCategories = asyncHandler(async (_req: Request, res: Response) => {
+  res.json(ok(await Category.find().sort({ order: 1 }), 'OK'));
+});
+
+/** POST /api/admin/categories — yaratish. */
+export const createCategory = asyncHandler(async (req: Request, res: Response) => {
+  const item = await Category.create(req.body);
+  res.status(201).json(ok(item, 'Kategoriya yaratildi'));
+});
+
+/** PATCH /api/admin/categories/:id — yangilash. */
+export const updateCategory = asyncHandler(async (req: Request, res: Response) => {
+  const item = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+  if (!item) throw ApiError.notFound('Kategoriya topilmadi');
+  res.json(ok(item, 'Kategoriya yangilandi'));
+});
+
+/** DELETE /api/admin/categories/:id — o'chirish. */
+export const deleteCategory = asyncHandler(async (req: Request, res: Response) => {
+  const used = await Dish.countDocuments({ category: req.params.id, isActive: true });
+  if (used > 0) throw ApiError.badRequest('Bu kategoriyada faol taomlar bor');
+  await Category.findByIdAndDelete(req.params.id);
+  res.json(ok(null, 'Kategoriya o‘chirildi'));
+});
+
+/** GET /api/admin/users — barcha userlar. */
+export const adminUsers = asyncHandler(async (req: Request, res: Response) => {
+  const page = Math.max(1, Number(req.query.page) || 1);
+  const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
+  const filter: Record<string, unknown> = {};
+  if (req.query.search) {
+    filter.$or = [{ name: { $regex: req.query.search, $options: 'i' } }, { email: { $regex: req.query.search, $options: 'i' } }];
+  }
+  const [items, total] = await Promise.all([
+    User.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit),
+    User.countDocuments(filter),
+  ]);
+  res.json(paginated(items, page, limit, total, 'OK'));
+});
+
+/** PATCH /api/admin/users/:id/role — rol o'zgartirish. */
+export const changeRole = asyncHandler(async (req: Request, res: Response) => {
+  const user = await User.findByIdAndUpdate(req.params.id, { role: (req.body as { role: string }).role }, { new: true });
+  if (!user) throw ApiError.notFound('Foydalanuvchi topilmadi');
+  res.json(ok(user, 'Rol yangilandi'));
+});
+
+/** PATCH /api/admin/users/:id/block — bloklash/ochish. */
+export const toggleBlock = asyncHandler(async (req: Request, res: Response) => {
+  const user = await User.findById(req.params.id);
+  if (!user) throw ApiError.notFound('Foydalanuvchi topilmadi');
+  user.isActive = !(req.body as { block?: boolean }).block;
+  await user.save();
+  res.json(ok(user, user.isActive ? 'Blokdan chiqarildi' : 'Bloklandi'));
+});
+
+/** GET /api/admin/promos — barcha promolar. */
+export const adminPromos = asyncHandler(async (_req: Request, res: Response) => {
+  res.json(ok(await Promo.find().sort({ createdAt: -1 }), 'OK'));
+});
+
+/** POST /api/admin/promos — yaratish. */
+export const createPromo = asyncHandler(async (req: Request, res: Response) => {
+  const item = await Promo.create({ ...(req.body as object), code: (req.body as { code: string }).code.toUpperCase() });
+  res.status(201).json(ok(item, 'Promo yaratildi'));
+});
+
+/** PATCH /api/admin/promos/:id — yangilash. */
+export const updatePromo = asyncHandler(async (req: Request, res: Response) => {
+  const body = { ...(req.body as Record<string, unknown>) };
+  if (typeof body.code === 'string') body.code = body.code.toUpperCase();
+  const item = await Promo.findByIdAndUpdate(req.params.id, body, { new: true, runValidators: true });
+  if (!item) throw ApiError.notFound('Promo topilmadi');
+  res.json(ok(item, 'Promo yangilandi'));
+});
+
+/** DELETE /api/admin/promos/:id — o'chirish. */
+export const deletePromo = asyncHandler(async (req: Request, res: Response) => {
+  await Promo.findByIdAndDelete(req.params.id);
+  res.json(ok(null, 'Promo o‘chirildi'));
+});
+
+/** POST /api/admin/push/send — auditoriyaga push + in-app. */
+export const sendPush = asyncHandler(async (req: Request, res: Response) => {
+  const { title, message, audience } = req.body as { title: string; message: string; audience: string };
+  let users: { _id: unknown }[] = [];
+  if (audience === 'all') users = await User.find({ isActive: true }, '_id');
+  else if (audience === 'active') users = await User.find({ isActive: true, lastLoginAt: { $gte: new Date(Date.now() - 30 * 864e5) } }, '_id');
+  else if (audience === 'new') users = await User.find({ isActive: true, createdAt: { $gte: new Date(Date.now() - 7 * 864e5) } }, '_id');
+  else if (audience.startsWith('user:')) users = [{ _id: audience.slice(5) }];
+  else throw ApiError.badRequest('Audience: all | active | new | user:<id>');
+  const ids = users.map((x) => String(x._id));
+  await Notification.insertMany(ids.map((id) => ({ user: id, type: 'promo', title, message })));
+  const sent = await sendPushToUsers(ids, { title, message }).catch(() => 0);
+  res.json(ok({ recipients: ids.length, sent }, `${ids.length} kishiga yuborildi`));
+});
+
+function parseTags(raw: unknown): string[] {
+  if (Array.isArray(raw)) return raw.map(String);
+  if (typeof raw === 'string') {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed.map(String);
+    } catch { /* plain */ }
+    return raw.split(',').map((t) => t.trim()).filter(Boolean);
+  }
+  return [];
+}
+
+/** GET /api/admin/stats — dashboard KPI lar. */
+export const stats = asyncHandler(async (_req: Request, res: Response) => {
+  const [users, dishes, pendingOrders, revenueAgg, recentOrders] = await Promise.all([
+    User.countDocuments({ isActive: true }),
+    Dish.countDocuments({ isActive: true }),
+    Order.countDocuments({ status: { $in: ['pending', 'confirmed', 'preparing', 'on_way'] } }),
+    Order.aggregate([
+      { $match: { status: { $ne: 'cancelled' } } },
+      { $group: { _id: null, total: { $sum: '$total' }, count: { $sum: 1 } } },
+    ]),
+    Order.find().populate('user', 'name').sort({ createdAt: -1 }).limit(10),
+  ]);
+  res.json(
+    ok(
+      { users, dishes, pendingOrders, revenue: revenueAgg[0]?.total ?? 0, ordersCount: revenueAgg[0]?.count ?? 0, recentOrders },
+      'OK',
+    ),
+  );
+});
+
+/** GET /api/admin/dishes — barcha taomlar (filtr + pagination). */
+export const adminDishes = asyncHandler(async (req: Request, res: Response) => {
+  const page = Math.max(1, Number(req.query.page) || 1);
+  const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
+  const filter: Record<string, unknown> = {};
+  if (req.query.search) filter.name = { $regex: req.query.search, $options: 'i' };
+  if (req.query.category) filter.category = req.query.category;
+  if (req.query.isActive !== undefined) filter.isActive = req.query.isActive === 'true';
+  const [items, total] = await Promise.all([
+    Dish.find(filter).populate('category', 'name slug').sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit),
+    Dish.countDocuments(filter),
+  ]);
+  res.json(paginated(items, page, limit, total, 'OK'));
+});
+
+/** POST /api/admin/dishes — taom yaratish (multipart, rasm ixtiyoriy). */
+export const createDish = asyncHandler(async (req: Request, res: Response) => {
+  const body = req.body as Record<string, string>;
+  let image: string | null = null;
+  let imagePublicId: string | undefined;
+  if (req.file) {
+    const up = await uploadBufferToCloudinary(req.file.buffer);
+    image = up.url;
+    imagePublicId = up.publicId;
+  }
+  const dish = await Dish.create({
+    name: body.name,
+    nameRu: body.nameRu,
+    nameEn: body.nameEn,
+    description: body.description,
+    descriptionRu: body.descriptionRu,
+    descriptionEn: body.descriptionEn,
+    price: Number(body.price),
+    oldPrice: body.oldPrice ? Number(body.oldPrice) : undefined,
+    category: body.category,
+    deliveryTime: body.deliveryTime ? Number(body.deliveryTime) : 30,
+    calories: body.calories ? Number(body.calories) : undefined,
+    tags: parseTags(body.tags),
+    image,
+    imagePublicId,
+    isActive: body.isActive !== 'false',
+    isFeatured: body.isFeatured === 'true',
+  });
+  res.status(201).json(ok(dish, 'Taom yaratildi'));
+});
+
+/** PATCH /api/admin/dishes/:id — taomni yangilash. */
+export const updateDish = asyncHandler(async (req: Request, res: Response) => {
+  const dish = await Dish.findById(req.params.id);
+  if (!dish) throw ApiError.notFound('Taom topilmadi');
+  const body = req.body as Record<string, string>;
+  if (req.file) {
+    if (dish.imagePublicId) await deleteFromCloudinary(dish.imagePublicId);
+    const up = await uploadBufferToCloudinary(req.file.buffer);
+    dish.image = up.url;
+    dish.imagePublicId = up.publicId;
+  }
+  const fields = ['name', 'nameRu', 'nameEn', 'description', 'descriptionRu', 'descriptionEn', 'category'];
+  for (const f of fields) if (body[f] !== undefined) (dish as unknown as Record<string, unknown>)[f] = body[f];
+  if (body.price !== undefined) dish.price = Number(body.price);
+  if (body.oldPrice !== undefined) dish.oldPrice = body.oldPrice ? Number(body.oldPrice) : undefined;
+  if (body.deliveryTime !== undefined) dish.deliveryTime = Number(body.deliveryTime);
+  if (body.calories !== undefined) dish.calories = body.calories ? Number(body.calories) : undefined;
+  if (body.tags !== undefined) dish.tags = parseTags(body.tags);
+  if (body.isActive !== undefined) dish.isActive = body.isActive === 'true' || body.isActive === '1';
+  if (body.isFeatured !== undefined) dish.isFeatured = body.isFeatured === 'true' || body.isFeatured === '1';
+  await dish.save();
+  res.json(ok(dish, 'Taom yangilandi'));
+});
+
+/** DELETE /api/admin/dishes/:id — soft delete. */
+export const deleteDish = asyncHandler(async (req: Request, res: Response) => {
+  const dish = await Dish.findByIdAndUpdate(req.params.id, { isActive: false }, { new: true });
+  if (!dish) throw ApiError.notFound('Taom topilmadi');
+  res.json(ok(dish, 'Taom o‘chirildi'));
+});
+
+/** PATCH /api/admin/dishes/:id/toggle — aktiv/deaktiv. */
+export const toggleDish = asyncHandler(async (req: Request, res: Response) => {
+  const dish = await Dish.findById(req.params.id);
+  if (!dish) throw ApiError.notFound('Taom topilmadi');
+  dish.isActive = !dish.isActive;
+  await dish.save();
+  res.json(ok(dish, dish.isActive ? 'Faollashtirildi' : 'Deaktiv qilindi'));
+});

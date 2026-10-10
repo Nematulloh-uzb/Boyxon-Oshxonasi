@@ -1,0 +1,58 @@
+import { Link } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Home, LogOut, Settings, ShieldCheck, ShoppingBag, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { useUiStore } from '../../store/ui.store';
+import { useAuthStore } from '../../store/auth.store';
+
+export function MobileDrawer() {
+  const { t } = useTranslation();
+  const { mobileDrawer, set } = useUiStore();
+  const { user, accessToken, logout } = useAuthStore();
+  const close = (): void => set({ mobileDrawer: false });
+
+  return (
+    <AnimatePresence>
+      {mobileDrawer && (
+        <>
+          <motion.div className="fixed inset-0 z-40 bg-black/40" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={close} />
+          <motion.aside
+            className="fixed left-0 top-0 z-50 flex h-full w-72 flex-col bg-white p-4"
+            initial={{ x: '-100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '-100%' }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+          >
+            <div className="flex items-center justify-between">
+              <span className="font-display text-lg font-extrabold text-primary-600">Boyxon</span>
+              <button onClick={close} className="rounded-full p-2 hover:bg-black/5" aria-label="Yopish"><X className="h-5 w-5" /></button>
+            </div>
+            {user && <p className="mt-2 text-sm text-ink-300">{user.name}</p>}
+            <nav className="mt-4 flex flex-col gap-1 text-[15px] font-medium">
+              <Link to="/" onClick={close} className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-black/5"><Home className="h-5 w-5" />{t('nav.home')}</Link>
+              <Link to="/cart" onClick={close} className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-black/5"><ShoppingBag className="h-5 w-5" />{t('nav.cart')}</Link>
+              <Link to="/settings" onClick={close} className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-black/5"><Settings className="h-5 w-5" />{t('nav.settings')}</Link>
+              {user?.role === 'admin' && (
+                <Link to="/admin" onClick={close} className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-black/5"><ShieldCheck className="h-5 w-5" />{t('nav.admin')}</Link>
+              )}
+            </nav>
+            <div className="mt-auto">
+              {accessToken ? (
+                <button
+                  onClick={() => { logout(); close(); }}
+                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-danger hover:bg-danger/10"
+                >
+                  <LogOut className="h-5 w-5" />{t('auth.logout')}
+                </button>
+              ) : (
+                <Link to="/auth" onClick={close} className="block rounded-full bg-primary-500 py-3 text-center font-semibold text-white">
+                  {t('auth.signin')}
+                </Link>
+              )}
+            </div>
+          </motion.aside>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
