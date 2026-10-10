@@ -1,7 +1,11 @@
 import dotenv from 'dotenv';
-import { z } from 'zod';
+import { fileURLToPath } from 'url';
+import path from 'node:path';
 
-dotenv.config();
+// .env — server papkasidan qat'iy joylash
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const envPath = path.resolve(__dirname, '.env');
+dotenv.config({ path: envPath });
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
