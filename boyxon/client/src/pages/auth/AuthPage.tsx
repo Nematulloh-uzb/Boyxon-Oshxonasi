@@ -42,3 +42,81 @@ export default function AuthPage() {
     </div>
   );
 }
+
+function AuthForm({ from, onDone }: { from: string; onDone: (token: string, u: User) => void }) {
+  const [tab, setTab] = useState<'signin' | 'signup'>('signin');
+  const googleUrl = authApi.googleUrl();
+
+  const loginForm = useForm<LoginForm>({ resolver: zodResolver(loginValidator), defaultValues: { email: '', password: '' } });
+  const regForm = useForm<RegisterForm>({ resolver: zodResolver(registerValidator), defaultValues: { name: '', email: '', password: '' } });
+
+  const onLogin = loginForm.handleSubmit(async (v) => {
+    try {
+      const r = await authApi.login(v);
+      onDone(r.data.accessToken, r.data.user);
+      toast.success('Xush kelibsiz!');
+    } catch (e) {
+      toast.error((e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Kirishda xato');
+    }
+  });
+
+  const onRegister = regForm.handleSubmit(async (v) => {
+    try {
+      const r = await authApi.register(v);
+      onDone(r.data.accessToken, r.data.user);
+      toast.success('Ro‘yxatdan o‘tdingiz!');
+    } catch (e) {
+      toast.error((e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Xatolik');
+    }
+  });
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+      <div className="mb-6 grid grid-cols-2 gap-1 rounded-2xl bg-[#F5EFE7] p-1">
+        {(['signin', 'signup'] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`rounded-xl py-2.5 text-sm font-semibold transition ${tab === t ? 'bg-white text-primary-700 shadow-sm' : 'text-ink-300'}`}
+          >
+            {t === 'signin' ? 'Kirish' : 'Ro‘yxatdan o‘tish'}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'signin' ? (
+        <form onSubmit={onLogin} className="space-y-3">
+          <Input type="email" placeholder="Email" {...loginForm.register('email')} />
+          <Input type="password" placeholder="Parol" {...loginForm.register('password')} />
+          <p className="min-h-4 text-xs text-danger">
+            {loginForm.formState.errors.email?.message ?? loginForm.formState.errors.password?.message}
+          </p>
+          <Button type="submit" className="w-full" disabled={loginForm.formState.isSubmitting}>
+            {loginForm.formState.isSubmitting ? '...' : 'Kirish'}
+          </Button>
+        </form>
+      ) : (
+        <form onSubmit={onRegister} className="space-y-3">
+          <Input placeholder="Ismingiz" {...regForm.register('name')} />
+          <Input type="email" placeholder="Email" {...regForm.register('email')} />
+          <Input type="password" placeholder="Parol (6+ belgi)" {...regForm.register('password')} />
+          <p className="min-h-4 text-xs text-danger">
+            {regForm.formState.errors.name?.message ?? regForm.formState.errors.email?.message ?? regForm.formState.errors.password?.message}
+          </p>
+          <Button type="submit" className="w-full" disabled={regForm.formState.isSubmitting}>
+            {regForm.formState.isSubmitting ? '...' : 'Ro‘yxatdan o‘tish'}
+          </Button>
+        </form>
+      )}
+
+      <div className="my-4 flex items-center gap-3 text-xs text-ink-300">
+        <span className="h-px flex-1 bg-ink-line" /> YOKI <span className="h-px flex-1 bg-ink-line" />
+      </div>
+      <a href={googleUrl} className="flex h-12 w-full items-center justify-center gap-2 rounded-full border border-ink-line bg-white text-[15px] font-medium">
+        <svg className="h-5 w-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.76h3.56c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.56-2.76c-.98.66-2.23 1.06-3.72 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15A11 11 0 0 0 2.18 7.06L5.84 9.9c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+        Google bilan kirish
+      </a>
+      <p className="mt-4 text-center text-xs text-ink-300">Demo: aziz@example.com / User123!</p>
+    </motion.div>
+  );
+}
