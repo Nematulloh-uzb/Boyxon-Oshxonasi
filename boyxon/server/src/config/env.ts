@@ -1,11 +1,20 @@
 import dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
-import path from 'node:path';
+import { z } from 'zod';
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 
-// .env — server papkasidan qat'iy joylash
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const envPath = path.resolve(__dirname, '.env');
-dotenv.config({ path: envPath });
+// .env — server papkasidan qat'iy joylash (CommonJS/tsc uchun xavfsiz)
+const candidatePaths = [
+  resolve(process.cwd(), 'boyxon', 'server', '.env'),
+  resolve(process.cwd(), 'server', '.env'),
+  resolve(process.cwd(), '.env'),
+];
+for (const p of candidatePaths) {
+  if (existsSync(p)) {
+    dotenv.config({ path: p });
+    break;
+  }
+}
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
