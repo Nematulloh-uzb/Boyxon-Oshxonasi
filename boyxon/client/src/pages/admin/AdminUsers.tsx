@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { adminApi } from '../../api/admin.api';
 import { UsersTable } from '../../components/admin/UsersTable';
 import { useDebounce } from '../../hooks/useDebounce';
 
 export default function AdminUsers() {
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const debounced = useDebounce(search, 400);
   const { data, isLoading } = useQuery({
