@@ -1,26 +1,29 @@
 import { useRef } from 'react';
 import { Camera, User } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import type { User as UserType } from '../../types';
 import { Card } from '../ui/Card';
 import { usersApi } from '../../api/users.api';
 import { useAuthStore } from '../../store/auth.store';
+import { formatPrice } from '../../lib/format';
 
 export function ProfileCard({ user }: { user: UserType }) {
+  const { t } = useTranslation();
   const setUser = useAuthStore((s) => s.setUser);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const onPick = async (file?: File): Promise<void> => {
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { toast.error('Rasm 5 MB dan kichik bo‘lsin'); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error(t('profile.image_too_large')); return; }
     const reader = new FileReader();
     reader.onload = async () => {
       try {
         const r = await usersApi.updateMe({ avatar: String(reader.result) });
         setUser(r.data);
-        toast.success('Avatar yangilandi');
+        toast.success(t('profile.avatar_updated'));
       } catch {
-        toast.error('Avatarni saqlab bo‘lmadi');
+        toast.error(t('profile.avatar_error'));
       }
     };
     reader.readAsDataURL(file);
