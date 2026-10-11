@@ -17,14 +17,15 @@ export default function App() {
   }, [accessToken, user, setUser]);
 
   useEffect(() => {
-    if (user?.preferences.language && user.preferences.language !== i18n.language) {
-      void i18n.changeLanguage(user.preferences.language);
+    const lang = user?.preferences?.language;
+    if (lang && lang !== i18n.language) {
+      void i18n.changeLanguage(lang);
     }
   }, [user, i18n]);
 
   useEffect(() => {
     // Tema: user preference ustuvor, aks holda localStorage (guest), default DARK
-    const theme = user?.preferences.theme ?? localStorage.getItem('boyxon-theme') ?? 'dark';
+    const theme = user?.preferences?.theme ?? localStorage.getItem('boyxon-theme') ?? 'dark';
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [user]);
 

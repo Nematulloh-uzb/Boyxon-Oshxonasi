@@ -30,11 +30,11 @@ export function Header() {
   // Tema toggle — guest uchun ham ishlaydi (localStorage'da saqlanadi)
   const [theme, setTheme] = useState<Theme>(() => {
     const stored = localStorage.getItem('boyxon-theme') as Theme | null;
-    return stored ?? user?.preferences.theme ?? currentTheme();
+    return stored ?? user?.preferences?.theme ?? currentTheme();
   });
   useEffect(() => {
     // Login bo'lgan user'da server preference ustuvor; aks holda localStorage
-    const t = user?.preferences.theme ?? theme;
+    const t = user?.preferences?.theme ?? theme;
     document.documentElement.classList.toggle('dark', t === 'dark');
     localStorage.setItem('boyxon-theme', t);
     setTheme(t);

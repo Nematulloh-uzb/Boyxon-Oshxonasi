@@ -7,7 +7,7 @@ const LOCALE_MAP: Record<string, string> = {
 };
 
 function currentLocale(): string {
-  return LOCALE_MAP[i18n.language] ?? 'uz-UZ';
+  return LOCALE_MAP[i18n.language ?? 'uz'] ?? 'uz-UZ';
 }
 
 /** 45000 -> "45 000 so'm" (currency comes from locale key "common.currency") */

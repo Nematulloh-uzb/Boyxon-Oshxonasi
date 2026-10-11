@@ -28,7 +28,7 @@ export function CheckoutSheet() {
   const [deliveryType, setDeliveryType] = useState<'delivery' | 'pickup'>('delivery');
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [addressId, setAddressId] = useState<string>(
-    user?.addresses.find((a) => a.isDefault)?._id ?? user?.addresses[0]?._id ?? '',
+    user?.addresses?.find((a) => a.isDefault)?._id ?? user?.addresses?.[0]?._id ?? '',
   );
   const [notes, setNotes] = useState('');
   const [created, setCreated] = useState<Order | null>(null);
