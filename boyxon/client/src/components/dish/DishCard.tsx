@@ -57,7 +57,7 @@ export function DishCard({ dish }: { dish: Dish }) {
           </div>
           <button
             onClick={addToCart}
-            aria-label="Savatchaga qo‘shish"
+            aria-label={t('dish.add')}
             className="grid h-10 w-10 place-items-center rounded-full bg-primary-500 text-white transition hover:bg-primary-600 active:scale-95"
           >
             <Plus className="h-5 w-5" />
