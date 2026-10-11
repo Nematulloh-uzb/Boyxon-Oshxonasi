@@ -68,7 +68,7 @@ export default function HomePage() {
       {/* Salom + qidiruv */}
       <div className="mb-4">
         <p className="text-sm text-ink-300">{t('home.greeting')} 👋</p>
-        <h1 className="font-display text-2xl font-extrabold text-ink-900">Bugun nima yeysiz?</h1>
+        <h1 className="font-display text-2xl font-extrabold text-ink-900">{t('home.title')}</h1>
       </div>
 
       <div className="mb-5 flex gap-2">
@@ -77,14 +77,14 @@ export default function HomePage() {
           <input
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            placeholder={t('home.search')}
+            placeholder={t('home.search_placeholder')}
             className="h-12 w-full rounded-full border border-ink-line bg-surface pl-11 pr-4 text-[15px] outline-none focus:border-primary-500"
           />
         </div>
         <button
           onClick={() => setFilterOpen(true)}
           className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-ink-line bg-surface text-ink-700"
-          aria-label={t('home.filter')}
+          aria-label={t('filter.title')}
         >
           <SlidersHorizontal className="h-5 w-5" />
         </button>
@@ -92,9 +92,9 @@ export default function HomePage() {
 
       {/* Hero banner (rasm yo'q) */}
       <div className="mb-6 overflow-hidden rounded-card bg-gradient-to-r from-primary-500 to-primary-700 p-6 text-white">
-        <p className="text-sm text-white/80">Yangi mavsum</p>
-        <p className="font-display text-2xl font-extrabold">Yetkazib bepul — 150 000 so‘mdan yuqori!</p>
-        <p className="mt-1 text-sm text-white/80">Promo: WELCOME10 — birinchi buyurtmaga 10%</p>
+        <p className="text-sm text-white/80">{t('home.new_season')}</p>
+        <p className="font-display text-2xl font-extrabold">{t('home.promo_title')}</p>
+        <p className="mt-1 text-sm text-white/80">{t('home.promo_code')}</p>
       </div>
 
       {/* Kategoriyalar */}
