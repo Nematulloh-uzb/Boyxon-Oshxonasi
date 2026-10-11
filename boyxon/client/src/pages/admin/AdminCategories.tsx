@@ -13,6 +13,7 @@ import type { Category } from '../../types';
 const empty = { name: '', slug: '', icon: '', order: '0' };
 
 export default function AdminCategories() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Category | null>(null);
