@@ -145,7 +145,7 @@ export function DishFormDrawer({ open, onClose, dish, categories, onSaved }: Pro
           </div>
         </div>
         <div>
-          <label className="mb-1 block text-xs font-semibold text-ink-700">Teglar (vergul bilan)</label>
+          <label className="mb-1 block text-xs font-semibold text-ink-700">{t('admin.dish_tags')}</label>
           <input className={inputCls} placeholder="top, vegetarian" value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} />
         </div>
         <div className="flex gap-3">
