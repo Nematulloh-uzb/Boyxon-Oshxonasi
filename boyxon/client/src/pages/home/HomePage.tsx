@@ -128,15 +128,15 @@ export default function HomePage() {
       {/* Barcha taomlar */}
       <section>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-display text-lg font-bold">{t('home.all')}</h2>
-          <span className="text-sm text-ink-300">{data?.pagination.total ?? 0} ta</span>
+          <h2 className="font-display text-lg font-bold">{t('home.all_dishes')}</h2>
+          <span className="text-sm text-ink-300">{t('home.items_count', { count: data?.pagination.total ?? 0 })}</span>
         </div>
 
         {isError ? (
           <div className="rounded-card bg-danger/10 p-6 text-center">
-            <p className="text-sm text-danger">Ma’lumotni yuklab bo‘lmadi</p>
+            <p className="text-sm text-danger">{t('home.load_error')}</p>
             <button onClick={() => void refetch()} className="mt-2 text-sm font-semibold text-primary-600">
-              Qayta urinish
+              {t('common.retry')}
             </button>
           </div>
         ) : (
@@ -150,7 +150,7 @@ export default function HomePage() {
               onClick={() => setPage((p) => p - 1)}
               className="h-10 rounded-full border border-ink-line px-4 text-sm disabled:opacity-40"
             >
-              ← Oldingi
+              ← {t('common.prev')}
             </button>
             <span className="px-2 text-sm text-ink-300">{page} / {pages}</span>
             <button
@@ -158,7 +158,7 @@ export default function HomePage() {
               onClick={() => setPage((p) => p + 1)}
               className="h-10 rounded-full border border-ink-line px-4 text-sm disabled:opacity-40"
             >
-              Keyingi →
+              {t('common.next')} →
             </button>
           </div>
         )}
