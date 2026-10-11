@@ -1,4 +1,5 @@
 import { Pencil, Power, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { Dish } from '../../types';
 import { formatPrice } from '../../lib/format';
 
@@ -11,20 +12,21 @@ interface Props {
 }
 
 export function DishesTable({ dishes, loading, onEdit, onToggle, onDelete }: Props) {
-  if (loading) return <div className="rounded-card bg-surface p-6 text-center text-ink-300">Yuklanmoqda...</div>;
-  if (!dishes.length) return <div className="rounded-card bg-surface p-6 text-center text-ink-300">Taomlar yo‘q</div>;
+  const { t } = useTranslation();
+  if (loading) return <div className="rounded-card bg-surface p-6 text-center text-ink-300">{t('common.loading')}</div>;
+  if (!dishes.length) return <div className="rounded-card bg-surface p-6 text-center text-ink-300">{t('admin.dishes_empty')}</div>;
 
   return (
     <div className="overflow-x-auto rounded-card bg-surface shadow-sm">
       <table className="w-full min-w-[720px] text-sm">
         <thead className="border-b border-ink-line bg-surface-raised text-left text-xs text-ink-300">
           <tr>
-            <th className="px-4 py-3">Taom</th>
-            <th className="px-4 py-3">Narx</th>
-            <th className="px-4 py-3">Kategoriya</th>
-            <th className="px-4 py-3">Reyting</th>
-            <th className="px-4 py-3">Holat</th>
-            <th className="px-4 py-3 text-right">Amallar</th>
+            <th className="px-4 py-3">{t('admin.col_dish')}</th>
+            <th className="px-4 py-3">{t('admin.col_price')}</th>
+            <th className="px-4 py-3">{t('admin.col_category')}</th>
+            <th className="px-4 py-3">{t('admin.col_rating')}</th>
+            <th className="px-4 py-3">{t('admin.col_status')}</th>
+            <th className="px-4 py-3 text-right">{t('admin.col_actions')}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-ink-line/60">
@@ -36,7 +38,7 @@ export function DishesTable({ dishes, loading, onEdit, onToggle, onDelete }: Pro
                     {d.image ? (
                       <img src={d.image} alt={d.name} className="h-full w-full object-cover" />
                     ) : (
-                      <div className="grid h-full w-full place-items-center bg-muted text-[10px] text-ink-300">yo‘q</div>
+                      <div className="grid h-full w-full place-items-center bg-muted text-[10px] text-ink-300">{t('dish.no_image')}</div>
                     )}
                   </div>
                   <span className="font-medium">{d.name}</span>
@@ -47,14 +49,14 @@ export function DishesTable({ dishes, loading, onEdit, onToggle, onDelete }: Pro
               <td className="px-4 py-3">{d.rating.toFixed(1)}</td>
               <td className="px-4 py-3">
                 <span className={`rounded-full px-2 py-1 text-xs font-semibold ${d.isActive ? 'bg-success/10 text-success' : 'bg-surface-raised text-ink-300'}`}>
-                  {d.isActive ? 'Faol' : 'Nofaol'}
+                  {d.isActive ? t('common.active') : t('common.inactive')}
                 </span>
               </td>
               <td className="px-4 py-3">
                 <div className="flex justify-end gap-1">
-                  <button onClick={() => onEdit(d)} className="rounded-lg p-2 hover:bg-surface-raised" aria-label="Tahrirlash"><Pencil className="h-4 w-4" /></button>
-                  <button onClick={() => onToggle(d)} className="rounded-lg p-2 hover:bg-surface-raised" aria-label="Yoqish/o‘chirish"><Power className="h-4 w-4" /></button>
-                  <button onClick={() => onDelete(d)} className="rounded-lg p-2 text-danger hover:bg-danger/10" aria-label="O‘chirish"><Trash2 className="h-4 w-4" /></button>
+                  <button onClick={() => onEdit(d)} className="rounded-lg p-2 hover:bg-surface-raised" aria-label={t('common.edit')}><Pencil className="h-4 w-4" /></button>
+                  <button onClick={() => onToggle(d)} className="rounded-lg p-2 hover:bg-surface-raised" aria-label={t('admin.toggle')}><Power className="h-4 w-4" /></button>
+                  <button onClick={() => onDelete(d)} className="rounded-lg p-2 text-danger hover:bg-danger/10" aria-label={t('common.delete')}><Trash2 className="h-4 w-4" /></button>
                 </div>
               </td>
             </tr>
