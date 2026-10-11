@@ -1,11 +1,13 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { authApi } from '../../api/auth.api';
 import { useAuthStore } from '../../store/auth.store';
 
 /** Google OAuth dan qaytgandan keyin: token → store → / */
 export default function AuthCallback() {
+  const { t } = useTranslation();
   const nav = useNavigate();
   const [params] = useSearchParams();
   const { setToken, setUser } = useAuthStore();
