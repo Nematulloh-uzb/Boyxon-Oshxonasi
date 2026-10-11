@@ -42,7 +42,7 @@ export default function AdminDishes() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Taom qidirish..."
-            className="h-11 w-full rounded-xl border border-ink-line bg-white pl-9 pr-3 text-sm outline-none focus:border-primary-500"
+            className="h-11 w-full rounded-xl border border-ink-line bg-surface pl-9 pr-3 text-sm outline-none focus:border-primary-500"
           />
         </div>
         <Button onClick={() => { setEditing(null); setDrawerOpen(true); }}>

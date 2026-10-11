@@ -23,7 +23,9 @@ export default function App() {
   }, [user, i18n]);
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', user?.preferences.theme === 'dark');
+    // Tema: user preference ustuvor, aks holda localStorage (guest), default DARK
+    const theme = user?.preferences.theme ?? localStorage.getItem('boyxon-theme') ?? 'dark';
+    document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [user]);
 
   return <AppRouter />;

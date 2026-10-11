@@ -27,7 +27,7 @@ export function CategoryChips({ categories, active, onChange }: Props) {
               'flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition',
               isActive
                 ? 'border-primary-500 bg-primary-500 text-white'
-                : 'border-ink-line bg-white text-ink-700 hover:border-primary-500/40',
+                : 'border-ink-line bg-surface text-ink-700 hover:border-primary-500/40',
             )}
           >
             <Icon className="h-4 w-4" />

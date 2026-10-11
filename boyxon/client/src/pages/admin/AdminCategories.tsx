@@ -45,7 +45,7 @@ export default function AdminCategories() {
         <Plus className="h-4 w-4" /> Yangi kategoriya
       </Button>
 
-      {isLoading && <div className="rounded-card bg-white p-6 text-center text-ink-300">Yuklanmoqda...</div>}
+      {isLoading && <div className="rounded-card bg-surface p-6 text-center text-ink-300">Yuklanmoqda...</div>}
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {data?.data.map((c) => (
@@ -57,7 +57,7 @@ export default function AdminCategories() {
             <div className="flex gap-1">
               <button
                 onClick={() => { setEditing(c); setForm({ name: c.name, slug: c.slug, icon: c.icon ?? '', order: String(c.order) }); setOpen(true); }}
-                className="rounded-lg p-2 hover:bg-black/5"
+                className="rounded-lg p-2 hover:bg-black/5 dark:hover:bg-white/10"
                 aria-label="Tahrirlash"
               >
                 <Pencil className="h-4 w-4" />

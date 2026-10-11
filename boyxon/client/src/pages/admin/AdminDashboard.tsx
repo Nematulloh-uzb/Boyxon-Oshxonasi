@@ -26,7 +26,7 @@ export default function AdminDashboard() {
         <div className="border-b border-ink-line px-4 py-3 font-display font-bold">So‘nggi buyurtmalar</div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-black/5 text-left text-xs text-ink-300">
+            <thead className="bg-black/5 dark:bg-white/10 text-left text-xs text-ink-300">
               <tr>
                 <th className="px-4 py-2.5">№</th>
                 <th className="px-4 py-2.5">Mijoz</th>

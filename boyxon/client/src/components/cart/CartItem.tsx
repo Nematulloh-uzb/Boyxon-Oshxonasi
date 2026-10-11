@@ -10,8 +10,8 @@ interface Props {
 
 export function CartItem({ line, onQty, onRemove }: Props) {
   return (
-    <div className="flex gap-3 rounded-card border border-ink-line/60 bg-white p-3 shadow-sm">
-      <div className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-[#F5EFE7]">
+    <div className="flex gap-3 rounded-card border border-ink-line/60 bg-surface p-3 shadow-sm">
+      <div className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-muted">
         {line.image ? (
           <img src={line.image} alt={line.name} className="h-full w-full object-cover" />
         ) : (
@@ -28,11 +28,11 @@ export function CartItem({ line, onQty, onRemove }: Props) {
         <p className="mt-0.5 text-sm font-bold text-primary-600">{formatPrice(line.price)}</p>
         <div className="mt-2 flex items-center gap-3">
           <div className="flex items-center gap-1 rounded-full border border-ink-line px-1">
-            <button onClick={() => onQty(line.dishId, line.quantity - 1)} className="grid h-8 w-8 place-items-center rounded-full hover:bg-black/5" aria-label="Kamaytirish">
+            <button onClick={() => onQty(line.dishId, line.quantity - 1)} className="grid h-8 w-8 place-items-center rounded-full hover:bg-black/5 dark:hover:bg-white/10" aria-label="Kamaytirish">
               <Minus className="h-4 w-4" />
             </button>
             <span className="w-6 text-center text-sm font-semibold">{line.quantity}</span>
-            <button onClick={() => onQty(line.dishId, line.quantity + 1)} className="grid h-8 w-8 place-items-center rounded-full hover:bg-black/5" aria-label="Ko‘paytirish">
+            <button onClick={() => onQty(line.dishId, line.quantity + 1)} className="grid h-8 w-8 place-items-center rounded-full hover:bg-black/5 dark:hover:bg-white/10" aria-label="Ko‘paytirish">
               <Plus className="h-4 w-4" />
             </button>
           </div>

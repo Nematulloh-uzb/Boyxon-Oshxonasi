@@ -43,6 +43,9 @@ export default function SettingsPage() {
 
   const toggleTheme = async (): Promise<void> => {
     const theme = user.preferences.theme === 'dark' ? 'light' : 'dark';
+    // LocalStorage'ni darrov yangilash — sahifa refresh'da ham saqlanadi
+    localStorage.setItem('boyxon-theme', theme);
+    document.documentElement.classList.toggle('dark', theme === 'dark');
     const r = await usersApi.updatePrefs({ theme });
     setUser({ ...user, preferences: r.data });
   };
@@ -68,7 +71,7 @@ export default function SettingsPage() {
                 <button
                   key={l.v}
                   onClick={() => void setLang(l.v)}
-                  className={`rounded-full px-2.5 py-1 text-xs font-semibold ${i18n.language === l.v ? 'bg-primary-500 text-white' : 'bg-black/5 text-ink-700'}`}
+                  className={`rounded-full px-2.5 py-1 text-xs font-semibold ${i18n.language === l.v ? 'bg-primary-500 text-white' : 'bg-black/5 dark:bg-white/10 text-ink-700'}`}
                 >
                   {l.v.toUpperCase()}
                 </button>

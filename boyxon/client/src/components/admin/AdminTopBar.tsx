@@ -6,7 +6,7 @@ export function AdminTopBar({ title }: { title: string }) {
   const user = useAuthStore((s) => s.user);
   const nav = useNavigate();
   return (
-    <header className="sticky top-0 z-10 flex h-14 items-center justify-between border-b border-ink-line bg-white px-4 md:px-6">
+    <header className="sticky top-0 z-10 flex h-14 items-center justify-between border-b border-ink-line bg-surface px-4 md:px-6">
       <h1 className="font-display text-lg font-bold">{title}</h1>
       <div className="flex items-center gap-3">
         <button

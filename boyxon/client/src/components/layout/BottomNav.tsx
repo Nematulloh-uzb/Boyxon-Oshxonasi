@@ -13,7 +13,7 @@ export function BottomNav() {
     { to: '/settings', icon: Settings, label: t('nav.settings') },
   ];
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-ink-line bg-white pb-[env(safe-area-inset-bottom)] md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-ink-line bg-surface pb-[env(safe-area-inset-bottom)] md:hidden">
       <div className="grid grid-cols-3">
         {items.map(({ to, icon: Icon, label, badge }) => (
           <NavLink

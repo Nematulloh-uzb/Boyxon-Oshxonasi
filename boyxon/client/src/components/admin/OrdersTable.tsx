@@ -7,10 +7,10 @@ import { adminApi } from '../../api/admin.api';
 const STATUSES: OrderStatus[] = ['pending', 'confirmed', 'preparing', 'on_way', 'delivered', 'cancelled'];
 
 const tone: Record<OrderStatus, string> = {
-  pending: 'bg-black/5 text-ink-700',
+  pending: 'bg-black/5 dark:bg-white/10 text-ink-700',
   confirmed: 'bg-primary-100 text-primary-700',
-  preparing: 'bg-[#FFF3E0] text-primary-700',
-  on_way: 'bg-[#E3F2FD] text-[#1565C0]',
+  preparing: 'bg-primary-50 text-primary-700',
+  on_way: 'bg-[#E3F2FD] text-[#1565C0] dark:bg-[#1E3A5F] dark:text-[#90CAF9]',
   delivered: 'bg-success/10 text-success',
   cancelled: 'bg-danger/10 text-danger',
 };
@@ -27,13 +27,13 @@ export function OrdersTable({ orders, loading }: { orders: Order[]; loading?: bo
     onError: () => toast.error('Status yangilanmadi'),
   });
 
-  if (loading) return <div className="rounded-card bg-white p-6 text-center text-ink-300">Yuklanmoqda...</div>;
-  if (!orders.length) return <div className="rounded-card bg-white p-6 text-center text-ink-300">Buyurtmalar yo‘q</div>;
+  if (loading) return <div className="rounded-card bg-surface p-6 text-center text-ink-300">Yuklanmoqda...</div>;
+  if (!orders.length) return <div className="rounded-card bg-surface p-6 text-center text-ink-300">Buyurtmalar yo‘q</div>;
 
   return (
-    <div className="overflow-x-auto rounded-card bg-white shadow-sm">
+    <div className="overflow-x-auto rounded-card bg-surface shadow-sm">
       <table className="w-full min-w-[760px] text-sm">
-        <thead className="border-b border-ink-line bg-black/5 text-left text-xs text-ink-300">
+        <thead className="border-b border-ink-line bg-black/5 dark:bg-white/10 text-left text-xs text-ink-300">
           <tr>
             <th className="px-4 py-3">№</th>
             <th className="px-4 py-3">Mijoz</th>
@@ -61,7 +61,7 @@ export function OrdersTable({ orders, loading }: { orders: Order[]; loading?: bo
                   <select
                     value={o.status}
                     onChange={(e) => statusM.mutate({ id: o._id, status: e.target.value })}
-                    className="h-8 rounded-lg border border-ink-line bg-white px-1.5 text-xs outline-none"
+                    className="h-8 rounded-lg border border-ink-line bg-surface px-1.5 text-xs outline-none"
                     disabled={statusM.isPending}
                   >
                     {STATUSES.map((s) => <option key={s} value={s}>{ORDER_STATUS_LABEL[s]}</option>)}

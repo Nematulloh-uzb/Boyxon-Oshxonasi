@@ -25,7 +25,7 @@ export function PushPermissionPrompt() {
   };
 
   return (
-    <div className="fixed inset-x-4 bottom-20 z-40 mx-auto max-w-md rounded-card border border-ink-line bg-white p-4 shadow-lg md:bottom-6">
+    <div className="fixed inset-x-4 bottom-20 z-40 mx-auto max-w-md rounded-card border border-ink-line bg-surface p-4 shadow-lg md:bottom-6">
       <div className="flex items-start gap-3">
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary-100 text-primary-600">
           <BellRing className="h-5 w-5" />
@@ -51,7 +51,7 @@ export function PushPermissionPrompt() {
             </button>
           </div>
         </div>
-        <button onClick={() => dismiss(false)} className="rounded-full p-1 text-ink-300 hover:bg-black/5" aria-label="Yopish">
+        <button onClick={() => dismiss(false)} className="rounded-full p-1 text-ink-300 hover:bg-black/5 dark:hover:bg-white/10" aria-label="Yopish">
           <X className="h-4 w-4" />
         </button>
       </div>

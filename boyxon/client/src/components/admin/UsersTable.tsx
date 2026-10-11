@@ -16,13 +16,13 @@ export function UsersTable({ users, loading }: { users: User[]; loading?: boolea
     onSuccess: () => { void qc.invalidateQueries({ queryKey: ['admin-users'] }); toast.success('Holat yangilandi'); },
   });
 
-  if (loading) return <div className="rounded-card bg-white p-6 text-center text-ink-300">Yuklanmoqda...</div>;
-  if (!users.length) return <div className="rounded-card bg-white p-6 text-center text-ink-300">Foydalanuvchilar yo‘q</div>;
+  if (loading) return <div className="rounded-card bg-surface p-6 text-center text-ink-300">Yuklanmoqda...</div>;
+  if (!users.length) return <div className="rounded-card bg-surface p-6 text-center text-ink-300">Foydalanuvchilar yo‘q</div>;
 
   return (
-    <div className="overflow-x-auto rounded-card bg-white shadow-sm">
+    <div className="overflow-x-auto rounded-card bg-surface shadow-sm">
       <table className="w-full min-w-[700px] text-sm">
-        <thead className="border-b border-ink-line bg-black/5 text-left text-xs text-ink-300">
+        <thead className="border-b border-ink-line bg-black/5 dark:bg-white/10 text-left text-xs text-ink-300">
           <tr>
             <th className="px-4 py-3">Ism</th>
             <th className="px-4 py-3">Email</th>
@@ -40,7 +40,7 @@ export function UsersTable({ users, loading }: { users: User[]; loading?: boolea
                 <select
                   value={u.role}
                   onChange={(e) => roleM.mutate({ id: u._id, role: e.target.value })}
-                  className="h-8 rounded-lg border border-ink-line bg-white px-1.5 text-xs outline-none"
+                  className="h-8 rounded-lg border border-ink-line bg-surface px-1.5 text-xs outline-none"
                 >
                   <option value="user">User</option>
                   <option value="admin">Admin</option>

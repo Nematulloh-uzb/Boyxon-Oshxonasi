@@ -78,12 +78,12 @@ export default function HomePage() {
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             placeholder={t('home.search')}
-            className="h-12 w-full rounded-full border border-ink-line bg-white pl-11 pr-4 text-[15px] outline-none focus:border-primary-500"
+            className="h-12 w-full rounded-full border border-ink-line bg-surface pl-11 pr-4 text-[15px] outline-none focus:border-primary-500"
           />
         </div>
         <button
           onClick={() => setFilterOpen(true)}
-          className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-ink-line bg-white text-ink-700"
+          className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-ink-line bg-surface text-ink-700"
           aria-label={t('home.filter')}
         >
           <SlidersHorizontal className="h-5 w-5" />
@@ -102,7 +102,7 @@ export default function HomePage() {
         {cats ? (
           <CategoryChips categories={cats} active={category} onChange={setCat} />
         ) : catsLoading ? (
-          <div className="flex gap-2">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-9 w-24 animate-pulse rounded-full bg-[#E8E1DA]" />)}</div>
+          <div className="flex gap-2">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-9 w-24 animate-pulse rounded-full bg-muted-2" />)}</div>
         ) : null}
       </div>
 
@@ -121,7 +121,7 @@ export default function HomePage() {
       )}
       {featLoading && (
         <div className="mb-8 flex gap-4">
-          {Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-72 w-64 shrink-0 animate-pulse rounded-card bg-[#E8E1DA]" />)}
+          {Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-72 w-64 shrink-0 animate-pulse rounded-card bg-muted-2" />)}
         </div>
       )}
 

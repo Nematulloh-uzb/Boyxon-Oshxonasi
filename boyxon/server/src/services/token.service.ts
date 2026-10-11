@@ -17,12 +17,18 @@ export function verifyRefreshToken(token: string): { id: string } {
   return jwt.verify(token, env.JWT_REFRESH_SECRET) as { id: string };
 }
 
-/** Refresh cookie sozlamalari (prod da secure). */
+/**
+ * Refresh cookie sozlamalari.
+ * - Dev (localhost): sameSite 'lax' — OAuth top-level redirect'da cookie o'rnatiladi.
+ * - Prod (Vercel + Railway = cross-site): sameSite 'none' + secure kerak,
+ *   aks holda cross-site so'rovda cookie yuborilmaydi va refresh ishlamaydi.
+ */
 export function refreshCookieOptions() {
+  const isProd = process.env.NODE_ENV === 'production';
   return {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict' as const,
+    secure: isProd,
+    sameSite: isProd ? ('none' as const) : ('lax' as const),
     maxAge: 7 * 24 * 60 * 60 * 1000,
     path: '/api/auth',
   };

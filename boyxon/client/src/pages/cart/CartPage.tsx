@@ -20,7 +20,7 @@ export default function CartPage() {
   if (!lines.length) {
     return (
       <div className="mx-auto flex max-w-6xl flex-col items-center px-4 py-20 text-center">
-        <span className="grid h-20 w-20 place-items-center rounded-full bg-[#F5EFE7]">
+        <span className="grid h-20 w-20 place-items-center rounded-full bg-muted">
           <ShoppingBag className="h-9 w-9 text-ink-300" />
         </span>
         <h1 className="mt-4 font-display text-xl font-bold">{t('cart.empty')}</h1>
@@ -49,7 +49,7 @@ export default function CartPage() {
         </aside>
       </div>
 
-      <div className="fixed inset-x-0 bottom-16 z-20 border-t border-ink-line bg-white p-3 md:hidden">
+      <div className="fixed inset-x-0 bottom-16 z-20 border-t border-ink-line bg-surface p-3 md:hidden">
         <div className="mx-auto flex max-w-lg items-center justify-between gap-3">
           <div>
             <p className="text-xs text-ink-300">{t('cart.total')}</p>

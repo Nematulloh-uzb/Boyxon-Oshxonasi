@@ -21,7 +21,7 @@ export default function AdminUsers() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Ism yoki email..."
-          className="h-11 w-full rounded-xl border border-ink-line bg-white pl-9 pr-3 text-sm outline-none focus:border-primary-500"
+          className="h-11 w-full rounded-xl border border-ink-line bg-surface pl-9 pr-3 text-sm outline-none focus:border-primary-500"
         />
       </div>
       <UsersTable users={data?.data ?? []} loading={isLoading} />

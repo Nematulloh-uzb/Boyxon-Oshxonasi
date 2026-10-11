@@ -20,7 +20,7 @@ export function AdminSidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col bg-ink-900 p-4 md:flex">
+      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col bg-[#1A1512] p-4 md:flex">
         <NavLink to="/" className="font-display text-lg font-extrabold text-primary-500">
           Boyxon Admin
         </NavLink>
@@ -51,7 +51,7 @@ export function AdminSidebar() {
       </aside>
 
       {/* Mobile nav */}
-      <nav className="no-scrollbar sticky top-0 z-20 flex gap-1 overflow-x-auto bg-ink-900 p-2 md:hidden">
+      <nav className="no-scrollbar sticky top-0 z-20 flex gap-1 overflow-x-auto bg-[#1A1512] p-2 md:hidden">
         {links.map(({ to, icon: Icon, label, end }) => (
           <NavLink
             key={to}

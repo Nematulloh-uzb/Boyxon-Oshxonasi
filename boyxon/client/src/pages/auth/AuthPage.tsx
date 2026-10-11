@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
@@ -14,7 +14,16 @@ import type { User } from '../../types';
 export default function AuthPage() {
   const nav = useNavigate();
   const loc = useLocation();
+  const [searchParams] = useSearchParams();
   const { accessToken, setToken, setUser, user } = useAuthStore();
+
+  // Google OAuth xatosi (masalan bekor qilingan yoki sozlanmagan) — toast bilan ko'rsatamiz.
+  useEffect(() => {
+    const err = searchParams.get('error');
+    if (err === 'google') toast.error('Google bilan kirish bekor qilindi yoki xato berdi');
+    else if (err === 'google_not_configured')
+      toast.error('Google kirish hozircha sozlanmagan. Email va parol bilan kiring.');
+  }, [searchParams]);
 
   useEffect(() => {
     if (accessToken) nav(user?.role === 'admin' ? '/admin' : '/', { replace: true });
@@ -72,12 +81,12 @@ function AuthForm({ from, onDone }: { from: string; onDone: (token: string, u: U
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-      <div className="mb-6 grid grid-cols-2 gap-1 rounded-2xl bg-[#F5EFE7] p-1">
+      <div className="mb-6 grid grid-cols-2 gap-1 rounded-2xl bg-muted p-1">
         {(['signin', 'signup'] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`rounded-xl py-2.5 text-sm font-semibold transition ${tab === t ? 'bg-white text-primary-700 shadow-sm' : 'text-ink-300'}`}
+            className={`rounded-xl py-2.5 text-sm font-semibold transition ${tab === t ? 'bg-surface text-primary-700 shadow-sm' : 'text-ink-300'}`}
           >
             {t === 'signin' ? 'Kirish' : 'Ro‘yxatdan o‘tish'}
           </button>
@@ -112,7 +121,7 @@ function AuthForm({ from, onDone }: { from: string; onDone: (token: string, u: U
       <div className="my-4 flex items-center gap-3 text-xs text-ink-300">
         <span className="h-px flex-1 bg-ink-line" /> YOKI <span className="h-px flex-1 bg-ink-line" />
       </div>
-      <a href={googleUrl} className="flex h-12 w-full items-center justify-center gap-2 rounded-full border border-ink-line bg-white text-[15px] font-medium">
+      <a href={googleUrl} className="flex h-12 w-full items-center justify-center gap-2 rounded-full border border-ink-line bg-surface text-[15px] font-medium">
         <svg className="h-5 w-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.76h3.56c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.56-2.76c-.98.66-2.23 1.06-3.72 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15A11 11 0 0 0 2.18 7.06L5.84 9.9c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
         Google bilan kirish
       </a>

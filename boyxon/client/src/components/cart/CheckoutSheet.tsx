@@ -104,7 +104,7 @@ export function CheckoutSheet() {
                 ))}
               </div>
             ) : (
-              <p className="rounded-2xl bg-[#FFF3E0] px-3 py-3 text-sm text-ink-500">
+              <p className="rounded-2xl bg-primary-50 px-3 py-3 text-sm text-ink-500">
                 Manzil yo‘q — Sozlamalar orqali qo‘shing yoki “Olib ketish” ni tanlang.
               </p>
             )}
@@ -125,7 +125,7 @@ export function CheckoutSheet() {
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
             placeholder="Masalan: qo‘shimcha dasturxon..."
-            className="w-full rounded-2xl border border-ink-line bg-white px-3 py-2.5 text-sm outline-none focus:border-primary-500"
+            className="w-full rounded-2xl border border-ink-line bg-surface px-3 py-2.5 text-sm outline-none focus:border-primary-500"
           />
         </div>
 

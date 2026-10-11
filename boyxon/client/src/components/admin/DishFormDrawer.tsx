@@ -89,13 +89,13 @@ export function DishFormDrawer({ open, onClose, dish, categories, onSaved }: Pro
           onDrop={(e) => { e.preventDefault(); setDrag(false); pick(e.dataTransfer.files?.[0]); }}
           onClick={() => document.getElementById('dish-img')?.click()}
           className={`relative flex h-40 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed transition ${
-            drag ? 'border-primary-500 bg-primary-50' : 'border-ink-line bg-[#F5EFE7]'
+            drag ? 'border-primary-500 bg-primary-50' : 'border-ink-line bg-muted'
           }`}
         >
           {preview ? (
             <>
               <img src={preview} alt="preview" className="h-full w-full object-cover" />
-              <span className="absolute right-2 top-2 rounded-full bg-white/90 p-1.5 text-ink-700 shadow"
+              <span className="absolute right-2 top-2 rounded-full bg-surface/90 p-1.5 text-ink-700 shadow"
                 onClick={(e) => { e.stopPropagation(); setFile(null); setPreview(dish?.image ?? null); }}>
                 <X className="h-4 w-4" />
               </span>

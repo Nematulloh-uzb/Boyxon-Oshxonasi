@@ -14,7 +14,7 @@ const titles: Record<string, string> = {
 export default function AdminLayout() {
   const { pathname } = useLocation();
   return (
-    <div className="min-h-screen bg-[#F7F4EF] md:flex">
+    <div className="min-h-screen bg-muted md:flex">
       <AdminSidebar />
       <div className="flex-1">
         <AdminTopBar title={titles[pathname] ?? 'Admin'} />

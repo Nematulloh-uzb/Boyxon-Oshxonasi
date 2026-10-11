@@ -35,13 +35,13 @@ export function PromoInput() {
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
             placeholder="WELCOME10"
-            className="h-12 w-full rounded-2xl border border-ink-line bg-white pl-9 pr-3 uppercase outline-none focus:border-primary-500"
+            className="h-12 w-full rounded-2xl border border-ink-line bg-surface pl-9 pr-3 uppercase outline-none focus:border-primary-500"
           />
         </div>
         <button
           onClick={() => void apply()}
           disabled={loading}
-          className="h-12 rounded-2xl bg-ink-900 px-5 text-sm font-semibold text-white disabled:opacity-50"
+          className="h-12 rounded-2xl bg-ink-900 px-5 text-sm font-semibold text-white disabled:opacity-50 dark:bg-white dark:text-ink-900"
         >
           {loading ? '...' : 'Qo‘llash'}
         </button>

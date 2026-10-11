@@ -14,7 +14,7 @@ const tones = {
   primary: 'bg-primary-100 text-primary-600',
   success: 'bg-success/10 text-success',
   danger: 'bg-danger/10 text-danger',
-  ink: 'bg-black/5 text-ink-700',
+  ink: 'bg-black/5 dark:bg-white/10 text-ink-700',
 };
 
 export function KpiCard({ icon: Icon, label, value, loading, tone = 'primary' }: Props) {

@@ -2,16 +2,81 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  background: #FFF8F0;
-  color: #2C2C2C;
-  font-family: 'Inter', system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
+@layer base {
+  /* ===== LIGHT (alternative) — warm cream ===== */
+  :root {
+    --bg: 255 248 240;            /* #FFF8F0 */
+    --surface: 255 255 255;       /* #FFFFFF cards */
+    --surface-raised: 253 241 228;/* #FDF1E4 hover/inner */
+    --surface-overlay: 255 255 255;
+    --input: 255 255 255;
+    --line: 236 229 220;          /* #ECE5DC */
+    --line-strong: 217 207 194;   /* #D9CFC2 */
+    --fg: 44 44 44;               /* #2C2C2C */
+    --fg-muted: 93 64 55;         /* #5D4037 */
+    --fg-subtle: 127 140 141;     /* #7F8C8D */
+    --accent: 230 126 34;         /* #E67E22 */
+    --accent-hover: 243 156 18;   /* #F39C12 */
+    --accent-press: 211 84 0;     /* #D35400 */
+    --accent-text: 211 84 0;      /* #D35400 */
+    --accent-soft: rgba(230, 126, 34, 0.12);
+    --placeholder-bg: 245 239 231;/* #F5EFE7 */
+    --success: 39 174 96;         /* #27AE60 */
+    --danger: 231 76 60;          /* #E74C3C */
+    --shadow-card: 0 2px 8px rgba(93, 64, 55, 0.08);
+    --shadow-overlay: 0 12px 32px rgba(93, 64, 55, 0.16);
+    color-scheme: light;
+  }
+
+  /* ===== DARK (default) — "Warm Editorial Dark" ===== */
+  .dark {
+    --bg: 18 18 18;               /* #121212 */
+    --surface: 30 30 30;          /* #1E1E1E cards */
+    --surface-raised: 37 37 37;   /* #252525 hover/icon tiles */
+    --surface-overlay: 44 44 44;  /* #2C2C2C modals */
+    --input: 24 24 24;            /* #181818 input cavity */
+    --line: 51 51 51;             /* #333333 */
+    --line-strong: 62 62 62;      /* #3E3E3E */
+    --fg: 245 245 245;            /* #F5F5F5 */
+    --fg-muted: 224 224 224;      /* #E0E0E0 */
+    --fg-subtle: 160 160 160;     /* #A0A0A0 */
+    --accent: 230 126 34;         /* #E67E22 */
+    --accent-hover: 243 156 18;   /* #F39C12 */
+    --accent-press: 211 84 0;     /* #D35400 */
+    --accent-text: 255 183 131;   /* #FFB783 */
+    --accent-soft: rgba(230, 126, 34, 0.15);
+    --placeholder-bg: 37 37 37;   /* #252525 */
+    --success: 46 204 113;        /* #2ECC71 */
+    --danger: 255 107 94;         /* #FF6B5E */
+    --shadow-card: 0 12px 28px -4px rgba(0, 0, 0, 0.6), 0 4px 12px -2px rgba(230, 126, 34, 0.08);
+    --shadow-overlay: 0 24px 48px -8px rgba(0, 0, 0, 0.8), 0 8px 24px -4px rgba(243, 156, 18, 0.12);
+    color-scheme: dark;
+  }
+
+  html { background-color: rgb(var(--bg)); }
+  body {
+    background-color: rgb(var(--bg));
+    color: rgb(var(--fg));
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Epilogue', system-ui, sans-serif;
+    color: rgb(var(--fg));
+  }
+  * { border-color: rgb(var(--line)); }
+  input::placeholder { color: rgb(var(--fg-subtle)); }
 }
 
-h1, h2, h3 {
-  font-family: 'Poppins', sans-serif;
+/* Silliq rejim almashinuvi */
+:root,
+.dark {
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+}

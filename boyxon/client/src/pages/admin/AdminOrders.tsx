@@ -29,7 +29,7 @@ export default function AdminOrders() {
             key={f.v}
             onClick={() => setStatus(f.v)}
             className={`shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium ${
-              status === f.v ? 'border-primary-500 bg-primary-500 text-white' : 'border-ink-line bg-white text-ink-700'
+              status === f.v ? 'border-primary-500 bg-primary-500 text-white' : 'border-ink-line bg-surface text-ink-700'
             }`}
           >
             {f.l}

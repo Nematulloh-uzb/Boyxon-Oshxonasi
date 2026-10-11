@@ -10,9 +10,9 @@ interface Props {
  */
 export function DishPlaceholder({ className = '' }: Props) {
   return (
-    <div className={`flex aspect-[4/3] flex-col items-center justify-center gap-2 rounded-t-[20px] bg-[#F5EFE7] ${className}`}>
-      <UtensilsCrossed className="h-10 w-10 text-[#7F8C8D]" />
-      <span className="text-[11px] text-[#7F8C8D]">Rasm yo‘q</span>
+    <div className={`flex aspect-[4/3] flex-col items-center justify-center gap-2 rounded-t-[20px] bg-muted ${className}`}>
+      <UtensilsCrossed className="h-10 w-10 text-ink-300" />
+      <span className="text-[11px] text-ink-300">Rasm yo‘q</span>
     </div>
   );
 }

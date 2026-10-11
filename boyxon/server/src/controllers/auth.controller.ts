@@ -69,7 +69,8 @@ export const me = asyncHandler(async (req: Request, res: Response) => {
 
 /**
  * GET /api/auth/google/callback — Passport Google dan qaytganda.
- * Yangi access token + refresh cookie beradi, frontend ga redirect qiladi.
+ * Yangi access token + refresh cookie beradi, frontend AuthCallback sahifasiga
+ * redirect qiladi. Admin bo'lsa `next=/admin` parametri qo'shiladi.
  */
 export const googleCallback = asyncHandler(async (req: Request, res: Response) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -80,9 +81,8 @@ export const googleCallback = asyncHandler(async (req: Request, res: Response) =
   await userDoc.save();
   const accessToken = signAccessToken({ id: userDoc.id as string, role: userDoc.role });
   setRefreshCookie(res, signRefreshToken({ id: userDoc.id as string }));
-  const dest =
-    userDoc.role === 'admin' ? `${env.CLIENT_URL}/admin` : `${env.CLIENT_URL}/auth/callback?token=${accessToken}`;
-  res.redirect(userDoc.role === 'admin' ? `${env.CLIENT_URL}/auth/callback?token=${accessToken}&next=/admin` : dest);
+  const next = userDoc.role === 'admin' ? '&next=/admin' : '';
+  res.redirect(`${env.CLIENT_URL}/auth/callback?token=${accessToken}${next}`);
 });
 
 /** POST /api/auth/forgot-password — reset havolasini emailga yuborish. */

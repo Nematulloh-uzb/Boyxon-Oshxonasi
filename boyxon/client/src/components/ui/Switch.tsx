@@ -13,10 +13,10 @@ export function Switch({ checked, onChange, label }: Props) {
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-      className={cn('h-7 w-12 rounded-full p-1 transition', checked ? 'bg-primary-500' : 'bg-black/20')}
+      className={cn('h-7 w-12 rounded-full p-1 transition', checked ? 'bg-accent' : 'bg-line-strong')}
     >
       <span
-        className={cn('block h-5 w-5 rounded-full bg-white shadow transition', checked && 'translate-x-5')}
+        className={cn('block h-5 w-5 rounded-full bg-surface shadow transition', checked && 'translate-x-5')}
       />
     </button>
   );
