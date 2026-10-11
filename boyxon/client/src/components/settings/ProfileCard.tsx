@@ -38,7 +38,7 @@ export function ProfileCard({ user }: { user: UserType }) {
         )}
         <button
           onClick={() => fileRef.current?.click()}
-          className="absolute -bottom-1 -right-1 grid h-8 w-8 place-items-center rounded-full border border-ink-line bg-surface text-ink-700 shadow-sm hover:bg-black/5 dark:hover:bg-white/10"
+          className="absolute -bottom-1 -right-1 grid h-8 w-8 place-items-center rounded-full border border-ink-line bg-surface text-ink-700 shadow-sm hover:bg-surface-raised"
           aria-label="Avatar yuklash"
         >
           <Camera className="h-4 w-4" />

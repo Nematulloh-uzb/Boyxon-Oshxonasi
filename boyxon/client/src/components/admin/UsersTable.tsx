@@ -22,7 +22,7 @@ export function UsersTable({ users, loading }: { users: User[]; loading?: boolea
   return (
     <div className="overflow-x-auto rounded-card bg-surface shadow-sm">
       <table className="w-full min-w-[700px] text-sm">
-        <thead className="border-b border-ink-line bg-black/5 dark:bg-white/10 text-left text-xs text-ink-300">
+        <thead className="border-b border-ink-line bg-surface-raised text-left text-xs text-ink-300">
           <tr>
             <th className="px-4 py-3">Ism</th>
             <th className="px-4 py-3">Email</th>

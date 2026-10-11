@@ -7,10 +7,10 @@ import { adminApi } from '../../api/admin.api';
 const STATUSES: OrderStatus[] = ['pending', 'confirmed', 'preparing', 'on_way', 'delivered', 'cancelled'];
 
 const tone: Record<OrderStatus, string> = {
-  pending: 'bg-black/5 dark:bg-white/10 text-ink-700',
+  pending: 'bg-surface-raised text-ink-700',
   confirmed: 'bg-primary-100 text-primary-700',
   preparing: 'bg-primary-50 text-primary-700',
-  on_way: 'bg-[#E3F2FD] text-[#1565C0] dark:bg-[#1E3A5F] dark:text-[#90CAF9]',
+  on_way: 'bg-primary-100 text-primary-700',
   delivered: 'bg-success/10 text-success',
   cancelled: 'bg-danger/10 text-danger',
 };
@@ -33,7 +33,7 @@ export function OrdersTable({ orders, loading }: { orders: Order[]; loading?: bo
   return (
     <div className="overflow-x-auto rounded-card bg-surface shadow-sm">
       <table className="w-full min-w-[760px] text-sm">
-        <thead className="border-b border-ink-line bg-black/5 dark:bg-white/10 text-left text-xs text-ink-300">
+        <thead className="border-b border-ink-line bg-surface-raised text-left text-xs text-ink-300">
           <tr>
             <th className="px-4 py-3">№</th>
             <th className="px-4 py-3">Mijoz</th>

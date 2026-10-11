@@ -23,7 +23,7 @@ export function NotificationItem({
     <button
       onClick={onClick}
       className={cn(
-        'flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left hover:bg-black/5 dark:hover:bg-white/10',
+        'flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left hover:bg-surface-raised',
         !n.isRead && 'bg-primary-50/60',
       )}
     >

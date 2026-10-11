@@ -51,7 +51,7 @@ export function PushPermissionPrompt() {
             </button>
           </div>
         </div>
-        <button onClick={() => dismiss(false)} className="rounded-full p-1 text-ink-300 hover:bg-black/5 dark:hover:bg-white/10" aria-label="Yopish">
+        <button onClick={() => dismiss(false)} className="rounded-full p-1 text-ink-300 hover:bg-surface-raised" aria-label="Yopish">
           <X className="h-4 w-4" />
         </button>
       </div>

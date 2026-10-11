@@ -71,7 +71,7 @@ export default function SettingsPage() {
                 <button
                   key={l.v}
                   onClick={() => void setLang(l.v)}
-                  className={`rounded-full px-2.5 py-1 text-xs font-semibold ${i18n.language === l.v ? 'bg-primary-500 text-white' : 'bg-black/5 dark:bg-white/10 text-ink-700'}`}
+                  className={`rounded-full px-2.5 py-1 text-xs font-semibold ${i18n.language === l.v ? 'bg-primary-500 text-white' : 'bg-surface-raised text-ink-700'}`}
                 >
                   {l.v.toUpperCase()}
                 </button>

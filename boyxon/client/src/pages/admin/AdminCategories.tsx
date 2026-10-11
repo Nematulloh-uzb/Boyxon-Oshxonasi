@@ -57,7 +57,7 @@ export default function AdminCategories() {
             <div className="flex gap-1">
               <button
                 onClick={() => { setEditing(c); setForm({ name: c.name, slug: c.slug, icon: c.icon ?? '', order: String(c.order) }); setOpen(true); }}
-                className="rounded-lg p-2 hover:bg-black/5 dark:hover:bg-white/10"
+                className="rounded-lg p-2 hover:bg-surface-raised"
                 aria-label="Tahrirlash"
               >
                 <Pencil className="h-4 w-4" />

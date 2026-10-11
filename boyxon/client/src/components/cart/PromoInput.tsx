@@ -41,7 +41,7 @@ export function PromoInput() {
         <button
           onClick={() => void apply()}
           disabled={loading}
-          className="h-12 rounded-2xl bg-ink-900 px-5 text-sm font-semibold text-white disabled:opacity-50 dark:bg-white dark:text-ink-900"
+          className="h-12 rounded-2xl bg-accent px-5 text-sm font-semibold text-white hover:bg-accent-hover disabled:opacity-50"
         >
           {loading ? '...' : 'Qo‘llash'}
         </button>

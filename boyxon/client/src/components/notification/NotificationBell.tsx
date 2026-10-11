@@ -16,7 +16,7 @@ export function NotificationBell() {
   });
   const count = data ?? 0;
   return (
-    <button className="relative rounded-full p-2.5 hover:bg-black/5 dark:hover:bg-white/10" onClick={() => set({ notifOpen: true })} aria-label="Bildirishnomalar">
+    <button className="relative rounded-full p-2.5 hover:bg-surface-raised" onClick={() => set({ notifOpen: true })} aria-label="Bildirishnomalar">
       <Bell className="h-5 w-5" />
       {count > 0 && (
         <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-danger px-1 text-[10px] font-bold text-white">

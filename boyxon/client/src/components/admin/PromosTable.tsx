@@ -15,7 +15,7 @@ export function PromosTable({ promos, loading, onDelete }: Props) {
   return (
     <div className="overflow-x-auto rounded-card bg-surface shadow-sm">
       <table className="w-full min-w-[640px] text-sm">
-        <thead className="border-b border-ink-line bg-black/5 dark:bg-white/10 text-left text-xs text-ink-300">
+        <thead className="border-b border-ink-line bg-surface-raised text-left text-xs text-ink-300">
           <tr>
             <th className="px-4 py-3">Kod</th>
             <th className="px-4 py-3">Tavsif</th>
@@ -38,7 +38,7 @@ export function PromosTable({ promos, loading, onDelete }: Props) {
               </td>
               <td className="px-4 py-3 text-ink-300">{p.minOrderAmount.toLocaleString('uz-UZ')} so‘m</td>
               <td className="px-4 py-3">
-                <span className={`rounded-full px-2 py-1 text-xs font-semibold ${p.isActive ? 'bg-success/10 text-success' : 'bg-black/5 dark:bg-white/10 text-ink-300'}`}>
+                <span className={`rounded-full px-2 py-1 text-xs font-semibold ${p.isActive ? 'bg-success/10 text-success' : 'bg-surface-raised text-ink-300'}`}>
                   {p.isActive ? 'Faol' : 'Nofaol'}
                 </span>
               </td>

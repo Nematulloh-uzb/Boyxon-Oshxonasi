@@ -50,7 +50,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-30 border-b border-ink-line/60 bg-cream/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
-        <button className="rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10 md:hidden" onClick={() => set({ mobileDrawer: true })} aria-label="Menyu">
+        <button className="rounded-full p-2 hover:bg-surface-raised md:hidden" onClick={() => set({ mobileDrawer: true })} aria-label="Menyu">
           <Menu className="h-6 w-6" />
         </button>
         <Link to="/" className="font-display text-xl font-extrabold text-primary-600">
@@ -63,7 +63,7 @@ export function Header() {
         </nav>
         <div className="ml-auto flex items-center gap-1">
           {accessToken && (
-            <button className="relative rounded-full p-2.5 hover:bg-black/5 dark:hover:bg-white/10" onClick={() => set({ notifOpen: true })} aria-label="Bildirishnomalar">
+            <button className="relative rounded-full p-2.5 hover:bg-surface-raised" onClick={() => set({ notifOpen: true })} aria-label="Bildirishnomalar">
               <Bell className="h-5 w-5" />
               {(data ?? 0) > 0 && (
                 <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-danger px-1 text-[10px] font-bold text-white">
@@ -72,7 +72,7 @@ export function Header() {
               )}
             </button>
           )}
-          <button className="relative rounded-full p-2.5 hover:bg-black/5 dark:hover:bg-white/10" onClick={() => nav('/cart')} aria-label="Savatcha">
+          <button className="relative rounded-full p-2.5 hover:bg-surface-raised" onClick={() => nav('/cart')} aria-label="Savatcha">
             <ShoppingBag className="h-5 w-5" />
             {count > 0 && (
               <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-primary-500 px-1 text-[10px] font-bold text-white">
@@ -81,14 +81,14 @@ export function Header() {
             )}
           </button>
           <button
-            className="rounded-full p-2.5 hover:bg-black/5 dark:hover:bg-white/10"
+            className="rounded-full p-2.5 hover:bg-surface-raised"
             onClick={toggleTheme}
             aria-label={theme === 'dark' ? 'Yorug‘ rejim' : 'Qorong‘i rejim'}
           >
             {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </button>
           <button
-            className="rounded-full p-2.5 hover:bg-black/5 dark:hover:bg-white/10"
+            className="rounded-full p-2.5 hover:bg-surface-raised"
             onClick={() => nav(accessToken ? '/settings' : '/auth')}
             aria-label="Hisob"
           >

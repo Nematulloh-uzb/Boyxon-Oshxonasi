@@ -30,7 +30,7 @@ export function Sheet({ open, onClose, title, children }: Props) {
           >
             <div className="mb-3 flex items-center justify-between">
               <h3 className="font-display text-lg font-bold">{title}</h3>
-              <button onClick={onClose} className="rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10" aria-label="Yopish">
+              <button onClick={onClose} className="rounded-full p-2 hover:bg-surface-raised" aria-label="Yopish">
                 <X className="h-5 w-5" />
               </button>
             </div>

@@ -17,7 +17,7 @@ export function DishesTable({ dishes, loading, onEdit, onToggle, onDelete }: Pro
   return (
     <div className="overflow-x-auto rounded-card bg-surface shadow-sm">
       <table className="w-full min-w-[720px] text-sm">
-        <thead className="border-b border-ink-line bg-black/5 dark:bg-white/10 text-left text-xs text-ink-300">
+        <thead className="border-b border-ink-line bg-surface-raised text-left text-xs text-ink-300">
           <tr>
             <th className="px-4 py-3">Taom</th>
             <th className="px-4 py-3">Narx</th>
@@ -46,14 +46,14 @@ export function DishesTable({ dishes, loading, onEdit, onToggle, onDelete }: Pro
               <td className="px-4 py-3 text-ink-300">{typeof d.category === 'object' ? d.category.name : '—'}</td>
               <td className="px-4 py-3">{d.rating.toFixed(1)}</td>
               <td className="px-4 py-3">
-                <span className={`rounded-full px-2 py-1 text-xs font-semibold ${d.isActive ? 'bg-success/10 text-success' : 'bg-black/5 dark:bg-white/10 text-ink-300'}`}>
+                <span className={`rounded-full px-2 py-1 text-xs font-semibold ${d.isActive ? 'bg-success/10 text-success' : 'bg-surface-raised text-ink-300'}`}>
                   {d.isActive ? 'Faol' : 'Nofaol'}
                 </span>
               </td>
               <td className="px-4 py-3">
                 <div className="flex justify-end gap-1">
-                  <button onClick={() => onEdit(d)} className="rounded-lg p-2 hover:bg-black/5 dark:hover:bg-white/10" aria-label="Tahrirlash"><Pencil className="h-4 w-4" /></button>
-                  <button onClick={() => onToggle(d)} className="rounded-lg p-2 hover:bg-black/5 dark:hover:bg-white/10" aria-label="Yoqish/o‘chirish"><Power className="h-4 w-4" /></button>
+                  <button onClick={() => onEdit(d)} className="rounded-lg p-2 hover:bg-surface-raised" aria-label="Tahrirlash"><Pencil className="h-4 w-4" /></button>
+                  <button onClick={() => onToggle(d)} className="rounded-lg p-2 hover:bg-surface-raised" aria-label="Yoqish/o‘chirish"><Power className="h-4 w-4" /></button>
                   <button onClick={() => onDelete(d)} className="rounded-lg p-2 text-danger hover:bg-danger/10" aria-label="O‘chirish"><Trash2 className="h-4 w-4" /></button>
                 </div>
               </td>

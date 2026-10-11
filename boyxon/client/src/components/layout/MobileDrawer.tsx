@@ -25,15 +25,15 @@ export function MobileDrawer() {
           >
             <div className="flex items-center justify-between">
               <span className="font-display text-lg font-extrabold text-primary-600">Boyxon</span>
-              <button onClick={close} className="rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10" aria-label="Yopish"><X className="h-5 w-5" /></button>
+              <button onClick={close} className="rounded-full p-2 hover:bg-surface-raised" aria-label="Yopish"><X className="h-5 w-5" /></button>
             </div>
             {user && <p className="mt-2 text-sm text-ink-300">{user.name}</p>}
             <nav className="mt-4 flex flex-col gap-1 text-[15px] font-medium">
-              <Link to="/" onClick={close} className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-black/5 dark:hover:bg-white/10"><Home className="h-5 w-5" />{t('nav.home')}</Link>
-              <Link to="/cart" onClick={close} className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-black/5 dark:hover:bg-white/10"><ShoppingBag className="h-5 w-5" />{t('nav.cart')}</Link>
-              <Link to="/settings" onClick={close} className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-black/5 dark:hover:bg-white/10"><Settings className="h-5 w-5" />{t('nav.settings')}</Link>
+              <Link to="/" onClick={close} className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-surface-raised"><Home className="h-5 w-5" />{t('nav.home')}</Link>
+              <Link to="/cart" onClick={close} className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-surface-raised"><ShoppingBag className="h-5 w-5" />{t('nav.cart')}</Link>
+              <Link to="/settings" onClick={close} className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-surface-raised"><Settings className="h-5 w-5" />{t('nav.settings')}</Link>
               {user?.role === 'admin' && (
-                <Link to="/admin" onClick={close} className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-black/5 dark:hover:bg-white/10"><ShieldCheck className="h-5 w-5" />{t('nav.admin')}</Link>
+                <Link to="/admin" onClick={close} className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-surface-raised"><ShieldCheck className="h-5 w-5" />{t('nav.admin')}</Link>
               )}
             </nav>
             <div className="mt-auto">
