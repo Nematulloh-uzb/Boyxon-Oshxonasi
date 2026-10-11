@@ -40,9 +40,9 @@ export default function AuthPage() {
         <p className="font-display text-2xl font-extrabold">Boyxon Oshxonasi</p>
         <div className="hidden md:block">
           <h1 className="font-display text-4xl font-extrabold leading-tight">
-            Milliy taomlar,<br />issiq yetkazib berish
+            {t('auth.hero_line1')}<br />{t('auth.hero_line2')}
           </h1>
-          <p className="mt-3 max-w-sm text-white/80">Palov, somsa, kabob — Toshkent bo‘ylab 45 daqiqada.</p>
+          <p className="mt-3 max-w-sm text-white/80">{t('auth.hero_subtitle')}</p>
         </div>
         <p className="text-sm text-white/70">© {new Date().getFullYear()} Boyxon</p>
       </div>
