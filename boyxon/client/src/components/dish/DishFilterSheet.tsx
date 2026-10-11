@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Sheet } from '../ui/Sheet';
 import { Button } from '../ui/Button';
 
@@ -18,40 +19,41 @@ interface Props {
 }
 
 const TAGS = [
-  { v: 'vegetarian', l: 'Parhez' },
-  { v: 'spicy', l: 'Achchiq' },
-  { v: 'top', l: 'Top' },
-  { v: 'new', l: 'Yangi' },
+  { v: 'vegetarian', k: 'dish.diet' },
+  { v: 'spicy', k: 'dish.spicy' },
+  { v: 'top', k: 'dish.top' },
+  { v: 'new', k: 'dish.new' },
 ];
 
-const SORTS: { v: DishFilterValues['sort']; l: string }[] = [
-  { v: 'new', l: 'Yangi' },
-  { v: 'rating', l: 'Reyting' },
-  { v: 'price_asc', l: 'Arzon' },
-  { v: 'price_desc', l: 'Qimmat' },
-  { v: 'popular', l: 'Mashhur' },
+const SORTS: { v: DishFilterValues['sort']; k: string }[] = [
+  { v: 'new', k: 'filter.sort.new' },
+  { v: 'rating', k: 'filter.sort.rating' },
+  { v: 'price_asc', k: 'filter.sort.price_asc' },
+  { v: 'price_desc', k: 'filter.sort.price_desc' },
+  { v: 'popular', k: 'filter.sort.popular' },
 ];
 
 export function DishFilterSheet({ open, onClose, value, onApply }: Props) {
+  const { t } = useTranslation();
   const [draft, setDraft] = useState<DishFilterValues>(value);
   useEffect(() => setDraft(value), [value, open]);
 
   return (
-    <Sheet open={open} onClose={onClose} title="Filtr">
+    <Sheet open={open} onClose={onClose} title={t('filter.title')}>
       <div className="space-y-5">
         <div>
-          <p className="mb-2 text-sm font-semibold text-ink-700">Narx (so‘m)</p>
+          <p className="mb-2 text-sm font-semibold text-ink-700">{t('filter.price')}</p>
           <div className="flex gap-2">
             <input
               type="number"
-              placeholder="dan"
+              placeholder={t('filter.from')}
               value={draft.minPrice ?? ''}
               onChange={(e) => setDraft({ ...draft, minPrice: e.target.value ? Number(e.target.value) : undefined })}
               className="h-11 w-full rounded-xl border border-ink-line px-3 outline-none focus:border-primary-500"
             />
             <input
               type="number"
-              placeholder="gacha"
+              placeholder={t('filter.to')}
               value={draft.maxPrice ?? ''}
               onChange={(e) => setDraft({ ...draft, maxPrice: e.target.value ? Number(e.target.value) : undefined })}
               className="h-11 w-full rounded-xl border border-ink-line px-3 outline-none focus:border-primary-500"
@@ -60,7 +62,7 @@ export function DishFilterSheet({ open, onClose, value, onApply }: Props) {
         </div>
 
         <div>
-          <p className="mb-2 text-sm font-semibold text-ink-700">Minimal reyting</p>
+          <p className="mb-2 text-sm font-semibold text-ink-700">{t('filter.rating')}</p>
           <div className="flex flex-wrap gap-2">
             {[0, 4, 4.5, 4.7].map((r) => (
               <button
@@ -68,28 +70,28 @@ export function DishFilterSheet({ open, onClose, value, onApply }: Props) {
                 onClick={() => setDraft({ ...draft, rating: r === 0 ? undefined : r })}
                 className={`rounded-full border px-3 py-1.5 text-sm ${draft.rating === r || (r === 0 && !draft.rating) ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-ink-line'}`}
               >
-                {r === 0 ? 'Hammasi' : `${r}+`}
+                {r === 0 ? t('filter.all') : `${r}+`}
               </button>
             ))}
           </div>
         </div>
 
         <div>
-          <p className="mb-2 text-sm font-semibold text-ink-700">Teglar</p>
+          <p className="mb-2 text-sm font-semibold text-ink-700">{t('filter.tags')}</p>
           <div className="flex flex-wrap gap-2">
-            {TAGS.map((t) => {
-              const on = draft.tags?.split(',').includes(t.v);
+            {TAGS.map((tag) => {
+              const on = draft.tags?.split(',').includes(tag.v);
               return (
                 <button
-                  key={t.v}
+                  key={tag.v}
                   onClick={() => {
                     const cur = new Set((draft.tags ?? '').split(',').filter(Boolean));
-                    on ? cur.delete(t.v) : cur.add(t.v);
+                    on ? cur.delete(tag.v) : cur.add(tag.v);
                     setDraft({ ...draft, tags: [...cur].join(',') || undefined });
                   }}
                   className={`rounded-full border px-3 py-1.5 text-sm ${on ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-ink-line'}`}
                 >
-                  {t.l}
+                  {t(tag.k)}
                 </button>
               );
             })}
@@ -97,7 +99,7 @@ export function DishFilterSheet({ open, onClose, value, onApply }: Props) {
         </div>
 
         <div>
-          <p className="mb-2 text-sm font-semibold text-ink-700">Saralash</p>
+          <p className="mb-2 text-sm font-semibold text-ink-700">{t('filter.sort')}</p>
           <div className="flex flex-wrap gap-2">
             {SORTS.map((s) => (
               <button
@@ -105,7 +107,7 @@ export function DishFilterSheet({ open, onClose, value, onApply }: Props) {
                 onClick={() => setDraft({ ...draft, sort: s.v })}
                 className={`rounded-full border px-3 py-1.5 text-sm ${draft.sort === s.v ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-ink-line'}`}
               >
-                {s.l}
+                {t(s.k)}
               </button>
             ))}
           </div>
@@ -113,10 +115,10 @@ export function DishFilterSheet({ open, onClose, value, onApply }: Props) {
 
         <div className="flex gap-3 pt-2">
           <Button variant="outline" className="flex-1" onClick={() => setDraft({})}>
-            Tozalash
+            {t('filter.reset')}
           </Button>
           <Button className="flex-1" onClick={() => { onApply(draft); onClose(); }}>
-            Qo‘llash
+            {t('filter.apply')}
           </Button>
         </div>
       </div>
