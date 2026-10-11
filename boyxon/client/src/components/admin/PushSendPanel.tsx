@@ -1,24 +1,26 @@
 import { useState } from 'react';
 import { Megaphone } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { adminApi } from '../../api/admin.api';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 
 const AUDIENCES = [
-  { v: 'all', l: 'Barchasi' },
-  { v: 'active', l: 'Faol (30 kun)' },
-  { v: 'new', l: 'Yangi (7 kun)' },
+  { v: 'all', k: 'admin.push_all' },
+  { v: 'active', k: 'admin.push_active' },
+  { v: 'new', k: 'admin.push_new' },
 ];
 
 export function PushSendPanel() {
+  const { t } = useTranslation();
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [audience, setAudience] = useState('all');
   const [sending, setSending] = useState(false);
 
   const send = async (): Promise<void> => {
-    if (!title.trim() || !message.trim()) { toast.error('Sarlavha va matn kiriting'); return; }
+    if (!title.trim() || !message.trim()) { toast.error(t('admin.push_required')); return; }
     setSending(true);
     try {
       const r = await adminApi.sendPush({ title, message, audience });
@@ -26,7 +28,7 @@ export function PushSendPanel() {
       setTitle('');
       setMessage('');
     } catch (e) {
-      toast.error((e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Yuborilmadi');
+      toast.error((e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('admin.push_error'));
     } finally {
       setSending(false);
     }
@@ -41,13 +43,13 @@ export function PushSendPanel() {
           <Megaphone className="h-5 w-5" />
         </span>
         <div>
-          <p className="font-display font-bold">Push xabar yuborish</p>
-          <p className="text-xs text-ink-300">VAPID sozlangan bo‘lsa brauzerda chiqadi, aks holda in-app bildirishnoma yaratiladi.</p>
+          <p className="font-display font-bold">{t('admin.push_title')}</p>
+          <p className="text-xs text-ink-300">{t('admin.push_hint')}</p>
         </div>
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-semibold text-ink-700">Auditoriya</label>
+        <label className="mb-1 block text-xs font-semibold text-ink-700">{t('admin.push_audience')}</label>
         <div className="flex gap-2">
           {AUDIENCES.map((a) => (
             <button
@@ -55,23 +57,23 @@ export function PushSendPanel() {
               onClick={() => setAudience(a.v)}
               className={`rounded-full border px-3 py-1.5 text-sm ${audience === a.v ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-ink-line'}`}
             >
-              {a.l}
+              {t(a.k)}
             </button>
           ))}
         </div>
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-semibold text-ink-700">Sarlavha *</label>
+        <label className="mb-1 block text-xs font-semibold text-ink-700">{t('admin.push_title_field')} *</label>
         <input className={inputCls} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Yangi taomlar!" />
       </div>
       <div>
-        <label className="mb-1 block text-xs font-semibold text-ink-700">Matn *</label>
+        <label className="mb-1 block text-xs font-semibold text-ink-700">{t('admin.push_message')} *</label>
         <textarea rows={3} className={`${inputCls} h-auto py-2`} value={message} onChange={(e) => setMessage(e.target.value)} />
       </div>
 
       <Button className="w-full" onClick={() => void send()} disabled={sending}>
-        {sending ? 'Yuborilmoqda...' : 'Yuborish'}
+        {sending ? t('common.sending') : t('admin.push_send')}
       </Button>
     </Card>
   );
