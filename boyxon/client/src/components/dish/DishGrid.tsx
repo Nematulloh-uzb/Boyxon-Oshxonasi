@@ -1,4 +1,5 @@
 import type { Dish } from '../../types';
+import { useTranslation } from 'react-i18next';
 import { DishCard } from './DishCard';
 import { DishSkeleton } from '../ui/Skeleton';
 import { UtensilsCrossed } from 'lucide-react';
@@ -9,7 +10,8 @@ interface Props {
   emptyText?: string;
 }
 
-export function DishGrid({ dishes, loading, emptyText = 'Taom topilmadi' }: Props) {
+export function DishGrid({ dishes, loading, emptyText }: Props) {
+  const { t } = useTranslation();
   if (loading) {
     return (
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
@@ -23,7 +25,7 @@ export function DishGrid({ dishes, loading, emptyText = 'Taom topilmadi' }: Prop
     return (
       <div className="py-14 text-center">
         <UtensilsCrossed className="mx-auto h-12 w-12 text-ink-300" />
-        <p className="mt-3 text-ink-300">{emptyText}</p>
+        <p className="mt-3 text-ink-300">{emptyText ?? t('home.no_dishes')}</p>
       </div>
     );
   }

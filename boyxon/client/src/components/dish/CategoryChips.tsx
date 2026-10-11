@@ -1,5 +1,6 @@
 import { CakeSlice, ChefHat, Croissant, CupSoda, Flame, Salad, Soup, Wheat, LayoutGrid } from 'lucide-react';
 import type { Category } from '../../types';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../lib/utils';
 
 const iconMap: Record<string, typeof Soup> = {
@@ -13,7 +14,8 @@ interface Props {
 }
 
 export function CategoryChips({ categories, active, onChange }: Props) {
-  const items = [{ _id: 'all', name: 'Barchasi', slug: '' } as unknown as Category, ...categories];
+  const { t } = useTranslation();
+  const items = [{ _id: 'all', name: t('category.all'), slug: '' } as unknown as Category, ...categories];
   return (
     <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 md:mx-0 md:flex-wrap md:px-0">
       {items.map((c) => {
