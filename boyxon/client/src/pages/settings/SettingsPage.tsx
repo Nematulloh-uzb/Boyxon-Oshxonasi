@@ -23,7 +23,6 @@ export default function SettingsPage() {
   const { t, i18n } = useTranslation();
   const { user, setUser } = useAuthStore();
   const qc = useQueryClient();
-  const nav = useNavigate();
 
   const { data: orders } = useQuery({
     queryKey: ['orders'],
