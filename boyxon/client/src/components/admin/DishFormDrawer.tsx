@@ -52,15 +52,15 @@ export function DishFormDrawer({ open, onClose, dish, categories, onSaved }: Pro
 
   const pick = (f?: File | null): void => {
     if (!f) return;
-    if (!f.type.startsWith('image/')) { toast.error('Faqat rasm'); return; }
-    if (f.size > 5 * 1024 * 1024) { toast.error('5 MB dan kichik bo‘lsin'); return; }
+    if (!f.type.startsWith('image/')) { toast.error(t('admin.only_image')); return; }
+    if (f.size > 5 * 1024 * 1024) { toast.error(t('admin.image_too_large')); return; }
     setFile(f);
     setPreview(URL.createObjectURL(f));
   };
 
   const submit = async (): Promise<void> => {
     if (!form.name.trim() || !form.description.trim() || !form.price || !form.category) {
-      toast.error('Majburiy maydonlarni to‘ldiring');
+      toast.error(t('admin.fill_required'));
       return;
     }
     setSaving(true);
@@ -68,11 +68,11 @@ export function DishFormDrawer({ open, onClose, dish, categories, onSaved }: Pro
       const body = { ...form };
       if (dish) await adminApi.updateDish(dish._id, body, file);
       else await adminApi.createDish(body, file);
-      toast.success(dish ? 'Taom yangilandi' : 'Taom yaratildi');
+      toast.success(dish ? t('admin.dish_updated') : t('admin.dish_created'));
       onSaved();
       onClose();
     } catch (e) {
-      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Xatolik';
+      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('common.error');
       toast.error(msg);
     } finally {
       setSaving(false);
