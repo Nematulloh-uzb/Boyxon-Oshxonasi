@@ -1,4 +1,5 @@
 import { Bike, Store } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../lib/utils';
 
 interface Props {
@@ -7,13 +8,14 @@ interface Props {
 }
 
 export function DeliveryToggle({ value, onChange }: Props) {
+  const { t } = useTranslation();
   const opts = [
-    { v: 'delivery' as const, l: 'Yetkazib berish', Icon: Bike },
-    { v: 'pickup' as const, l: 'Olib ketish', Icon: Store },
+    { v: 'delivery' as const, k: 'cart.delivery', Icon: Bike },
+    { v: 'pickup' as const, k: 'cart.pickup', Icon: Store },
   ];
   return (
     <div className="grid grid-cols-2 gap-2 rounded-2xl bg-muted p-1">
-      {opts.map(({ v, l, Icon }) => (
+      {opts.map(({ v, k, Icon }) => (
         <button
           key={v}
           onClick={() => onChange(v)}
@@ -23,7 +25,7 @@ export function DeliveryToggle({ value, onChange }: Props) {
           )}
         >
           <Icon className="h-4 w-4" />
-          {l}
+          {t(k)}
         </button>
       ))}
     </div>

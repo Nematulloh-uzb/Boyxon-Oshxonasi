@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { Sheet } from '../ui/Sheet';
 import { Button } from '../ui/Button';
 import { DeliveryToggle } from './DeliveryToggle';
@@ -17,6 +18,7 @@ import { DELIVERY_FEE, FREE_DELIVERY_FROM } from '../../lib/constants';
 import type { Order } from '../../types';
 
 export function CheckoutSheet() {
+  const { t } = useTranslation();
   const { checkoutOpen, set } = useUiStore();
   const { lines, subtotal, discount, promoCode, clear } = useCart();
   const user = useAuthStore((s) => s.user);

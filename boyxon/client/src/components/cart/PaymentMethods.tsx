@@ -1,4 +1,5 @@
 import { Banknote, MousePointerClick, Smartphone, Wallet } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { PAYMENT_METHODS } from '../../lib/constants';
 import { cn } from '../../lib/utils';
 
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export function PaymentMethods({ value, onChange }: Props) {
+  const { t } = useTranslation();
   return (
     <div className="grid grid-cols-2 gap-2">
       {PAYMENT_METHODS.map((m) => {
@@ -30,7 +32,7 @@ export function PaymentMethods({ value, onChange }: Props) {
             )}
           >
             <Icon className="h-4 w-4" />
-            {m.label}
+            {t(`payment.${m.value}`)}
           </button>
         );
       })}
