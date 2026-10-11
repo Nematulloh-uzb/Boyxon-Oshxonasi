@@ -11,6 +11,7 @@ import { Button } from '../../components/ui/Button';
 import type { Dish } from '../../types';
 
 export default function AdminDishes() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
   const [drawerOpen, setDrawerOpen] = useState(false);
