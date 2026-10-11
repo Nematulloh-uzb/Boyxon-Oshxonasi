@@ -8,6 +8,7 @@ interface AuthState {
   setUser: (u: User | null) => void;
   setToken: (t: string | null) => void;
   logout: () => void;
+  logoutServer: () => Promise<void>;
 }
 
 const DEFAULT_PREFS: User['preferences'] = { language: 'uz', theme: 'dark', fontSize: 'medium' };
