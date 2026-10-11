@@ -26,11 +26,11 @@ export function UsersTable({ users, loading }: { users: User[]; loading?: boolea
       <table className="w-full min-w-[700px] text-sm">
         <thead className="border-b border-ink-line bg-surface-raised text-left text-xs text-ink-300">
           <tr>
-            <th className="px-4 py-3">Ism</th>
-            <th className="px-4 py-3">Email</th>
-            <th className="px-4 py-3">Rol</th>
-            <th className="px-4 py-3">Sana</th>
-            <th className="px-4 py-3">Holat</th>
+            <th className="px-4 py-3">{t('admin.col_name')}</th>
+            <th className="px-4 py-3">{t('admin.col_email')}</th>
+            <th className="px-4 py-3">{t('admin.col_role')}</th>
+            <th className="px-4 py-3">{t('admin.col_date')}</th>
+            <th className="px-4 py-3">{t('admin.col_status')}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-ink-line/60">
