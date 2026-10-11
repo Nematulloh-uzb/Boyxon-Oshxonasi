@@ -61,10 +61,10 @@ export default function SettingsPage() {
         <SettingsRow icon={Bell} label={t('settings.notifications')} onClick={() => toast.info(t('settings.bell_hint'))} />
       </SettingsGroup>
 
-      <SettingsGroup title="Afzalliklar">
+      <SettingsGroup title={t('settings.preferences')}>
         <SettingsRow
           icon={Globe}
-          label="Til"
+          label={t('settings.language')}
           right={
             <div className="flex gap-1">
               {LANGS.map((l) => (
@@ -81,11 +81,11 @@ export default function SettingsPage() {
         />
         <SettingsRow
           icon={user.preferences.theme === 'dark' ? Moon : Sun}
-          label="Tema"
-          value={user.preferences.theme === 'dark' ? 'Qorong‘i' : 'Yorug‘'}
+          label={t('settings.theme')}
+          value={user.preferences.theme === 'dark' ? t('theme.dark') : t('theme.light')}
           right={
             <button onClick={() => void toggleTheme()} className="text-primary-600 text-sm font-semibold">
-              Almashtirish
+              {t('settings.toggle')}
             </button>
           }
         />
@@ -93,7 +93,7 @@ export default function SettingsPage() {
 
       <NotificationPrefs prefs={user.notificationPrefs} />
 
-      <SettingsGroup title="Xavfsizlik">
+      <SettingsGroup title={t('settings.security')}>
         <SettingsRow
           icon={LogOut}
           label={t('auth.logout')}
@@ -108,18 +108,18 @@ export default function SettingsPage() {
 
       {/* Buyurtmalar tarixi */}
       <section>
-        <h2 className="mb-2 px-1 text-sm font-semibold uppercase tracking-wide text-ink-300">So‘nggi buyurtmalar</h2>
+        <h2 className="mb-2 px-1 text-sm font-semibold uppercase tracking-wide text-ink-300">{t('settings.recent_orders')}</h2>
         <div className="space-y-2">
-          {!orders?.data.length && <Card className="p-4 text-sm text-ink-300">Hozircha buyurtmalar yo‘q</Card>}
+          {!orders?.data.length && <Card className="p-4 text-sm text-ink-300">{t('settings.no_orders')}</Card>}
           {orders?.data.map((o) => (
             <Card key={o._id} className="flex items-center justify-between p-4">
               <div>
                 <p className="font-semibold">{o.orderNumber}</p>
-                <p className="text-xs text-ink-300">{formatDate(o.createdAt)} · {o.items.length} ta taom</p>
+                <p className="text-xs text-ink-300">{formatDate(o.createdAt)} · {t('settings.dishes_count', { count: o.items.length })}</p>
               </div>
               <div className="text-right">
                 <p className="font-bold text-primary-600">{formatPrice(o.total)}</p>
-                <p className="text-xs text-ink-300">{ORDER_STATUS_LABEL[o.status]}</p>
+                <p className="text-xs text-ink-300">{t(`status.${o.status}`)}</p>
               </div>
             </Card>
           ))}
@@ -127,8 +127,8 @@ export default function SettingsPage() {
       </section>
 
       <div className="pb-4">
-        <Button variant="outline" className="w-full" onClick={() => toast.info('Yordam: +998 71 200 00 00')}>
-          Yordam
+        <Button variant="outline" className="w-full" onClick={() => toast.info(t('settings.help_contact'))}>
+          {t('settings.help')}
         </Button>
       </div>
     </div>
