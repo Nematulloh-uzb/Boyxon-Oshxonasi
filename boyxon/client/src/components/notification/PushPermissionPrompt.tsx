@@ -33,8 +33,8 @@ export function PushPermissionPrompt() {
           <BellRing className="h-5 w-5" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="font-semibold text-ink-900">Bildirishnomalarni yoqasizmi?</p>
-          <p className="mt-0.5 text-sm text-ink-500">Buyurtma holati va yangiliklardan xabardor bo‘lasiz.</p>
+          <p className="font-semibold text-ink-900">{t('notifications.prompt_title')}</p>
+          <p className="mt-0.5 text-sm text-ink-500">{t('notifications.prompt_desc')}</p>
           <div className="mt-3 flex gap-2">
             <button
               onClick={async () => {
@@ -43,17 +43,17 @@ export function PushPermissionPrompt() {
               }}
               className="h-9 flex-1 rounded-full bg-primary-500 text-sm font-semibold text-white hover:bg-primary-600"
             >
-              Yoqish
+              {t('notifications.allow')}
             </button>
             <button
               onClick={() => dismiss(false)}
               className="h-9 rounded-full border border-ink-line px-4 text-sm font-medium text-ink-700"
             >
-              Keyinroq
+              {t('notifications.later')}
             </button>
           </div>
         </div>
-        <button onClick={() => dismiss(false)} className="rounded-full p-1 text-ink-300 hover:bg-surface-raised" aria-label="Yopish">
+        <button onClick={() => dismiss(false)} className="rounded-full p-1 text-ink-300 hover:bg-surface-raised" aria-label={t('common.close')}>
           <X className="h-4 w-4" />
         </button>
       </div>
