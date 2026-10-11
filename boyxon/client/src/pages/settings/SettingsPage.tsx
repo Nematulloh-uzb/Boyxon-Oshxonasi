@@ -91,7 +91,7 @@ export default function SettingsPage() {
         />
       </SettingsGroup>
 
-      <NotificationPrefs prefs={user.notificationPrefs} />
+      <NotificationPrefs prefs={user.notificationPrefs ?? { pushEnabled: true, orderUpdates: true, promos: true, newDishes: true, systemMessages: true }} />
 
       <SettingsGroup title={t('settings.security')}>
         <SettingsRow
