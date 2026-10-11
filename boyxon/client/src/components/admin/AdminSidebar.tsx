@@ -20,8 +20,11 @@ export function AdminSidebar() {
   const nav = useNavigate();
 
   const doLogout = (): void => {
-    nav('/auth', { replace: true });
-    setTimeout(() => void logoutServer(), 50);
+    // Avval state tozalansin, keyin /auth ga o'tamiz (aks holda AuthPage dagi
+    // "token bor → / ga qayt" effect ushlab qoladi)
+    void logoutServer().then(() => {
+      nav('/auth', { replace: true });
+    });
   };
 
   return (

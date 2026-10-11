@@ -44,6 +44,8 @@ export const useAuthStore = create<AuthState>()(
       // Server'dagi refresh cookie'ni ham o'chiradi — aks holda axios 401 da
       // refresh qilib qayta login qilib qo'yadi va "authda ushlab turadi".
       logoutServer: async () => {
+        // 1) Avval local tozalaymiz — 401 interceptor refresh loop qilmasligi uchun
+        set({ user: null, accessToken: null });
         try {
           // Circular import bo'lmasligi uchun dynamic import
           const { api } = await import('../api/axios');
@@ -51,7 +53,6 @@ export const useAuthStore = create<AuthState>()(
         } catch {
           // Server o'chiq bo'lsa ham local tozalanadi
         }
-        set({ user: null, accessToken: null });
       },
     }),
     {

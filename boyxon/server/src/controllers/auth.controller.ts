@@ -38,7 +38,9 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 
 /** POST /api/auth/logout — refresh cookie ni tozalash. */
 export const logout = asyncHandler(async (_req: Request, res: Response) => {
-  res.clearCookie('refreshToken', { path: '/api/auth' });
+  // clearCookie aynan o'rnatilgan option'lar bilan bo'lishi kerak (path + sameSite + secure),
+  // aks holda brauzer cookie'ni o'chirmaydi va refresh qayta login qilib qo'yadi.
+  res.clearCookie('refreshToken', { ...refreshCookieOptions(), maxAge: undefined });
   res.json(ok(null, 'Chiqish muvaffaqiyatli'));
 });
 

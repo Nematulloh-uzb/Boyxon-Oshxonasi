@@ -43,7 +43,12 @@ api.interceptors.response.use(
         queue.forEach((fn) => fn(null));
         queue = [];
         useAuthStore.getState().logout();
-        window.location.href = '/auth';
+        // SPA ichida qolamiz — full reload (/auth ga href) eski persist state bilan
+        // "authda ushlab turadi" effektini beradi. Router o'zi ProtectedRoute orqali
+        // /auth ga yo'naltiradi; allaqachon /auth da bo'lsak hech narsa qilmaymiz.
+        if (!window.location.pathname.startsWith('/auth')) {
+          window.location.href = '/auth';
+        }
         return Promise.reject(e);
       } finally {
         refreshing = false;

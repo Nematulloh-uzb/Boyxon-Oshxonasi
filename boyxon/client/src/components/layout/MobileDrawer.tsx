@@ -12,9 +12,12 @@ export function MobileDrawer() {
   const close = (): void => set({ mobileDrawer: false });
 
   const doLogout = (): void => {
-    close();
-    window.location.href = '/auth';
-    setTimeout(() => void logoutServer(), 50);
+    // Avval state tozalansin, keyin /auth ga o'tamiz (aks holda AuthPage dagi
+    // "token bor → / ga qayt" effect ushlab qoladi)
+    void logoutServer().then(() => {
+      close();
+      window.location.href = '/auth';
+    });
   };
 
   return (

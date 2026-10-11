@@ -19,6 +19,8 @@ export default function AuthPage() {
   const [searchParams] = useSearchParams();
   const { accessToken, setToken, setUser, user } = useAuthStore();
 
+  const from = (loc.state as { from?: string } | null)?.from ?? '/';
+
   // Google OAuth xatosi (masalan bekor qilingan yoki sozlanmagan) — toast bilan ko'rsatamiz.
   useEffect(() => {
     const err = searchParams.get('error');
@@ -29,10 +31,10 @@ export default function AuthPage() {
   }, [searchParams]);
 
   useEffect(() => {
-    if (accessToken) nav(user?.role === 'admin' ? '/admin' : '/', { replace: true });
-  }, [accessToken, user, nav]);
-
-  const from = (loc.state as { from?: string } | null)?.from ?? '/';
+    // Faqat user YUKLANGANDAN keyin redirect — accessToken bor-u user hali null
+    // bo'lgan oraliqda (refresh/initial load) / ga sakrab ketmasligi uchun.
+    if (accessToken && user) nav(user.role === 'admin' ? '/admin' : from, { replace: true });
+  }, [accessToken, user, nav, from]);
 
   return (
     <div className="min-h-screen md:grid md:grid-cols-2">

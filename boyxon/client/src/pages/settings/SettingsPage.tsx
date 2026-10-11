@@ -99,12 +99,13 @@ export default function SettingsPage() {
           label={t('auth.logout')}
           danger
           onClick={() => {
-            // 1) Avval /auth ga o'tamiz — ProtectedRoute qayta auth'ga tashlamasligi uchun
-            nav('/auth', { replace: true });
-            // 2) Keshni tozalaymiz (invalidate EMAS — u qayta fetch qilib 401/refresh loop beradi)
+            // 1) Keshni tozalaymiz (invalidate EMAS — u qayta fetch qilib 401/refresh loop beradi)
             qc.clear();
-            // 3) Server cookie + local store tozalash
-            void logoutServer();
+            // 2) Server cookie + local store tozalash, keyin /auth ga o'tish
+            // (aks holda AuthPage dagi "token bor → / ga qayt" effect ushlab qoladi)
+            void logoutServer().then(() => {
+              nav('/auth', { replace: true });
+            });
           }}
         />
       </SettingsGroup>
