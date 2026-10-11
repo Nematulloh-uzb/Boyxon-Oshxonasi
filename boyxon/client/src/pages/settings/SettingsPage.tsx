@@ -38,7 +38,7 @@ export default function SettingsPage() {
     localStorage.setItem('boyxon-lang', v);
     const r = await usersApi.updatePrefs({ language: v });
     setUser({ ...user, preferences: r.data });
-    toast.success('Til yangilandi');
+    toast.success(t('settings.language_updated'));
   };
 
   const toggleTheme = async (): Promise<void> => {
