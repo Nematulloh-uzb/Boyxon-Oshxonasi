@@ -55,10 +55,10 @@ export default function SettingsPage() {
       <h1 className="font-display text-2xl font-extrabold">{t('nav.settings')}</h1>
       <ProfileCard user={user} />
 
-      <SettingsGroup title="Hisob">
-        <SettingsRow icon={MapPin} label="Manzillar" value={`${user.addresses.length} ta`} onClick={() => toast.info('Manzil boshqaruvi tez orada')} />
-        <SettingsRow icon={Package} label="Buyurtmalarim" value={orders ? `${orders.pagination.total} ta` : '...'} onClick={() => toast.info('So‘nggi buyurtmalar quyida keltirilgan')} />
-        <SettingsRow icon={Bell} label="Bildirishnomalar" onClick={() => toast.info('Qo‘ng‘iroq ikonkasini bosing')} />
+      <SettingsGroup title={t('settings.account')}>
+        <SettingsRow icon={MapPin} label={t('settings.addresses')} value={t('home.items_count', { count: user.addresses.length })} onClick={() => toast.info(t('settings.addresses_soon'))} />
+        <SettingsRow icon={Package} label={t('settings.orders')} value={orders ? t('home.items_count', { count: orders.pagination.total }) : '...'} onClick={() => toast.info(t('settings.orders_hint'))} />
+        <SettingsRow icon={Bell} label={t('settings.notifications')} onClick={() => toast.info(t('settings.bell_hint'))} />
       </SettingsGroup>
 
       <SettingsGroup title="Afzalliklar">
