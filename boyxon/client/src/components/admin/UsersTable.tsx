@@ -44,8 +44,8 @@ export function UsersTable({ users, loading }: { users: User[]; loading?: boolea
                   onChange={(e) => roleM.mutate({ id: u._id, role: e.target.value })}
                   className="h-8 rounded-lg border border-ink-line bg-surface px-1.5 text-xs outline-none"
                 >
-                  <option value="user">User</option>
-                  <option value="admin">Admin</option>
+                  <option value="user">{t('admin.role_user')}</option>
+                  <option value="admin">{t('admin.role_admin')}</option>
                 </select>
               </td>
               <td className="px-4 py-3 text-ink-300">{formatDate(u.createdAt)}</td>
@@ -54,7 +54,7 @@ export function UsersTable({ users, loading }: { users: User[]; loading?: boolea
                   onClick={() => blockM.mutate({ id: u._id, block: u.isActive })}
                   className={`rounded-full px-2.5 py-1 text-xs font-semibold ${u.isActive ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'}`}
                 >
-                  {u.isActive ? 'Faol' : 'Bloklangan'}
+                  {u.isActive ? t('common.active') : t('admin.blocked')}
                 </button>
               </td>
             </tr>
