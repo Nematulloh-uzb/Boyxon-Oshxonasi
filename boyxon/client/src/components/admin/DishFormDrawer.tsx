@@ -140,7 +140,7 @@ export function DishFormDrawer({ open, onClose, dish, categories, onSaved }: Pro
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-xs font-semibold text-ink-700">Yetkazish (daq)</label>
+            <label className="mb-1 block text-xs font-semibold text-ink-700">{t('admin.delivery_time')}</label>
             <input type="number" className={inputCls} value={form.deliveryTime} onChange={(e) => setForm({ ...form, deliveryTime: e.target.value })} />
           </div>
         </div>
