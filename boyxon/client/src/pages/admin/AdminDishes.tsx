@@ -58,7 +58,7 @@ export default function AdminDishes() {
         onEdit={(d) => { setEditing(d); setDrawerOpen(true); }}
         onToggle={(d) => toggleM.mutate(d._id)}
         onDelete={(d) => {
-          if (confirm(`“${d.name}” o‘chirilsinmi?`)) deleteM.mutate(d._id);
+          if (confirm(t('admin.delete_confirm', { name: d.name }))) deleteM.mutate(d._id);
         }}
       />
 
