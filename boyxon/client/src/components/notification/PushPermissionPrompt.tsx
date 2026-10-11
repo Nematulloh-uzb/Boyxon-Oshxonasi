@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { BellRing, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { usePush } from '../../hooks/usePush';
 import { useAuthStore } from '../../store/auth.store';
 
 /** Login dan keyin bir marta push ruxsati so‘raydi (localStorage flag). */
 export function PushPermissionPrompt() {
+  const { t } = useTranslation();
   const token = useAuthStore((s) => s.accessToken);
   const { supported, permission, subscribe } = usePush();
   const [show, setShow] = useState(false);
