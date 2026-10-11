@@ -198,7 +198,14 @@ export const adminDishes = asyncHandler(async (req: Request, res: Response) => {
   const page = Math.max(1, Number(req.query.page) || 1);
   const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
   const filter: Record<string, unknown> = {};
-  if (req.query.search) filter.name = { $regex: req.query.search, $options: 'i' };
+  if (req.query.search) {
+    const s = String(req.query.search);
+    filter.$or = [
+      { name: { $regex: s, $options: 'i' } },
+      { nameRu: { $regex: s, $options: 'i' } },
+      { nameEn: { $regex: s, $options: 'i' } },
+    ];
+  }
   if (req.query.category) filter.category = req.query.category;
   if (req.query.isActive !== undefined) filter.isActive = req.query.isActive === 'true';
   const [items, total] = await Promise.all([
