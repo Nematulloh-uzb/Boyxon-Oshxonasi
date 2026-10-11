@@ -5,3 +5,4 @@
 --- CLIENT TSC ---
 boyxon: 169
 client_exit=0
+server_exit=0
