@@ -8,8 +8,14 @@ import { useAuthStore } from '../../store/auth.store';
 export function MobileDrawer() {
   const { t } = useTranslation();
   const { mobileDrawer, set } = useUiStore();
-  const { user, accessToken, logout } = useAuthStore();
+  const { user, accessToken, logoutServer } = useAuthStore();
   const close = (): void => set({ mobileDrawer: false });
+
+  const doLogout = (): void => {
+    close();
+    window.location.href = '/auth';
+    setTimeout(() => void logoutServer(), 50);
+  };
 
   return (
     <AnimatePresence>
@@ -39,7 +45,7 @@ export function MobileDrawer() {
             <div className="mt-auto">
               {accessToken ? (
                 <button
-                  onClick={() => { logout(); close(); }}
+                  onClick={doLogout}
                   className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-danger hover:bg-danger/10"
                 >
                   <LogOut className="h-5 w-5" />{t('auth.logout')}

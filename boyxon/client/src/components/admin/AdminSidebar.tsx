@@ -16,8 +16,13 @@ const links = [
 
 export function AdminSidebar() {
   const { t } = useTranslation();
-  const logout = useAuthStore((s) => s.logout);
+  const logoutServer = useAuthStore((s) => s.logoutServer);
   const nav = useNavigate();
+
+  const doLogout = (): void => {
+    nav('/auth', { replace: true });
+    setTimeout(() => void logoutServer(), 50);
+  };
 
   return (
     <>
@@ -45,7 +50,7 @@ export function AdminSidebar() {
           ))}
         </nav>
         <button
-          onClick={() => { logout(); nav('/'); }}
+          onClick={doLogout}
           className="mt-auto rounded-xl px-3 py-2.5 text-left text-sm font-medium text-white/60 hover:bg-white/10"
         >
           {t('nav.logout')}

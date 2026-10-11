@@ -22,7 +22,7 @@ const LANGS: { v: 'uz' | 'ru' | 'en'; l: string }[] = [
 
 export default function SettingsPage() {
   const { t, i18n } = useTranslation();
-  const { user, setUser, logout } = useAuthStore();
+  const { user, setUser, logoutServer } = useAuthStore();
   const qc = useQueryClient();
   const nav = useNavigate();
 
@@ -99,9 +99,12 @@ export default function SettingsPage() {
           label={t('auth.logout')}
           danger
           onClick={() => {
-            logout();
-            void qc.invalidateQueries();
-            nav('/');
+            // 1) Avval /auth ga o'tamiz — ProtectedRoute qayta auth'ga tashlamasligi uchun
+            nav('/auth', { replace: true });
+            // 2) Keshni tozalaymiz (invalidate EMAS — u qayta fetch qilib 401/refresh loop beradi)
+            qc.clear();
+            // 3) Server cookie + local store tozalash
+            void logoutServer();
           }}
         />
       </SettingsGroup>
