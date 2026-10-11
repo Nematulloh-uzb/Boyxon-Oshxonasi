@@ -21,6 +21,7 @@ const empty = {
 };
 
 export function DishFormDrawer({ open, onClose, dish, categories, onSaved }: Props) {
+  const { t } = useTranslation();
   const [form, setForm] = useState(empty);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
