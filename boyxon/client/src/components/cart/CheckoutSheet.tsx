@@ -70,14 +70,14 @@ export function CheckoutSheet() {
 
   if (created) {
     return (
-      <Sheet open={checkoutOpen} onClose={close} title="Buyurtma qabul qilindi">
+      <Sheet open={checkoutOpen} onClose={close} title={t('cart.order_placed')}>
         <div className="py-6 text-center">
           <CheckCircle2 className="mx-auto h-16 w-16 text-success" />
           <p className="mt-4 font-display text-xl font-bold">{created.orderNumber}</p>
-          <p className="mt-1 text-sm text-ink-300">Statusni real-time kuzatib boring.</p>
+          <p className="mt-1 text-sm text-ink-300">{t('cart.track_realtime')}</p>
           <div className="mt-6 flex gap-3">
-            <Button variant="outline" className="flex-1" onClick={close}>Bosh sahifa</Button>
-            <Button className="flex-1" onClick={close}>Buyurtmalarim</Button>
+            <Button variant="outline" className="flex-1" onClick={close}>{t('cart.go_home')}</Button>
+            <Button className="flex-1" onClick={close}>{t('nav.orders')}</Button>
           </div>
         </div>
       </Sheet>
@@ -85,7 +85,7 @@ export function CheckoutSheet() {
   }
 
   return (
-    <Sheet open={checkoutOpen} onClose={() => set({ checkoutOpen: false })} title="Buyurtmani rasmiylashtirish">
+    <Sheet open={checkoutOpen} onClose={() => set({ checkoutOpen: false })} title={t('cart.place_order')}>
       <div className="space-y-5">
         <DeliveryToggle value={deliveryType} onChange={setDeliveryType} />
 
