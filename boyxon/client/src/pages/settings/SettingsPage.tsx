@@ -1,5 +1,4 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
 import { Bell, Globe, LogOut, MapPin, Moon, Package, Sun } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -99,15 +98,13 @@ export default function SettingsPage() {
           label={t('auth.logout')}
           danger
           onClick={() => {
-            // 1) Keshni tozalaymiz (invalidate EMAS — u qayta fetch qilib 401/refresh loop beradi)
-            qc.clear();
-            // 2) Local store'ni DARROV tozalaymiz — AuthPage dagi "token bor → / ga qayt"
-            // effect ushlab qolmasligi uchun. Keyin server cookie'ni o'chirib / ga o'tamiz.
-            // /auth ga emas — foydalanuvchi "chiqishda authda qolib ketdi" deb o'ylaydi.
-            const { logout, logoutServer } = useAuthStore.getState();
-            logout();
-            nav('/', { replace: true });
-            void logoutServer();
+            // ProtectedRoute ichidan nav() poygada yutqazadi — shuning uchun hard reload.
+            // Avval kesh + local + server cookie tozalab, keyin '/' ga chiqamiz.
+            void (async () => {
+              qc.clear();
+              await useAuthStore.getState().logoutServer();
+              window.location.href = '/';
+            })();
           }}
         />
       </SettingsGroup>
