@@ -82,7 +82,7 @@ export function DishFormDrawer({ open, onClose, dish, categories, onSaved }: Pro
   const inputCls = 'h-11 w-full rounded-xl border border-ink-line px-3 text-sm outline-none focus:border-primary-500';
 
   return (
-    <Sheet open={open} onClose={onClose} title={dish ? 'Taomni tahrirlash' : 'Yangi taom'}>
+    <Sheet open={open} onClose={onClose} title={dish ? t('admin.edit_dish') : t('admin.new_dish')}>
       <div className="space-y-3">
         {/* Rasm dropzone — ixtiyoriy */}
         <div
