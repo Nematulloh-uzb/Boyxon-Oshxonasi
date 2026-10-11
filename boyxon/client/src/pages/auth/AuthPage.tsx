@@ -13,6 +13,7 @@ import { loginValidator, registerValidator, type LoginForm, type RegisterForm } 
 import type { User } from '../../types';
 
 export default function AuthPage() {
+  const { t } = useTranslation();
   const nav = useNavigate();
   const loc = useLocation();
   const [searchParams] = useSearchParams();
@@ -21,9 +22,10 @@ export default function AuthPage() {
   // Google OAuth xatosi (masalan bekor qilingan yoki sozlanmagan) — toast bilan ko'rsatamiz.
   useEffect(() => {
     const err = searchParams.get('error');
-    if (err === 'google') toast.error('Google bilan kirish bekor qilindi yoki xato berdi');
+    if (err === 'google') toast.error(t('auth.google_cancelled'));
     else if (err === 'google_not_configured')
-      toast.error('Google kirish hozircha sozlanmagan. Email va parol bilan kiring.');
+      toast.error(t('auth.google_not_configured'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   useEffect(() => {
