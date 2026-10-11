@@ -1,19 +1,21 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { adminApi } from '../../api/admin.api';
 import { OrdersTable } from '../../components/admin/OrdersTable';
 
 const FILTERS = [
-  { v: '', l: 'Hammasi' },
-  { v: 'pending', l: 'Kutilmoqda' },
-  { v: 'confirmed', l: 'Tasdiqlandi' },
-  { v: 'preparing', l: 'Tayyorlanmoqda' },
-  { v: 'on_way', l: 'Yo‘lda' },
-  { v: 'delivered', l: 'Yetkazildi' },
-  { v: 'cancelled', l: 'Bekor qilindi' },
+  { v: '', k: 'common.all' },
+  { v: 'pending', k: 'status.pending' },
+  { v: 'confirmed', k: 'status.confirmed' },
+  { v: 'preparing', k: 'status.preparing' },
+  { v: 'on_way', k: 'status.on_way' },
+  { v: 'delivered', k: 'status.delivered' },
+  { v: 'cancelled', k: 'status.cancelled' },
 ];
 
 export default function AdminOrders() {
+  const { t } = useTranslation();
   const [status, setStatus] = useState('');
   const { data, isLoading } = useQuery({
     queryKey: ['admin-orders', status],
