@@ -91,7 +91,7 @@ export function CheckoutSheet() {
 
         {deliveryType === 'delivery' && (
           <div>
-            <label className="mb-1.5 block text-sm font-semibold text-ink-700">Manzil</label>
+            <label className="mb-1.5 block text-sm font-semibold text-ink-700">{t('cart.address')}</label>
             {addresses.length ? (
               <div className="flex flex-col gap-2">
                 {addresses.map((a) => (
@@ -107,26 +107,26 @@ export function CheckoutSheet() {
               </div>
             ) : (
               <p className="rounded-2xl bg-primary-50 px-3 py-3 text-sm text-ink-500">
-                Manzil yo‘q — Sozlamalar orqali qo‘shing yoki “Olib ketish” ni tanlang.
+                {t('cart.no_address')}
               </p>
             )}
           </div>
         )}
 
         <div>
-          <label className="mb-1.5 block text-sm font-semibold text-ink-700">To‘lov usuli</label>
+          <label className="mb-1.5 block text-sm font-semibold text-ink-700">{t('cart.payment_method')}</label>
           <PaymentMethods value={paymentMethod} onChange={setPaymentMethod} />
         </div>
 
         <PromoInput />
 
         <div>
-          <label className="mb-1.5 block text-sm font-semibold text-ink-700">Izoh (ixtiyoriy)</label>
+          <label className="mb-1.5 block text-sm font-semibold text-ink-700">{t('cart.notes')}</label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
-            placeholder="Masalan: qo‘shimcha dasturxon..."
+            placeholder={t('cart.notes_placeholder')}
             className="w-full rounded-2xl border border-ink-line bg-surface px-3 py-2.5 text-sm outline-none focus:border-primary-500"
           />
         </div>
@@ -139,7 +139,7 @@ export function CheckoutSheet() {
           disabled={!lines.length || mutation.isPending || (deliveryType === 'delivery' && !addressId)}
           onClick={() => mutation.mutate()}
         >
-          {mutation.isPending ? 'Yuborilmoqda...' : 'To‘lovni tasdiqlash'}
+          {mutation.isPending ? t('cart.processing') : t('cart.checkout')}
         </Button>
       </div>
     </Sheet>
