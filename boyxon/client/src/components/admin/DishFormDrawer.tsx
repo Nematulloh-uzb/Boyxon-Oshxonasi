@@ -105,8 +105,8 @@ export function DishFormDrawer({ open, onClose, dish, categories, onSaved }: Pro
           ) : (
             <div className="text-center text-ink-300">
               <ImagePlus className="mx-auto h-8 w-8" />
-              <p className="mt-1 text-xs">Rasm yuklang (ixtiyoriy) yoki tashlang</p>
-              <p className="text-[10px]">bo‘lsa — “Rasm yo‘q” placeholder ko‘rinadi</p>
+              <p className="mt-1 text-xs">{t('admin.upload_image')}</p>
+              <p className="text-[10px]">{t('admin.dish_image_hint')}</p>
             </div>
           )}
           <input id="dish-img" type="file" accept="image/*" className="hidden" onChange={(e) => pick(e.target.files?.[0])} />
