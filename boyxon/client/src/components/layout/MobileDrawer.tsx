@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Home, LogOut, Settings, ShieldCheck, ShoppingBag, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -8,16 +8,17 @@ import { useAuthStore } from '../../store/auth.store';
 export function MobileDrawer() {
   const { t } = useTranslation();
   const { mobileDrawer, set } = useUiStore();
-  const { user, accessToken, logoutServer } = useAuthStore();
+  const { user, accessToken } = useAuthStore();
+  const nav = useNavigate();
   const close = (): void => set({ mobileDrawer: false });
 
   const doLogout = (): void => {
-    // Avval state tozalansin, keyin /auth ga o'tamiz (aks holda AuthPage dagi
-    // "token bor → / ga qayt" effect ushlab qoladi)
-    void logoutServer().then(() => {
-      close();
-      window.location.href = '/auth';
-    });
+    // Local'ni darrov tozalaymiz, keyin / ga o'tamiz va server cookie'ni o'chiramiz
+    const { logout, logoutServer } = useAuthStore.getState();
+    logout();
+    close();
+    nav('/', { replace: true });
+    void logoutServer();
   };
 
   return (

@@ -16,15 +16,14 @@ const links = [
 
 export function AdminSidebar() {
   const { t } = useTranslation();
-  const logoutServer = useAuthStore((s) => s.logoutServer);
   const nav = useNavigate();
 
   const doLogout = (): void => {
-    // Avval state tozalansin, keyin /auth ga o'tamiz (aks holda AuthPage dagi
-    // "token bor → / ga qayt" effect ushlab qoladi)
-    void logoutServer().then(() => {
-      nav('/auth', { replace: true });
-    });
+    // Local'ni darrov tozalaymiz, keyin / ga o'tamiz va server cookie'ni o'chiramiz
+    const { logout, logoutServer } = useAuthStore.getState();
+    logout();
+    nav('/', { replace: true });
+    void logoutServer();
   };
 
   return (

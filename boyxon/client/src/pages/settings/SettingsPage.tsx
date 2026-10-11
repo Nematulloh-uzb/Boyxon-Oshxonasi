@@ -22,7 +22,7 @@ const LANGS: { v: 'uz' | 'ru' | 'en'; l: string }[] = [
 
 export default function SettingsPage() {
   const { t, i18n } = useTranslation();
-  const { user, setUser, logoutServer } = useAuthStore();
+  const { user, setUser } = useAuthStore();
   const qc = useQueryClient();
   const nav = useNavigate();
 
@@ -101,11 +101,13 @@ export default function SettingsPage() {
           onClick={() => {
             // 1) Keshni tozalaymiz (invalidate EMAS — u qayta fetch qilib 401/refresh loop beradi)
             qc.clear();
-            // 2) Server cookie + local store tozalash, keyin /auth ga o'tish
-            // (aks holda AuthPage dagi "token bor → / ga qayt" effect ushlab qoladi)
-            void logoutServer().then(() => {
-              nav('/auth', { replace: true });
-            });
+            // 2) Local store'ni DARROV tozalaymiz — AuthPage dagi "token bor → / ga qayt"
+            // effect ushlab qolmasligi uchun. Keyin server cookie'ni o'chirib / ga o'tamiz.
+            // /auth ga emas — foydalanuvchi "chiqishda authda qolib ketdi" deb o'ylaydi.
+            const { logout, logoutServer } = useAuthStore.getState();
+            logout();
+            nav('/', { replace: true });
+            void logoutServer();
           }}
         />
       </SettingsGroup>
