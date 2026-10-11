@@ -27,12 +27,12 @@ export default function AdminDishes() {
 
   const toggleM = useMutation({
     mutationFn: (id: string) => adminApi.toggleDish(id),
-    onSuccess: () => { refresh(); toast.success('Holat o‘zgardi'); },
+    onSuccess: () => { refresh(); toast.success(t('admin.status_changed')); },
   });
   const deleteM = useMutation({
     mutationFn: (id: string) => adminApi.deleteDish(id),
-    onSuccess: () => { refresh(); toast.success('Taom o‘chirildi'); },
-    onError: () => toast.error('O‘chirib bo‘lmadi'),
+    onSuccess: () => { refresh(); toast.success(t('admin.dish_deleted')); },
+    onError: () => toast.error(t('admin.delete_error')),
   });
 
   return (
@@ -43,12 +43,12 @@ export default function AdminDishes() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Taom qidirish..."
+            placeholder={t('admin.search_dishes')}
             className="h-11 w-full rounded-xl border border-ink-line bg-surface pl-9 pr-3 text-sm outline-none focus:border-primary-500"
           />
         </div>
         <Button onClick={() => { setEditing(null); setDrawerOpen(true); }}>
-          <Plus className="h-4 w-4" /> Yangi taom
+          <Plus className="h-4 w-4" /> {t('admin.new_dish')}
         </Button>
       </div>
 
