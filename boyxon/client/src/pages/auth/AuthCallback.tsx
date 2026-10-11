@@ -32,5 +32,5 @@ export default function AuthCallback() {
     window.history.replaceState({}, '', window.location.pathname);
   }, [params, setToken, setUser, nav, qc]);
 
-  return <div className="min-h-screen grid place-items-center text-ink-300">Kirilmoqda...</div>;
+  return <div className="min-h-screen grid place-items-center text-ink-300">{t('auth.signing_in')}</div>;
 }
