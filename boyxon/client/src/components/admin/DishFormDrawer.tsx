@@ -159,7 +159,7 @@ export function DishFormDrawer({ open, onClose, dish, categories, onSaved }: Pro
           </label>
         </div>
         <Button className="w-full" onClick={() => void submit()} disabled={saving}>
-          {saving ? 'Saqlanmoqda...' : dish ? 'Saqlash' : 'Yaratish'}
+          {saving ? t('common.saving') : dish ? t('common.save') : t('common.create')}
         </Button>
       </div>
     </Sheet>
