@@ -34,7 +34,7 @@ export default function AdminOrders() {
               status === f.v ? 'border-primary-500 bg-primary-500 text-white' : 'border-ink-line bg-surface text-ink-700'
             }`}
           >
-            {f.l}
+            {t(f.k)}
           </button>
         ))}
       </div>
