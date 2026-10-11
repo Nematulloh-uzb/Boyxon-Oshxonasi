@@ -66,7 +66,7 @@ export function OrdersTable({ orders, loading }: { orders: Order[]; loading?: bo
                     className="h-8 rounded-lg border border-ink-line bg-surface px-1.5 text-xs outline-none"
                     disabled={statusM.isPending}
                   >
-                    {STATUSES.map((s) => <option key={s} value={s}>{ORDER_STATUS_LABEL[s]}</option>)}
+                    {STATUSES.map((s) => <option key={s} value={s}>{t(`status.${s}`)}</option>)}
                   </select>
                 </div>
               </td>
