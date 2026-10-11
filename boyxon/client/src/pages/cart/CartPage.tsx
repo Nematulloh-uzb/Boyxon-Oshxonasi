@@ -24,9 +24,9 @@ export default function CartPage() {
           <ShoppingBag className="h-9 w-9 text-ink-300" />
         </span>
         <h1 className="mt-4 font-display text-xl font-bold">{t('cart.empty')}</h1>
-        <p className="mt-1 text-sm text-ink-300">{t('cart.emptyHint')}</p>
+        <p className="mt-1 text-sm text-ink-300">{t('cart.empty_desc')}</p>
         <Link to="/">
-          <Button className="mt-6">{t('cart.toMenu')}</Button>
+          <Button className="mt-6">{t('cart.go_menu')}</Button>
         </Link>
       </div>
     );
