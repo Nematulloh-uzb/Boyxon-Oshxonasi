@@ -151,11 +151,11 @@ export function DishFormDrawer({ open, onClose, dish, categories, onSaved }: Pro
         <div className="flex gap-3">
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={form.isActive === 'true'} onChange={(e) => setForm({ ...form, isActive: String(e.target.checked) })} />
-            Faol
+            {t('common.active')}
           </label>
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={form.isFeatured === 'true'} onChange={(e) => setForm({ ...form, isFeatured: String(e.target.checked) })} />
-            Tanlangan (featured)
+            {t('admin.featured')}
           </label>
         </div>
         <Button className="w-full" onClick={() => void submit()} disabled={saving}>
