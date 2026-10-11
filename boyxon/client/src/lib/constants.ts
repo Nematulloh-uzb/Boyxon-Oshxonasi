@@ -1,11 +1,12 @@
 export const FREE_DELIVERY_FROM = 150000;
 export const DELIVERY_FEE = 12000;
 
+/** Payment method keys — translate in components via t(`payment.${value}`). */
 export const PAYMENT_METHODS = [
-  { value: 'payme', label: 'Payme' },
-  { value: 'click', label: 'Click' },
-  { value: 'uzum', label: 'Uzum Bank' },
-  { value: 'cash', label: 'Naqd' },
+  { value: 'payme' },
+  { value: 'click' },
+  { value: 'uzum' },
+  { value: 'cash' },
 ] as const;
 
 export const QUERY_KEYS = {

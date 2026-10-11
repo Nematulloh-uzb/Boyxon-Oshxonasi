@@ -1,6 +1,7 @@
 import { Plus, Star, Timer } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { Dish } from '../../types';
 import { formatPrice } from '../../lib/format';
 import { useCart } from '../../hooks/useCart';
@@ -8,11 +9,12 @@ import { DishPlaceholder } from './DishPlaceholder';
 import { Badge } from '../ui/Badge';
 
 export function DishCard({ dish }: { dish: Dish }) {
+  const { t } = useTranslation();
   const { add } = useCart();
 
   const addToCart = (): void => {
     add({ dishId: dish._id, name: dish.name, price: dish.price, image: dish.image }, 1);
-    toast.success(`${dish.name} savatchaga qo‘shildi`);
+    toast.success(t('dish.added', { name: dish.name }));
   };
 
   return (
@@ -41,10 +43,10 @@ export function DishCard({ dish }: { dish: Dish }) {
         <div className="flex items-center gap-3 text-xs text-ink-300">
           <span className="flex items-center gap-1">
             <Timer className="h-3.5 w-3.5" />
-            {dish.deliveryTime} daq
+            {dish.deliveryTime} {t('dish.minutes')}
           </span>
-          {dish.tags.includes('vegetarian') && <Badge tone="success">Parhez</Badge>}
-          {dish.isFeatured && <Badge tone="promo">Top</Badge>}
+          {dish.tags.includes('vegetarian') && <Badge tone="success">{t('dish.diet')}</Badge>}
+          {dish.isFeatured && <Badge tone="promo">{t('dish.top')}</Badge>}
         </div>
         <div className="mt-1 flex items-center justify-between gap-2">
           <div>
