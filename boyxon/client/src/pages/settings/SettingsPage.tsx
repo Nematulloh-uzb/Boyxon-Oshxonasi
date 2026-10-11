@@ -42,7 +42,7 @@ export default function SettingsPage() {
   };
 
   const toggleTheme = async (): Promise<void> => {
-    const theme = user.preferences.theme === 'dark' ? 'light' : 'dark';
+    const theme = (user.preferences?.theme ?? 'dark') === 'dark' ? 'light' : 'dark';
     // LocalStorage'ni darrov yangilash — sahifa refresh'da ham saqlanadi
     localStorage.setItem('boyxon-theme', theme);
     document.documentElement.classList.toggle('dark', theme === 'dark');
