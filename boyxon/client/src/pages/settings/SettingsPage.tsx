@@ -12,7 +12,7 @@ import { Card } from '../../components/ui/Card';
 import { useAuthStore } from '../../store/auth.store';
 import { usersApi } from '../../api/users.api';
 import { ordersApi } from '../../api/orders.api';
-import { formatDate, formatPrice, ORDER_STATUS_LABEL } from '../../lib/format';
+import { formatDate, formatPrice } from '../../lib/format';
 
 const LANGS: { v: 'uz' | 'ru' | 'en'; l: string }[] = [
   { v: 'uz', l: "O'zbekcha" },
