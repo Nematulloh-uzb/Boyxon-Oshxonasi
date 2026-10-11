@@ -1,4 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Home, LogOut, Settings, ShieldCheck, ShoppingBag, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -9,16 +10,17 @@ export function MobileDrawer() {
   const { t } = useTranslation();
   const { mobileDrawer, set } = useUiStore();
   const { user, accessToken } = useAuthStore();
-  const nav = useNavigate();
+  const qc = useQueryClient();
   const close = (): void => set({ mobileDrawer: false });
 
   const doLogout = (): void => {
-    // Local'ni darrov tozalaymiz, keyin / ga o'tamiz va server cookie'ni o'chiramiz
-    const { logout, logoutServer } = useAuthStore.getState();
-    logout();
-    close();
-    nav('/', { replace: true });
-    void logoutServer();
+    // ProtectedRoute/nav poygasidan qochish uchun hard reload bilan '/' ga chiqamiz.
+    void (async () => {
+      qc.clear();
+      await useAuthStore.getState().logoutServer();
+      close();
+      window.location.href = '/';
+    })();
   };
 
   return (

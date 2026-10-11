@@ -1,4 +1,5 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { ChefHat, Home, Gift, Megaphone, Package, ShoppingCart, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/auth.store';
@@ -16,14 +17,15 @@ const links = [
 
 export function AdminSidebar() {
   const { t } = useTranslation();
-  const nav = useNavigate();
+  const qc = useQueryClient();
 
   const doLogout = (): void => {
-    // Local'ni darrov tozalaymiz, keyin / ga o'tamiz va server cookie'ni o'chiramiz
-    const { logout, logoutServer } = useAuthStore.getState();
-    logout();
-    nav('/', { replace: true });
-    void logoutServer();
+    // AdminRoute ichidan nav() poygada yutqazadi — hard reload bilan '/' ga chiqamiz.
+    void (async () => {
+      qc.clear();
+      await useAuthStore.getState().logoutServer();
+      window.location.href = '/';
+    })();
   };
 
   return (
