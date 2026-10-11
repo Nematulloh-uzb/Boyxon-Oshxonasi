@@ -98,10 +98,12 @@ export default function SettingsPage() {
           danger
           onClick={() => {
             // ProtectedRoute ichidan nav() poygada yutqazadi — shuning uchun hard reload.
-            // Avval kesh + local + server cookie tozalab, keyin '/' ga chiqamiz.
+            // "Chiqish" bosilganda '/' ga chiqamiz (auth'da ushlanib qolmasligi uchun).
             void (async () => {
               qc.clear();
               await useAuthStore.getState().logoutServer();
+              // Persist yozilishi uchun kichik pauza — aks holda reload eski token'ni qayta tiklaydi
+              await new Promise((r) => setTimeout(r, 50));
               window.location.href = '/';
             })();
           }}

@@ -18,6 +18,8 @@ export function MobileDrawer() {
     void (async () => {
       qc.clear();
       await useAuthStore.getState().logoutServer();
+      // Persist yozilishi uchun kichik pauza — aks holda reload eski token'ni qayta tiklaydi
+      await new Promise((r) => setTimeout(r, 50));
       close();
       window.location.href = '/';
     })();

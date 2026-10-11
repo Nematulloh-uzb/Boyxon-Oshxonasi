@@ -8,8 +8,11 @@ export function useAuth() {
   const query = useQuery({
     queryKey: ['me'],
     queryFn: () => authApi.me().then((r) => r.data),
+    // Faqat birinchi yuklanishda — logout'dan keyin accessToken null bo'ladi,
+    // shuning uchun "authda ushlab turadi" loop bo'lmaydi
     enabled: Boolean(accessToken) && !user,
     retry: false,
+    staleTime: Infinity,
   });
   useEffect(() => {
     if (query.data && !user) setUser(query.data);
