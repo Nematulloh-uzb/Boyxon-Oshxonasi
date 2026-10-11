@@ -54,10 +54,10 @@ export function CheckoutSheet() {
       clear();
       void qc.invalidateQueries({ queryKey: ['notifications'] });
       void qc.invalidateQueries({ queryKey: ['unread-count'] });
-      toast.success('Buyurtmangiz qabul qilindi!');
+      toast.success(t('cart.order_placed'));
     },
     onError: (e) => {
-      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Xatolik yuz berdi';
+      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('common.error');
       toast.error(msg);
     },
   });
