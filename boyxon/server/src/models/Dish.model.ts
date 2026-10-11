@@ -49,7 +49,7 @@ const DishSchema = new Schema<DishDoc>(
   { timestamps: true },
 );
 
-DishSchema.index({ name: 'text', description: 'text' });
+DishSchema.index({ name: 'text', nameRu: 'text', nameEn: 'text', description: 'text', descriptionRu: 'text', descriptionEn: 'text' });
 DishSchema.index({ category: 1, isActive: 1 });
 DishSchema.index({ isFeatured: 1, rating: -1 });
 

@@ -5,6 +5,8 @@ export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'on_way' | 'de
 export interface OrderItem {
   dish: Types.ObjectId;
   name: string;
+  nameRu?: string;
+  nameEn?: string;
   price: number;
   quantity: number;
   customizations?: string;

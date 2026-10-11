@@ -49,8 +49,12 @@ export interface Category {
 export interface Dish {
   _id: string;
   name: string;
+  nameRu?: string;
+  nameEn?: string;
   slug: string;
   description: string;
+  descriptionRu?: string;
+  descriptionEn?: string;
   price: number;
   oldPrice?: number;
   category: Category | string;
