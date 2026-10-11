@@ -57,7 +57,7 @@ export function ProfileCard({ user }: { user: UserType }) {
       <div className="min-w-0">
         <p className="truncate font-display text-lg font-bold text-ink-900">{user.name}</p>
         <p className="truncate text-sm text-ink-300">{user.email}</p>
-        <p className="mt-0.5 text-sm font-medium text-primary-600">Bonus: {user.bonusBalance.toLocaleString('uz-UZ')} so‘m</p>
+        <p className="mt-0.5 text-sm font-medium text-primary-600">{t('profile.bonus', { amount: formatPrice(user.bonusBalance) })}</p>
       </div>
     </Card>
   );
