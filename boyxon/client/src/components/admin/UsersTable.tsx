@@ -1,23 +1,25 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import type { User } from '../../types';
 import { adminApi } from '../../api/admin.api';
 import { formatDate } from '../../lib/format';
 
 export function UsersTable({ users, loading }: { users: User[]; loading?: boolean }) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const roleM = useMutation({
     mutationFn: ({ id, role }: { id: string; role: string }) => adminApi.changeRole(id, role),
-    onSuccess: () => { void qc.invalidateQueries({ queryKey: ['admin-users'] }); toast.success('Rol yangilandi'); },
-    onError: () => toast.error('Rol o‘zgarmadi'),
+    onSuccess: () => { void qc.invalidateQueries({ queryKey: ['admin-users'] }); toast.success(t('admin.role_updated')); },
+    onError: () => toast.error(t('admin.role_error')),
   });
   const blockM = useMutation({
     mutationFn: ({ id, block }: { id: string; block: boolean }) => adminApi.toggleBlock(id, block),
-    onSuccess: () => { void qc.invalidateQueries({ queryKey: ['admin-users'] }); toast.success('Holat yangilandi'); },
+    onSuccess: () => { void qc.invalidateQueries({ queryKey: ['admin-users'] }); toast.success(t('admin.status_updated')); },
   });
 
-  if (loading) return <div className="rounded-card bg-surface p-6 text-center text-ink-300">Yuklanmoqda...</div>;
-  if (!users.length) return <div className="rounded-card bg-surface p-6 text-center text-ink-300">Foydalanuvchilar yo‘q</div>;
+  if (loading) return <div className="rounded-card bg-surface p-6 text-center text-ink-300">{t('common.loading')}</div>;
+  if (!users.length) return <div className="rounded-card bg-surface p-6 text-center text-ink-300">{t('admin.users_empty')}</div>;
 
   return (
     <div className="overflow-x-auto rounded-card bg-surface shadow-sm">
