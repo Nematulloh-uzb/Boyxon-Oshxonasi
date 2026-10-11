@@ -89,6 +89,7 @@ function AuthForm({ from, onDone }: { from: string; onDone: (token: string, u: U
         {(['signin', 'signup'] as const).map((key) => (
           <button
             key={key}
+            type="button"
             onClick={() => setTab(key)}
             className={`rounded-xl py-2.5 text-sm font-semibold transition ${tab === key ? 'bg-surface text-primary-700 shadow-sm' : 'text-ink-300'}`}
           >
