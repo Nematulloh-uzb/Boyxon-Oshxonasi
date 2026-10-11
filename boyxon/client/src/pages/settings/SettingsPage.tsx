@@ -80,9 +80,9 @@ export default function SettingsPage() {
           }
         />
         <SettingsRow
-          icon={user.preferences.theme === 'dark' ? Moon : Sun}
+          icon={(user.preferences?.theme ?? 'dark') === 'dark' ? Moon : Sun}
           label={t('settings.theme')}
-          value={user.preferences.theme === 'dark' ? t('theme.dark') : t('theme.light')}
+          value={(user.preferences?.theme ?? 'dark') === 'dark' ? t('theme.dark') : t('theme.light')}
           right={
             <button onClick={() => void toggleTheme()} className="text-primary-600 text-sm font-semibold">
               {t('settings.toggle')}
