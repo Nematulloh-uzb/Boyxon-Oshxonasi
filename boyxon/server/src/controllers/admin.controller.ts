@@ -55,7 +55,7 @@ export const updateOrderStatus = asyncHandler(async (req: Request, res: Response
   const userId = order.user.toString();
   await Notification.create({ user: userId, type: 'order', title: 'Buyurtma holati', message: msg, link: `/orders/${order.id}` });
   const u = await User.findById(userId);
-  if (u?.notificationPrefs.pushEnabled && u?.notificationPrefs.orderUpdates) {
+  if (u?.notificationPrefs?.pushEnabled && u?.notificationPrefs?.orderUpdates) {
     sendPushToUsers([userId], { title: 'Boyxon Oshxonasi', message: msg, url: `/orders/${order.id}` }).catch(() => undefined);
   }
   getIo()?.to(`user:${userId}`).emit('order:status', { orderId: order.id, status, message: msg });
