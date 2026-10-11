@@ -84,7 +84,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
   const orderItems = items.map((i) => {
     const d = dishes.find((x) => x.id === i.dish);
     if (!d) throw ApiError.badRequest('Taom topilmadi');
-    return { dish: d._id, name: d.name, price: d.price, quantity: i.quantity, customizations: i.customizations };
+    return { dish: d._id, name: d.name, nameRu: d.nameRu, nameEn: d.nameEn, price: d.price, quantity: i.quantity, customizations: i.customizations };
   });
   const subtotal = orderItems.reduce((s, i) => s + i.price * i.quantity, 0);
   const deliveryFee = deliveryType === 'pickup' ? 0 : subtotal >= FREE_DELIVERY_FROM ? 0 : DELIVERY_FEE;

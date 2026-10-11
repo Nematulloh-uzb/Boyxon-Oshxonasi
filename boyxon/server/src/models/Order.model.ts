@@ -38,6 +38,8 @@ const OrderItemSchema = new Schema<OrderItem>(
   {
     dish: { type: Schema.Types.ObjectId, ref: 'Dish', required: true },
     name: { type: String, required: true },
+    nameRu: { type: String },
+    nameEn: { type: String },
     price: { type: Number, required: true, min: 0 },
     quantity: { type: Number, required: true, min: 1 },
     customizations: { type: String },

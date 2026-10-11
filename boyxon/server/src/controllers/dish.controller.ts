@@ -39,7 +39,7 @@ export const listDishes = asyncHandler(async (req: Request, res: Response) => {
   else if (q.sort === 'popular') sort = { orderCount: -1 };
 
   const [items, total] = await Promise.all([
-    Dish.find(filter).populate('category', 'name slug icon').sort(sort).skip((page - 1) * limit).limit(limit),
+    Dish.find(filter).populate('category', 'name nameRu nameEn slug icon').sort(sort).skip((page - 1) * limit).limit(limit),
     Dish.countDocuments(filter),
   ]);
   res.json(paginated(items, page, limit, total, 'OK'));
