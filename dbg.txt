@@ -1,0 +1,7 @@
+
+=== TUZILISH ===
+.vscode: 1
+--- SERVER TSC ---
+--- CLIENT TSC ---
+boyxon: 169
+client_exit=0
