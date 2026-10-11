@@ -19,6 +19,8 @@ import { adminRouter } from './routes/admin.routes';
 
 export function createApp() {
   const app = express();
+  // Railway/Vercel kabi proxy ortida real IP ni olish uchun (rate-limit to'g'ri ishlashi uchun)
+  app.set('trust proxy', 1);
 
   app.use(helmet({ crossOriginResourcePolicy: false }));
   app.use(cors({ origin: env.CLIENT_URL.split(','), credentials: true }));
