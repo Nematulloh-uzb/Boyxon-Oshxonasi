@@ -113,29 +113,29 @@ export function DishFormDrawer({ open, onClose, dish, categories, onSaved }: Pro
         </div>
 
         <div>
-          <label className="mb-1 block text-xs font-semibold text-ink-700">Nomi *</label>
+          <label className="mb-1 block text-xs font-semibold text-ink-700">{t('admin.dish_name')} *</label>
           <input className={inputCls} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-semibold text-ink-700">Tavsif *</label>
+          <label className="mb-1 block text-xs font-semibold text-ink-700">{t('admin.dish_description')} *</label>
           <textarea rows={3} className={`${inputCls} h-auto py-2`} value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })} />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="mb-1 block text-xs font-semibold text-ink-700">Narx (so‘m) *</label>
+            <label className="mb-1 block text-xs font-semibold text-ink-700">{t('admin.dish_price')} *</label>
             <input type="number" className={inputCls} value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-semibold text-ink-700">Eski narx</label>
+            <label className="mb-1 block text-xs font-semibold text-ink-700">{t('admin.dish_old_price')}</label>
             <input type="number" className={inputCls} value={form.oldPrice} onChange={(e) => setForm({ ...form, oldPrice: e.target.value })} />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="mb-1 block text-xs font-semibold text-ink-700">Kategoriya *</label>
+            <label className="mb-1 block text-xs font-semibold text-ink-700">{t('admin.dish_category')} *</label>
             <select className={inputCls} value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
-              <option value="">Tanlang</option>
+              <option value="">{t('admin.select')}</option>
               {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
             </select>
           </div>
