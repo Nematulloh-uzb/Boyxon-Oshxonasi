@@ -48,7 +48,7 @@ export const listDishes = asyncHandler(async (req: Request, res: Response) => {
 /** GET /api/dishes/featured — top 8 tanlangan taomlar. */
 export const featuredDishes = asyncHandler(async (_req: Request, res: Response) => {
   const items = await Dish.find({ isActive: true, isFeatured: true })
-    .populate('category', 'name slug')
+    .populate('category', 'name nameRu nameEn slug')
     .sort({ rating: -1 })
     .limit(8);
   res.json(ok(items, 'OK'));
@@ -59,7 +59,7 @@ export const getDish = asyncHandler(async (req: Request, res: Response) => {
   const dish = await Dish.findOne({
     $or: [{ slug: req.params.slug }, { _id: req.params.slug.match(/^[0-9a-fA-F]{24}$/) ? req.params.slug : '000000000000000000000000' }],
     isActive: true,
-  }).populate('category', 'name slug');
+  }).populate('category', 'name nameRu nameEn slug');
   if (!dish) throw ApiError.notFound('Taom topilmadi');
   const reviews = await Review.find({ dish: dish._id })
     .populate('user', 'name avatar')
