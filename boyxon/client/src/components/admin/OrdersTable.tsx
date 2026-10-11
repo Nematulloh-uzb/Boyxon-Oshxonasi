@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import type { Order, OrderStatus } from '../../types';
-import { formatDate, formatPrice, ORDER_STATUS_LABEL } from '../../lib/format';
+import { formatDate, formatPrice } from '../../lib/format';
 import { adminApi } from '../../api/admin.api';
 
 const STATUSES: OrderStatus[] = ['pending', 'confirmed', 'preparing', 'on_way', 'delivered', 'cancelled'];
@@ -16,6 +17,7 @@ const tone: Record<OrderStatus, string> = {
 };
 
 export function OrdersTable({ orders, loading }: { orders: Order[]; loading?: boolean }) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const statusM = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) => adminApi.updateStatus(id, status),
@@ -24,23 +26,23 @@ export function OrdersTable({ orders, loading }: { orders: Order[]; loading?: bo
       void qc.invalidateQueries({ queryKey: ['admin-stats'] });
       toast.success(r.message);
     },
-    onError: () => toast.error('Status yangilanmadi'),
+    onError: () => toast.error(t('admin.status_error')),
   });
 
-  if (loading) return <div className="rounded-card bg-surface p-6 text-center text-ink-300">Yuklanmoqda...</div>;
-  if (!orders.length) return <div className="rounded-card bg-surface p-6 text-center text-ink-300">Buyurtmalar yo‘q</div>;
+  if (loading) return <div className="rounded-card bg-surface p-6 text-center text-ink-300">{t('common.loading')}</div>;
+  if (!orders.length) return <div className="rounded-card bg-surface p-6 text-center text-ink-300">{t('admin.orders_empty')}</div>;
 
   return (
     <div className="overflow-x-auto rounded-card bg-surface shadow-sm">
       <table className="w-full min-w-[760px] text-sm">
         <thead className="border-b border-ink-line bg-surface-raised text-left text-xs text-ink-300">
           <tr>
-            <th className="px-4 py-3">№</th>
-            <th className="px-4 py-3">Mijoz</th>
-            <th className="px-4 py-3">Tarkib</th>
-            <th className="px-4 py-3">Jami</th>
-            <th className="px-4 py-3">Sana</th>
-            <th className="px-4 py-3">Holat</th>
+            <th className="px-4 py-3">{t('admin.col_num')}</th>
+            <th className="px-4 py-3">{t('admin.col_customer')}</th>
+            <th className="px-4 py-3">{t('admin.col_items')}</th>
+            <th className="px-4 py-3">{t('admin.col_total')}</th>
+            <th className="px-4 py-3">{t('admin.col_date')}</th>
+            <th className="px-4 py-3">{t('admin.col_status')}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-ink-line/60">
@@ -56,7 +58,7 @@ export function OrdersTable({ orders, loading }: { orders: Order[]; loading?: bo
               <td className="px-4 py-3">
                 <div className="flex items-center gap-2">
                   <span className={`rounded-full px-2 py-1 text-xs font-semibold ${tone[o.status]}`}>
-                    {ORDER_STATUS_LABEL[o.status]}
+                    {t(`status.${o.status}`)}
                   </span>
                   <select
                     value={o.status}
