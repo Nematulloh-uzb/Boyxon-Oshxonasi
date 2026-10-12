@@ -1,0 +1,27 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const p = path.join(__dirname, 'src', 'pages', 'admin', 'AdminPromos.tsx');
+const raw = fs.readFileSync(p, 'utf8');
+const eol = raw.includes('\r\n') ? '\r\n' : '\n';
+const lines = raw.split(eol);
+const set = (n, s) => { lines[n - 1] = s; };
+// Hardcode qilingan matnlar -> i18n kalitlari (qator raqami bo'yicha, belgilar xavfsiz)
+set(32, "    onSuccess: () => { toast.success(t('admin.promo_created')); refresh(); setOpen(false); setForm(emptyForm); },");
+set(33, "    onError: (e) => toast.error((e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('common.error')),");
+set(38, "    onSuccess: () => { toast.success(t('common.deleted')); refresh(); },");
+set(46, "        <Plus className=\"h-4 w-4\" /> {t('admin.new_promo')}");
+set(52, "        onDelete={(p) => { if (confirm(t('admin.delete_confirm', { name: p.code }))) deleteM.mutate(p._id); }}");
+set(55, "      <Sheet open={open} onClose={() => setOpen(false)} title={t('admin.new_promo_title')}>");
+set(58, "            <label className=\"mb-1 block text-xs font-semibold text-ink-700\">{t('admin.promo_code_field')} *</label>");
+set(62, "            <label className=\"mb-1 block text-xs font-semibold text-ink-700\">{t('admin.promo_description')}</label>");
+set(67, "              <label className=\"mb-1 block text-xs font-semibold text-ink-700\">{t('admin.promo_type')}</label>");
+set(69, "                <option value=\"percent\">{t('admin.promo_percent')}</option>");
+set(70, "                <option value=\"fixed\">{t('admin.promo_fixed')}</option>");
+set(74, "              <label className=\"mb-1 block text-xs font-semibold text-ink-700\">{t('admin.promo_value')} *</label>");
+set(80, "              <label className=\"mb-1 block text-xs font-semibold text-ink-700\">{t('admin.promo_min')}</label>");
+set(84, "              <label className=\"mb-1 block text-xs font-semibold text-ink-700\">{t('admin.promo_max')}</label>");
+set(93, "            {createM.isPending ? t('common.creating') : t('common.create')}");
+lines.splice(14, 0, "  const { t } = useTranslation();");
+lines.splice(8, 0, "import { useTranslation } from 'react-i18next';");
+fs.writeFileSync(p, lines.join(eol), 'utf8');
+console.log('AdminPromos patched');

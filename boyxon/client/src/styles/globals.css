@@ -65,7 +65,9 @@
     color: rgb(var(--fg));
   }
   * { border-color: rgb(var(--line)); }
-  input::placeholder { color: rgb(var(--fg-subtle)); }
+  input, textarea, select { color: rgb(var(--fg)); }
+  select option { background-color: rgb(var(--surface)); color: rgb(var(--fg)); }
+  input::placeholder, textarea::placeholder { color: rgb(var(--fg-subtle)); opacity: 1; }
 }
 
 /* Silliq rejim almashinuvi */
