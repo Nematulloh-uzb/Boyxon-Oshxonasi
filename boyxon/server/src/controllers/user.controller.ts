@@ -50,9 +50,7 @@ export const updatePreferences = asyncHandler(async (req: Request, res: Response
 export const updateNotifPrefs = asyncHandler(async (req: Request, res: Response) => {
   const prefs = req.body as Record<string, boolean>;
   const update: Record<string, boolean> = {};
-  for (const k of ['pushEnabled', 'orderUpdates', 'promos', 'newDishes', 'systemMessages']) {
-    if (typeof prefs[k] === 'boolean') update[`notificationPrefs.${k}`] = prefs[k];
-  }
+  if (typeof prefs.pushEnabled === 'boolean') update['notificationPrefs.pushEnabled'] = prefs.pushEnabled;
   const user = await User.findByIdAndUpdate(uid(req), update, { new: true });
   res.json(ok(user?.notificationPrefs, 'Bildirishnomalar yangilandi'));
 });

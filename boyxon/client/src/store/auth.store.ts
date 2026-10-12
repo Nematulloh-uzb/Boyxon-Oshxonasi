@@ -14,10 +14,6 @@ interface AuthState {
 const DEFAULT_PREFS: User['preferences'] = { language: 'uz', theme: 'dark', fontSize: 'medium' };
 const DEFAULT_NOTIF: User['notificationPrefs'] = {
   pushEnabled: true,
-  orderUpdates: true,
-  promos: true,
-  newDishes: true,
-  systemMessages: true,
 };
 
 /** Eski localStorage dagi user'da preferences/notificationPrefs bo'lmasa default bilan to'ldiradi. */

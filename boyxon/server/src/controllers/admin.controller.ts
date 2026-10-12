@@ -67,7 +67,7 @@ export const updateOrderStatus = asyncHandler(async (req: Request, res: Response
   const userId = order.user.toString();
   await notifyUser({ user: userId, type: 'order', title: 'Buyurtma holati', message: msg, link: `/orders/${order.id}` });
   const u = await User.findById(userId);
-  if (u?.notificationPrefs?.pushEnabled && u?.notificationPrefs?.orderUpdates) {
+  if (u?.notificationPrefs?.pushEnabled) {
     sendPushToUsers([userId], { title: 'Boyxon Oshxonasi', message: msg, url: `/orders/${order.id}` }).catch(() => undefined);
   }
   getIo()?.to(`user:${userId}`).emit('order:status', { orderId: order.id, status, message: msg });
@@ -161,7 +161,7 @@ export const deletePromo = asyncHandler(async (req: Request, res: Response) => {
 /** POST /api/admin/push/send — auditoriyaga push + in-app (foydalanuvchi sozlamalariga hurmat). */
 export const sendPush = asyncHandler(async (req: Request, res: Response) => {
   const { title, message, audience } = req.body as { title: string; message: string; audience: string };
-  type Row = { _id: unknown; notificationPrefs?: { pushEnabled?: boolean; promos?: boolean; systemMessages?: boolean } };
+  type Row = { _id: unknown; notificationPrefs?: { pushEnabled?: boolean } };
   let users: Row[] = [];
   if (audience === 'all') users = await User.find({ isActive: true }, '_id notificationPrefs');
   else if (audience === 'active') users = await User.find({ isActive: true, lastLoginAt: { $gte: new Date(Date.now() - 30 * 864e5) } }, '_id notificationPrefs');
@@ -169,18 +169,16 @@ export const sendPush = asyncHandler(async (req: Request, res: Response) => {
   else if (audience.startsWith('user:')) users = [{ _id: audience.slice(5) }];
   else throw ApiError.badRequest('Audience: all | active | new | user:<id>');
 
-  // In-app: promos (yoki tizim) xabarlari yoqilganlar; Push: pushEnabled ham yoqilganlar.
+  // In-app: sayt bildirishnomasi yoqilganlar (pushEnabled). Push ham shu odamlarga.
   const inAppIds = users
-    .filter((u) => u.notificationPrefs?.promos !== false && u.notificationPrefs?.systemMessages !== false)
+    .filter((u) => u.notificationPrefs?.pushEnabled !== false)
     .map((u) => String(u._id));
   const docs = await Notification.insertMany(
     inAppIds.map((id) => ({ user: id, type: 'promo', title, message })),
   );
   for (const n of docs) emitNotification(n);
 
-  const pushIds = users
-    .filter((u) => u.notificationPrefs?.pushEnabled !== false && u.notificationPrefs?.promos !== false)
-    .map((u) => String(u._id));
+  const pushIds = inAppIds;
   const sent = await sendPushToUsers(pushIds, { title, message }).catch(() => 0);
   res.json(ok({ recipients: inAppIds.length, sent }, `${inAppIds.length} kishiga yuborildi`));
 });

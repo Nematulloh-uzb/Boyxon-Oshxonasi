@@ -23,10 +23,6 @@ export interface Address {
 
 export interface NotificationPrefs {
   pushEnabled: boolean;
-  orderUpdates: boolean;
-  promos: boolean;
-  newDishes: boolean;
-  systemMessages: boolean;
 }
 
 export interface UserPrefs {

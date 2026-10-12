@@ -10,10 +10,6 @@ export interface Address {
 
 export interface NotificationPrefs {
   pushEnabled: boolean;
-  orderUpdates: boolean;
-  promos: boolean;
-  newDishes: boolean;
-  systemMessages: boolean;
 }
 
 export interface UserPrefs {
@@ -63,10 +59,6 @@ const UserSchema = new Schema<UserDoc>(
     bonusBalance: { type: Number, default: 0, min: 0 },
     notificationPrefs: {
       pushEnabled: { type: Boolean, default: true },
-      orderUpdates: { type: Boolean, default: true },
-      promos: { type: Boolean, default: true },
-      newDishes: { type: Boolean, default: true },
-      systemMessages: { type: Boolean, default: true },
     },
     preferences: {
       language: { type: String, enum: ['uz', 'ru', 'en'], default: 'uz' },
