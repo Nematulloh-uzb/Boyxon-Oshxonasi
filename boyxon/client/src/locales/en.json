@@ -195,6 +195,7 @@
   "settings.dishes_count": "{{count}} dishes",
   "settings.help_contact": "Help: +998 71 200 00 00",
   "notif.push": "Push notifications",
+  "notif.site": "Site notifications",
   "notif.orders": "Order updates",
   "notif.promos": "Promos and discounts",
   "notif.dishes": "New dishes",
