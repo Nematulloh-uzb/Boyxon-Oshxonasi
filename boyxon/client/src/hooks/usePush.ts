@@ -15,22 +15,32 @@ export function usePush() {
   );
   const [subscribed, setSubscribed] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [ready, setReady] = useState(false); // SW holati aniqlandimi
 
   useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => undefined);
-      // Mavjud obuna tekshiruvi — switch real holatni aks ettirishi uchun.
-      navigator.serviceWorker.ready
-        .then((reg) => reg.pushManager.getSubscription())
-        .then((sub) => {
-          if (sub) setSubscribed(true);
-        })
-        .catch(() => undefined);
+    if (!('serviceWorker' in navigator)) {
+      setReady(true);
+      return;
     }
+    let alive = true;
+    navigator.serviceWorker
+      .register('/sw.js')
+      .then(() => navigator.serviceWorker.ready)
+      .then((reg) => reg.pushManager.getSubscription())
+      .then((sub) => {
+        if (alive && sub) setSubscribed(true);
+      })
+      .catch(() => undefined)
+      .finally(() => {
+        if (alive) setReady(true);
+      });
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const subscribe = useCallback(async (): Promise<boolean> => {
-    if (!supported || busy) return false;
+    if (!supported) return false;
     setBusy(true);
     try {
       const perm = await Notification.requestPermission();
@@ -61,10 +71,9 @@ export function usePush() {
     } finally {
       setBusy(false);
     }
-  }, [supported, busy]);
+  }, [supported]);
 
   const unsubscribe = useCallback(async (): Promise<void> => {
-    if (busy) return;
     setBusy(true);
     try {
       const reg = await navigator.serviceWorker.ready;
@@ -77,7 +86,7 @@ export function usePush() {
       setSubscribed(false);
       setBusy(false);
     }
-  }, [busy]);
+  }, []);
 
-  return { supported, permission, subscribed, busy, subscribe, unsubscribe };
+  return { supported, permission, subscribed, busy, ready, subscribe, unsubscribe };
 }

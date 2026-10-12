@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
+import { useEffect, useState } from 'react';
 import { Switch } from '../ui/Switch';
 import { SettingsGroup } from './SettingsGroup';
 import { SettingsRow } from './SettingsRow';
@@ -19,8 +20,18 @@ const ROWS: { key: keyof Prefs; k: string }[] = [
 export function NotificationPrefs({ prefs, bare }: { prefs: Prefs; bare?: boolean }) {
   const { t } = useTranslation();
   const qc = useQueryClient();
-  // subscribed = HAQIQIY brauzer push obunasi. Switc aynan shunga bo'ysunadi.
-  const { supported, permission, subscribed, busy, subscribe, unsubscribe } = usePush();
+  const { supported, permission, subscribed, busy, ready, subscribe, unsubscribe } = usePush();
+
+  // Optimistik holat: bosilishi bilanoq DARHOL aks etadi (SW/server javobini kutmaydi).
+  // null = haqiqiy holatga tayanamiz.
+  const [optimistic, setOptimistic] = useState<boolean | null>(null);
+
+  // Haqiqiy brauzer holati o'zgarganda optimistikni tozalaymiz.
+  useEffect(() => {
+    if (!busy) setOptimistic(null);
+  }, [busy]);
+
+  const pushOn = optimistic ?? subscribed;
 
   const mutation = useMutation({
     mutationFn: (patch: Partial<Prefs>) => usersApi.updateNotifPrefs(patch),
@@ -35,12 +46,6 @@ export function NotificationPrefs({ prefs, bare }: { prefs: Prefs; bare?: boolea
     onError: () => toast.error(t('settings.save_error')),
   });
 
-  /**
-   * Push switci — haqiqiy brauzer obunasini boshqaradi:
-   * YOQISH → ruxsat so'rash + PushManager.subscribe + serverga saqlash;
-   * O'CHIRISH → serverdan o'chirish + brauzer obunasini bekor qilish.
-   * Boshqa switclar — faqat server pref'i.
-   */
   const handleToggle = async (key: keyof Prefs, v: boolean): Promise<void> => {
     if (key === 'pushEnabled') {
       if (busy) return;
@@ -48,29 +53,30 @@ export function NotificationPrefs({ prefs, bare }: { prefs: Prefs; bare?: boolea
         toast.error(t('notifications.unsupported'));
         return;
       }
+      // Optimistik — darhol ko'rsatamiz.
+      setOptimistic(v);
       if (v) {
-        // Ruxsat ilgari rad etilgan bo'lsa — requestPermission qayta so'ramaydi.
         if (permission === 'denied') {
+          setOptimistic(null);
           toast.error(t('notifications.push_enable_failed'));
           return;
         }
         const okSub = await subscribe();
         if (!okSub) {
+          setOptimistic(null); // xato — orqaga qaytaramiz
           toast.error(t('notifications.push_enable_failed'));
           return;
         }
       } else {
         await unsubscribe();
-        // Qayta so'ralmaslik uchun — qayta yoqish Sozlamalar orqali bo'ladi.
         localStorage.setItem('boyxon-push-asked', 'off');
       }
     }
     mutation.mutate({ [key]: v });
   };
 
-  // pushEnabled satri — checked haqiqiy brauzer holatidan, busy paytida o'chirilgan.
-  const isPushChecked = (key: keyof Prefs): boolean =>
-    key === 'pushEnabled' ? subscribed : Boolean(prefs[key]);
+  const isChecked = (key: keyof Prefs): boolean =>
+    key === 'pushEnabled' ? pushOn : Boolean(prefs[key]);
 
   const rows = ROWS.map((r) => (
     <SettingsRow
@@ -78,8 +84,8 @@ export function NotificationPrefs({ prefs, bare }: { prefs: Prefs; bare?: boolea
       label={t(r.k)}
       right={
         <Switch
-          checked={isPushChecked(r.key)}
-          disabled={r.key === 'pushEnabled' && busy}
+          checked={isChecked(r.key)}
+          disabled={r.key === 'pushEnabled' && (busy || !ready)}
           onChange={(v) => void handleToggle(r.key, v)}
           label={t(r.k)}
         />
