@@ -50,7 +50,7 @@ export function PromoInput() {
         </button>
       </div>
       {promoCode && (
-        <p className="mt-1.5 text-xs font-medium text-success">{t('cart.promo_applied', { code: promoCode })}</p>
+        <p className="mt-1.5 text-xs font-medium text-success">{tVal(t('cart.promo_applied'), { code: promoCode })}</p>
       )}
     </div>
   );
