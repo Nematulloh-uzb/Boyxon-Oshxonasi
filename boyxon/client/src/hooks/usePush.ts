@@ -14,6 +14,7 @@ export function usePush() {
     typeof Notification !== 'undefined' ? Notification.permission : 'default',
   );
   const [subscribed, setSubscribed] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if ('serviceWorker' in navigator) {
@@ -29,18 +30,23 @@ export function usePush() {
   }, []);
 
   const subscribe = useCallback(async (): Promise<boolean> => {
-    if (!supported) return false;
-    const perm = await Notification.requestPermission();
-    setPermission(perm);
-    if (perm !== 'granted') return false;
+    if (!supported || busy) return false;
+    setBusy(true);
     try {
+      const perm = await Notification.requestPermission();
+      setPermission(perm);
+      if (perm !== 'granted') return false;
       const reg = await navigator.serviceWorker.ready;
       const { data } = await pushApi.vapidKey();
       if (!data.key) return false;
-      const sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlSafeToUint8(data.key),
-      });
+      // Allaqachon obuna bo'lsa — qayta yaratmaymiz.
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) {
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlSafeToUint8(data.key),
+        });
+      }
       const json = sub.toJSON();
       await pushApi.subscribe({
         endpoint: sub.endpoint,
@@ -52,10 +58,14 @@ export function usePush() {
       return true;
     } catch {
       return false;
+    } finally {
+      setBusy(false);
     }
-  }, [supported]);
+  }, [supported, busy]);
 
   const unsubscribe = useCallback(async (): Promise<void> => {
+    if (busy) return;
+    setBusy(true);
     try {
       const reg = await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.getSubscription();
@@ -65,8 +75,9 @@ export function usePush() {
       }
     } finally {
       setSubscribed(false);
+      setBusy(false);
     }
-  }, []);
+  }, [busy]);
 
-  return { supported, permission, subscribed, subscribe, unsubscribe };
+  return { supported, permission, subscribed, busy, subscribe, unsubscribe };
 }

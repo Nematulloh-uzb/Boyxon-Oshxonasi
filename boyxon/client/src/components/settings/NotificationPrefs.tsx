@@ -19,7 +19,8 @@ const ROWS: { key: keyof Prefs; k: string }[] = [
 export function NotificationPrefs({ prefs, bare }: { prefs: Prefs; bare?: boolean }) {
   const { t } = useTranslation();
   const qc = useQueryClient();
-  const { supported, subscribe, unsubscribe } = usePush();
+  // subscribed = HAQIQIY brauzer push obunasi. Switc aynan shunga bo'ysunadi.
+  const { supported, permission, subscribed, busy, subscribe, unsubscribe } = usePush();
 
   const mutation = useMutation({
     mutationFn: (patch: Partial<Prefs>) => usersApi.updateNotifPrefs(patch),
@@ -36,17 +37,23 @@ export function NotificationPrefs({ prefs, bare }: { prefs: Prefs; bare?: boolea
 
   /**
    * Push switci — haqiqiy brauzer obunasini boshqaradi:
-   * YOQISH → ruxsat + PushManager.subscribe + serverga saqlash;
-   * O'CHIRISH → serverdan o'chirish + brauzer obunani bekor qilish.
+   * YOQISH → ruxsat so'rash + PushManager.subscribe + serverga saqlash;
+   * O'CHIRISH → serverdan o'chirish + brauzer obunasini bekor qilish.
    * Boshqa switclar — faqat server pref'i.
    */
   const handleToggle = async (key: keyof Prefs, v: boolean): Promise<void> => {
     if (key === 'pushEnabled') {
+      if (busy) return;
       if (!supported) {
         toast.error(t('notifications.unsupported'));
         return;
       }
       if (v) {
+        // Ruxsat ilgari rad etilgan bo'lsa — requestPermission qayta so'ramaydi.
+        if (permission === 'denied') {
+          toast.error(t('notifications.push_enable_failed'));
+          return;
+        }
         const okSub = await subscribe();
         if (!okSub) {
           toast.error(t('notifications.push_enable_failed'));
@@ -61,13 +68,18 @@ export function NotificationPrefs({ prefs, bare }: { prefs: Prefs; bare?: boolea
     mutation.mutate({ [key]: v });
   };
 
+  // pushEnabled satri — checked haqiqiy brauzer holatidan, busy paytida o'chirilgan.
+  const isPushChecked = (key: keyof Prefs): boolean =>
+    key === 'pushEnabled' ? subscribed : Boolean(prefs[key]);
+
   const rows = ROWS.map((r) => (
     <SettingsRow
       key={r.key}
       label={t(r.k)}
       right={
         <Switch
-          checked={Boolean(prefs[r.key])}
+          checked={isPushChecked(r.key)}
+          disabled={r.key === 'pushEnabled' && busy}
           onChange={(v) => void handleToggle(r.key, v)}
           label={t(r.k)}
         />
