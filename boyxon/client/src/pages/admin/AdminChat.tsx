@@ -1,11 +1,10 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { MessageCircle, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { chatApi } from '../../api/chat.api';
 import { ChatThread } from '../../components/admin/ChatThread';
-import { useAuthStore } from '../../store/auth.store';
 import { useChatSocket } from '../../hooks/useChatSocket';
 import { cn } from '../../lib/utils';
 import type { Conversation } from '../../types';
@@ -18,7 +17,10 @@ export default function AdminChat() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
 
-  const { data, isLoading } = useQueryClient ? useConversations(qc, search) : ({} as never);
+  const { data, isLoading } = useQuery({
+    queryKey: ['admin-conversations', search],
+    queryFn: () => chatApi.conversations({ search, limit: 50 }),
+  });
 
   // Real-time — yangi xabar kelganda ro'yxat yangilanadi.
   useChatSocket(
