@@ -31,7 +31,7 @@ export default function AdminChat() {
     true,
   );
 
-  const conversations: Conversation[] = data?.data ?? [];
+  const conversations = (data?.data ?? []) as (ChatConversation & { user: ChatUser })[];
   const selected = conversations.find((c) => c._id === selectedId) ?? null;
 
   return (
