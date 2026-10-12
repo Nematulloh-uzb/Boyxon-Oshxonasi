@@ -12,6 +12,7 @@ import type { Promo } from '../../types';
 const emptyForm = { code: '', description: '', type: 'percent', value: '', minOrderAmount: '0', maxDiscount: '' };
 
 export default function AdminPromos() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
