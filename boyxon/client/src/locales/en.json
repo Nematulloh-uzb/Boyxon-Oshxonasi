@@ -14,7 +14,6 @@
   "nav.addresses": "My addresses",
   "nav.payment_methods": "Payment methods",
   "nav.bonuses": "Bonuses",
-
   "home.greeting": "Welcome",
   "home.title": "What will you eat today?",
   "home.search_placeholder": "Search dishes...",
@@ -27,12 +26,11 @@
   "home.order_now": "Order now",
   "home.loading": "Loading...",
   "home.no_dishes": "No dishes found",
-  "home.items_count": "{count} items",
+  "home.items_count": "{{count}} items",
   "home.load_error": "Failed to load data",
-
   "dish.no_image": "No image",
   "dish.add": "Add to cart",
-  "dish.added": "{name} added to cart",
+  "dish.added": "{{name}} added to cart",
   "dish.minutes": "min",
   "dish.diet": "Diet",
   "dish.top": "Top",
@@ -50,7 +48,6 @@
   "dish.add_to_cart": "Add to cart",
   "dish.back_to_menu": "Back to menu",
   "dish.calories": "{{count}} kcal",
-
   "category.all": "All",
   "category.soups": "Soups",
   "category.pilaf": "Pilafs",
@@ -60,7 +57,6 @@
   "category.dessert": "Desserts",
   "category.drinks": "Drinks",
   "category.bread": "Bread",
-
   "filter.title": "Filters",
   "filter.price": "Price (UZS)",
   "filter.from": "from",
@@ -76,7 +72,6 @@
   "filter.sort.price_desc": "Price: high to low",
   "filter.sort.rating": "By rating",
   "filter.sort.new": "New",
-
   "cart.title": "Cart",
   "cart.empty": "Your cart is empty",
   "cart.empty_desc": "Go to the menu to add dishes",
@@ -89,9 +84,9 @@
   "cart.checkout": "Confirm payment",
   "cart.promo_placeholder": "Promo code",
   "cart.promo_apply": "Apply",
-  "cart.promo_applied": "Code applied: {code}",
+  "cart.promo_applied": "Code applied: {{code}}",
   "cart.promo_invalid": "Invalid code",
-  "cart.free_delivery_hint": "Add {amount} more for free delivery",
+  "cart.free_delivery_hint": "Add {{amount}} more for free delivery",
   "cart.remove": "Remove",
   "cart.increase": "Increase",
   "cart.decrease": "Decrease",
@@ -109,7 +104,6 @@
   "cart.track_realtime": "Track the status in real time.",
   "cart.go_home": "Go to home",
   "cart.track_order": "Track order",
-
   "auth.welcome": "Welcome",
   "auth.welcome_back": "Welcome!",
   "auth.signin_subtitle": "Sign in to your account",
@@ -144,7 +138,6 @@
   "auth.google_cancelled": "Google sign-in was cancelled or failed",
   "auth.google_not_configured": "Google sign-in is not configured yet. Sign in with email and password.",
   "auth.demo": "Demo",
-
   "settings.title": "Settings",
   "settings.account": "ACCOUNT",
   "settings.preferences": "PREFERENCES",
@@ -188,24 +181,20 @@
   "settings.toggle": "Switch",
   "settings.recent_orders": "Recent orders",
   "settings.no_orders": "No orders yet",
-  "settings.dishes_count": "{count} dishes",
+  "settings.dishes_count": "{{count}} dishes",
   "settings.help_contact": "Help: +998 71 200 00 00",
-
   "notif.push": "Push notifications",
   "notif.orders": "Order updates",
   "notif.promos": "Promos and discounts",
   "notif.dishes": "New dishes",
   "notif.system": "System messages",
-
   "profile.image_too_large": "Image must be smaller than 5 MB",
   "profile.avatar_updated": "Avatar updated",
   "profile.avatar_error": "Could not save avatar",
   "profile.upload_avatar": "Upload avatar",
-  "profile.bonus": "Bonus: {amount}",
-
+  "profile.bonus": "Bonus: {{amount}}",
   "theme.light": "Light theme",
   "theme.dark": "Dark theme",
-
   "common.save": "Save",
   "common.cancel": "Cancel",
   "common.delete": "Delete",
@@ -238,14 +227,12 @@
   "common.updated": "Updated",
   "common.created": "Created",
   "common.deleted": "Deleted",
-
   "status.pending": "Pending",
   "status.confirmed": "Confirmed",
   "status.preparing": "Preparing",
   "status.on_way": "On the way",
   "status.delivered": "Delivered",
   "status.cancelled": "Cancelled",
-
   "payment.payme": "Payme",
   "payment.click": "Click",
   "payment.uzum": "Uzum Bank",
@@ -254,7 +241,6 @@
   "payment.paid": "Paid",
   "payment.failed": "Failed",
   "payment.refunded": "Refunded",
-
   "notifications.title": "Notifications",
   "notifications.mark_all_read": "Mark all as read",
   "notifications.empty": "No notifications",
@@ -267,7 +253,6 @@
   "notifications.tabs.orders": "Orders",
   "notifications.tabs.promos": "Promotions",
   "notifications.tabs.system": "System",
-
   "admin.title": "Boyxon Admin",
   "admin.dashboard": "Dashboard",
   "admin.dishes": "Dishes",
@@ -352,7 +337,7 @@
   "admin.status_changed": "Status changed",
   "admin.dish_deleted": "Dish deleted",
   "admin.delete_error": "Could not delete",
-  "admin.delete_confirm": "Delete \"{name}\"?",
+  "admin.delete_confirm": "Delete \"{{name}}\"?",
   "admin.search_dishes": "Search dishes...",
   "admin.search_users": "Name or email...",
   "admin.new_category": "New category",
@@ -372,7 +357,6 @@
   "admin.promo_value": "Value",
   "admin.promo_min": "Min. amount",
   "admin.promo_max": "Max discount",
-
   "footer.about": "About us",
   "footer.contact": "Contact",
   "footer.help": "Help",
@@ -392,7 +376,6 @@
   "footer.tagline": "National dishes — fast and hot delivery.",
   "footer.navigation": "Navigation",
   "footer.address_line": "Tashkent, Yunusobod — 9:00–23:00",
-
   "pages.404.title": "Page not found",
   "pages.404.desc": "Sorry, the page you were looking for does not exist",
   "pages.404.go_home": "Go back home",

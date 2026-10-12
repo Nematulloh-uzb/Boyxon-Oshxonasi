@@ -14,7 +14,6 @@
   "nav.addresses": "Мои адреса",
   "nav.payment_methods": "Способы оплаты",
   "nav.bonuses": "Бонусы",
-
   "home.greeting": "Добро пожаловать",
   "home.title": "Что будете есть сегодня?",
   "home.search_placeholder": "Поиск блюд...",
@@ -27,12 +26,11 @@
   "home.order_now": "Заказать",
   "home.loading": "Загрузка...",
   "home.no_dishes": "Блюда не найдены",
-  "home.items_count": "{count} шт.",
+  "home.items_count": "{{count}} шт.",
   "home.load_error": "Не удалось загрузить данные",
-
   "dish.no_image": "Нет фото",
   "dish.add": "В корзину",
-  "dish.added": "{name} добавлено в корзину",
+  "dish.added": "{{name}} добавлено в корзину",
   "dish.minutes": "мин",
   "dish.diet": "Диета",
   "dish.top": "Топ",
@@ -50,7 +48,6 @@
   "dish.add_to_cart": "В корзину",
   "dish.back_to_menu": "Вернуться в меню",
   "dish.calories": "{{count}} ккал",
-
   "category.all": "Все",
   "category.soups": "Супы",
   "category.pilaf": "Пловы",
@@ -60,7 +57,6 @@
   "category.dessert": "Десерты",
   "category.drinks": "Напитки",
   "category.bread": "Хлеб",
-
   "filter.title": "Фильтры",
   "filter.price": "Цена (сум)",
   "filter.from": "от",
@@ -76,7 +72,6 @@
   "filter.sort.price_desc": "Цена: по убыванию",
   "filter.sort.rating": "По рейтингу",
   "filter.sort.new": "Новое",
-
   "cart.title": "Корзина",
   "cart.empty": "Корзина пуста",
   "cart.empty_desc": "Перейдите в меню, чтобы добавить блюда",
@@ -89,9 +84,9 @@
   "cart.checkout": "Подтвердить оплату",
   "cart.promo_placeholder": "Промокод",
   "cart.promo_apply": "Применить",
-  "cart.promo_applied": "Код применён: {code}",
+  "cart.promo_applied": "Код применён: {{code}}",
   "cart.promo_invalid": "Код недействителен",
-  "cart.free_delivery_hint": "Добавьте ещё {amount} для бесплатной доставки",
+  "cart.free_delivery_hint": "Добавьте ещё {{amount}} для бесплатной доставки",
   "cart.remove": "Удалить",
   "cart.increase": "Увеличить",
   "cart.decrease": "Уменьшить",
@@ -109,7 +104,6 @@
   "cart.track_realtime": "Отслеживайте статус в реальном времени.",
   "cart.go_home": "На главную",
   "cart.track_order": "Отследить заказ",
-
   "auth.welcome": "Добро пожаловать",
   "auth.welcome_back": "Добро пожаловать!",
   "auth.signin_subtitle": "Войдите в свой аккаунт",
@@ -144,7 +138,6 @@
   "auth.google_cancelled": "Вход через Google отменён или произошла ошибка",
   "auth.google_not_configured": "Вход через Google пока не настроен. Войдите по Email и паролю.",
   "auth.demo": "Демо",
-
   "settings.title": "Настройки",
   "settings.account": "АККАУНТ",
   "settings.preferences": "ПРЕДПОЧТЕНИЯ",
@@ -188,24 +181,20 @@
   "settings.toggle": "Переключить",
   "settings.recent_orders": "Последние заказы",
   "settings.no_orders": "Пока нет заказов",
-  "settings.dishes_count": "{count} блюд",
+  "settings.dishes_count": "{{count}} блюд",
   "settings.help_contact": "Помощь: +998 71 200 00 00",
-
   "notif.push": "Push-уведомления",
   "notif.orders": "Обновления заказов",
   "notif.promos": "Промо и скидки",
   "notif.dishes": "Новые блюда",
   "notif.system": "Системные сообщения",
-
   "profile.image_too_large": "Изображение должно быть меньше 5 МБ",
   "profile.avatar_updated": "Аватар обновлён",
   "profile.avatar_error": "Не удалось сохранить аватар",
   "profile.upload_avatar": "Загрузить аватар",
-  "profile.bonus": "Бонус: {amount}",
-
+  "profile.bonus": "Бонус: {{amount}}",
   "theme.light": "Светлая тема",
   "theme.dark": "Тёмная тема",
-
   "common.save": "Сохранить",
   "common.cancel": "Отмена",
   "common.delete": "Удалить",
@@ -238,14 +227,12 @@
   "common.updated": "Обновлено",
   "common.created": "Создано",
   "common.deleted": "Удалено",
-
   "status.pending": "Ожидание",
   "status.confirmed": "Подтверждён",
   "status.preparing": "Готовится",
   "status.on_way": "В пути",
   "status.delivered": "Доставлен",
   "status.cancelled": "Отменён",
-
   "payment.payme": "Payme",
   "payment.click": "Click",
   "payment.uzum": "Uzum Bank",
@@ -254,7 +241,6 @@
   "payment.paid": "Оплачен",
   "payment.failed": "Неудачно",
   "payment.refunded": "Возвращён",
-
   "notifications.title": "Уведомления",
   "notifications.mark_all_read": "Отметить все как прочитанные",
   "notifications.empty": "Нет уведомлений",
@@ -267,7 +253,6 @@
   "notifications.tabs.orders": "Заказы",
   "notifications.tabs.promos": "Акции",
   "notifications.tabs.system": "Система",
-
   "admin.title": "Boyxon Admin",
   "admin.dashboard": "Дашборд",
   "admin.dishes": "Блюда",
@@ -352,7 +337,7 @@
   "admin.status_changed": "Статус изменён",
   "admin.dish_deleted": "Блюдо удалено",
   "admin.delete_error": "Не удалось удалить",
-  "admin.delete_confirm": "Удалить «{name}»?",
+  "admin.delete_confirm": "Удалить «{{name}}»?",
   "admin.search_dishes": "Поиск блюд...",
   "admin.search_users": "Имя или email...",
   "admin.new_category": "Новая категория",
@@ -372,7 +357,6 @@
   "admin.promo_value": "Значение",
   "admin.promo_min": "Мин. сумма",
   "admin.promo_max": "Макс. скидка",
-
   "footer.about": "О нас",
   "footer.contact": "Контакты",
   "footer.help": "Помощь",
@@ -392,7 +376,6 @@
   "footer.tagline": "Национальные блюда — быстрая и горячая доставка.",
   "footer.navigation": "Навигация",
   "footer.address_line": "Ташкент, Юнусобод — 9:00–23:00",
-
   "pages.404.title": "Страница не найдена",
   "pages.404.desc": "Извините, страница, которую вы искали, не существует",
   "pages.404.go_home": "Вернуться на главную",

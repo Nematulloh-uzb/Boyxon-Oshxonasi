@@ -14,7 +14,6 @@
   "nav.addresses": "Manzillarim",
   "nav.payment_methods": "To'lov usullari",
   "nav.bonuses": "Bonuslar",
-
   "home.greeting": "Xush kelibsiz",
   "home.title": "Bugun nima yeysiz?",
   "home.search_placeholder": "Taom qidirish...",
@@ -27,12 +26,11 @@
   "home.order_now": "Buyurtma berish",
   "home.loading": "Yuklanmoqda...",
   "home.no_dishes": "Taom topilmadi",
-  "home.items_count": "{count} ta",
+  "home.items_count": "{{count}} ta",
   "home.load_error": "Ma'lumotni yuklab bo'lmadi",
-
   "dish.no_image": "Rasm yo'q",
   "dish.add": "Savatga",
-  "dish.added": "{name} savatga qo'shildi",
+  "dish.added": "{{name}} savatga qo'shildi",
   "dish.minutes": "daq",
   "dish.diet": "Parhez",
   "dish.top": "Top",
@@ -50,7 +48,6 @@
   "dish.add_to_cart": "Savatga qo'shish",
   "dish.back_to_menu": "Menyuga qaytish",
   "dish.calories": "{{count}} kkal",
-
   "category.all": "Barchasi",
   "category.soups": "Sho'rvalar",
   "category.pilaf": "Palovlar",
@@ -60,7 +57,6 @@
   "category.dessert": "Shirinliklar",
   "category.drinks": "Ichimliklar",
   "category.bread": "Non",
-
   "filter.title": "Filtrlar",
   "filter.price": "Narx (so'm)",
   "filter.from": "dan",
@@ -76,7 +72,6 @@
   "filter.sort.price_desc": "Narx: qimmatdan",
   "filter.sort.rating": "Reyting bo'yicha",
   "filter.sort.new": "Yangi",
-
   "cart.title": "Savat",
   "cart.empty": "Savat bo'sh",
   "cart.empty_desc": "Taomlarni qo'shish uchun menyuga o'ting",
@@ -89,9 +84,9 @@
   "cart.checkout": "To'lovni tasdiqlash",
   "cart.promo_placeholder": "Promo kod",
   "cart.promo_apply": "Qo'llash",
-  "cart.promo_applied": "Kod qo'llandi: {code}",
+  "cart.promo_applied": "Kod qo'llandi: {{code}}",
   "cart.promo_invalid": "Kod yaroqsiz",
-  "cart.free_delivery_hint": "Bepul yetkazish uchun yana {amount} qo'shing",
+  "cart.free_delivery_hint": "Bepul yetkazish uchun yana {{amount}} qo'shing",
   "cart.remove": "O'chirish",
   "cart.increase": "Ko'paytirish",
   "cart.decrease": "Kamaytirish",
@@ -109,7 +104,6 @@
   "cart.track_realtime": "Statusni real-time kuzatib boring.",
   "cart.go_home": "Bosh sahifaga",
   "cart.track_order": "Buyurtmani kuzatish",
-
   "auth.welcome": "Xush kelibsiz",
   "auth.welcome_back": "Xush kelibsiz!",
   "auth.signin_subtitle": "Hisobingizga kiring",
@@ -144,7 +138,6 @@
   "auth.google_cancelled": "Google bilan kirish bekor qilindi yoki xato berdi",
   "auth.google_not_configured": "Google kirish hozircha sozlanmagan. Email va parol bilan kiring.",
   "auth.demo": "Demo",
-
   "settings.title": "Sozlamalar",
   "settings.account": "HISOB",
   "settings.preferences": "AFZALLIKLAR",
@@ -188,24 +181,20 @@
   "settings.toggle": "Almashtirish",
   "settings.recent_orders": "So'nggi buyurtmalar",
   "settings.no_orders": "Hozircha buyurtmalar yo'q",
-  "settings.dishes_count": "{count} ta taom",
+  "settings.dishes_count": "{{count}} ta taom",
   "settings.help_contact": "Yordam: +998 71 200 00 00",
-
   "notif.push": "Push bildirishnomalar",
   "notif.orders": "Buyurtma yangiliklari",
   "notif.promos": "Promo va chegmalar",
   "notif.dishes": "Yangi taomlar",
   "notif.system": "Tizim xabarlari",
-
   "profile.image_too_large": "Rasm 5 MB dan kichik bo'lsin",
   "profile.avatar_updated": "Avatar yangilandi",
   "profile.avatar_error": "Avatarni saqlab bo'lmadi",
   "profile.upload_avatar": "Avatar yuklash",
-  "profile.bonus": "Bonus: {amount}",
-
+  "profile.bonus": "Bonus: {{amount}}",
   "theme.light": "Yorug'i rejim",
   "theme.dark": "Qorong'i rejim",
-
   "common.save": "Saqlash",
   "common.cancel": "Bekor qilish",
   "common.delete": "O'chirish",
@@ -238,14 +227,12 @@
   "common.updated": "Yangilandi",
   "common.created": "Yaratildi",
   "common.deleted": "O'chirildi",
-
   "status.pending": "Kutilmoqda",
   "status.confirmed": "Tasdiqlangan",
   "status.preparing": "Tayyorlanmoqda",
   "status.on_way": "Yo'lda",
   "status.delivered": "Yetkazildi",
   "status.cancelled": "Bekor qilindi",
-
   "payment.payme": "Payme",
   "payment.click": "Click",
   "payment.uzum": "Uzum Bank",
@@ -254,7 +241,6 @@
   "payment.paid": "To'langan",
   "payment.failed": "Muvaffaqiyatsiz",
   "payment.refunded": "Qaytarilgan",
-
   "notifications.title": "Bildirishnomalar",
   "notifications.mark_all_read": "Barchasini o'qilgan qilish",
   "notifications.empty": "Bildirishnomalar yo'q",
@@ -267,7 +253,6 @@
   "notifications.tabs.orders": "Buyurtmalar",
   "notifications.tabs.promos": "Aksiyalar",
   "notifications.tabs.system": "Tizim",
-
   "admin.title": "Boyxon Admin",
   "admin.dashboard": "Dashboard",
   "admin.dishes": "Taomlar",
@@ -352,7 +337,7 @@
   "admin.status_changed": "Holat o'zgardi",
   "admin.dish_deleted": "Taom o'chirildi",
   "admin.delete_error": "O'chirib bo'lmadi",
-  "admin.delete_confirm": "\"{name}\" o'chirilsinmi?",
+  "admin.delete_confirm": "\"{{name}}\" o'chirilsinmi?",
   "admin.search_dishes": "Taom qidirish...",
   "admin.search_users": "Ism yoki email...",
   "admin.new_category": "Yangi kategoriya",
@@ -372,7 +357,6 @@
   "admin.promo_value": "Qiymat",
   "admin.promo_min": "Min. summa",
   "admin.promo_max": "Max chegirma",
-
   "footer.about": "Biz haqimizda",
   "footer.contact": "Aloqa",
   "footer.help": "Yordam",
@@ -392,7 +376,6 @@
   "footer.tagline": "Milliy taomlar — tez va issiq yetkazib berish.",
   "footer.navigation": "Navigatsiya",
   "footer.address_line": "Toshkent, Yunusobod — 9:00–23:00",
-
   "pages.404.title": "Sahifa topilmadi",
   "pages.404.desc": "Kechirasiz, siz izlagan sahifa mavjud emas",
   "pages.404.go_home": "Bosh sahifaga qaytish",
