@@ -45,6 +45,7 @@ export function AppRouter() {
           <Route path="categories" element={<AdminCategories />} />
           <Route path="promos" element={<AdminPromos />} />
           <Route path="push" element={<AdminPush />} />
+          <Route path="chat" element={<AdminChat />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
