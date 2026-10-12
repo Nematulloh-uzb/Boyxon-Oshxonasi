@@ -26,6 +26,7 @@
   "home.order_now": "Заказать",
   "home.loading": "Загрузка...",
   "home.no_dishes": "Блюда не найдены",
+  "home.no_dishes_hint": "Попробуйте другую категорию или запрос",
   "home.items_count": "{{count}} шт.",
   "home.load_error": "Не удалось загрузить данные",
   "dish.no_image": "Нет фото",
