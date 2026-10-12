@@ -18,6 +18,13 @@ export function usePush() {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').catch(() => undefined);
+      // Mavjud obuna tekshiruvi — switch real holatni aks ettirishi uchun.
+      navigator.serviceWorker.ready
+        .then((reg) => reg.pushManager.getSubscription())
+        .then((sub) => {
+          if (sub) setSubscribed(true);
+        })
+        .catch(() => undefined);
     }
   }, []);
 
