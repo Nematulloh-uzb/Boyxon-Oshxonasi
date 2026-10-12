@@ -168,4 +168,35 @@ export interface ApiOk<T> {
   data: T;
 }
 
+// ── Chat (real-time) ──
+export interface ChatMessage {
+  _id: string;
+  conversation: string;
+  sender: string | { _id?: string; name?: string; avatar?: string | null };
+  senderRole: 'user' | 'admin';
+  text: string;
+  readAt: string | null;
+  createdAt: string;
+}
+
+export interface ChatUser {
+  _id: string;
+  name: string;
+  email?: string;
+  avatar?: string | null;
+  phone?: string;
+}
+
+export interface ChatConversation {
+  _id: string;
+  user: string | ChatUser;
+  lastMessage: string;
+  lastSenderRole?: 'user' | 'admin';
+  lastMessageAt?: string;
+  adminUnread: number;
+  userUnread: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 
