@@ -181,7 +181,7 @@ export interface ChatUser {
   avatar?: string | null;
 }
 
-export interface Conversation {
+export interface ChatConversation {
   _id: string;
   user: string | ChatUser;
   lastMessage: string;
