@@ -9,7 +9,7 @@ import { Notification } from '../models/Notification.model';
 import { User } from '../models/User.model';
 import { sendOrderEmail } from '../services/email.service';
 import { getIo } from '../socket';
-import { Review } from '../models/Review.model';
+import { Review, recalcDishRating } from '../models/Review.model';
 import type { AuthRequest } from '../types/express';
 
 /** GET /api/orders/:id — faqat o'z buyurtmasi (yoki admin). */
@@ -44,9 +44,21 @@ export const reviewOrder = asyncHandler(async (req: Request, res: Response) => {
   if (!order) throw ApiError.notFound('Buyurtma topilmadi');
   if (order.status !== 'delivered') throw ApiError.badRequest('Faqat yetkazilganda baho beriladi');
   const { reviews } = req.body as { reviews: { dish: string; rating: number; comment?: string }[] };
+
+  // Faqat shu buyurtmadagi taomlarga baho berilishi kerak — aks holda istalgan
+  // dish ga yolg'on baho yozish mumkin edi.
+  const orderDishIds = new Set(order.items.map((i) => i.dish.toString()));
+  const invalid = reviews.filter((r) => !orderDishIds.has(r.dish));
+  if (invalid.length) throw ApiError.badRequest('Bu taom buyurtmada yo‘q');
+
   const created = await Review.insertMany(
     reviews.map((r) => ({ user: userId, dish: r.dish, order: order._id, rating: r.rating, comment: r.comment })),
   );
+
+  // insertMany post('save') hook'ini ishga tushirmaydi — reytingni qo'lda yangilaymiz.
+  const dishIds = [...new Set(reviews.map((r) => r.dish))];
+  await Promise.all(dishIds.map((id) => recalcDishRating(id)));
+
   res.status(201).json(ok(created, 'Rahmat! Bahoyingiz saqlandi'));
 });
 

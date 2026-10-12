@@ -5,6 +5,7 @@ import { ProtectedRoute } from './ProtectedRoute';
 import { AdminRoute } from './AdminRoute';
 
 const HomePage = lazy(() => import('../pages/home/HomePage'));
+const DishPage = lazy(() => import('../pages/dish/DishPage'));
 const CartPage = lazy(() => import('../pages/cart/CartPage'));
 const SettingsPage = lazy(() => import('../pages/settings/SettingsPage'));
 const AuthPage = lazy(() => import('../pages/auth/AuthPage'));
@@ -31,6 +32,7 @@ export function AppRouter() {
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
+          <Route path="/dish/:slug" element={<DishPage />} />
           <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
         </Route>

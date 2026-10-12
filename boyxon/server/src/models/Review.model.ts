@@ -22,10 +22,17 @@ const ReviewSchema = new Schema<ReviewDoc>(
 
 ReviewSchema.index({ user: 1, dish: 1 }, { unique: false });
 
-ReviewSchema.post('save', async function () {
-  const dishId = this.dish;
-  const agg = await model('Review').aggregate([
-    { $match: { dish: dishId } },
+/**
+ * Dish reyting + sharhlar sonini qayta hisoblab yozadi.
+ *
+ * Muhit: `insertMany` `post('save')` hook'ini ISHGA TUSHIRMAYDI, shuning uchun
+ * bu logika alohida funksiyaga chiqarilgan — reviewOrder controller'i
+ * insertMany'dan keyin buni chaqiradi. Aks holda baholar hech qachon
+ * dish.rating ga tushmasdi.
+ */
+export async function recalcDishRating(dishId: unknown): Promise<void> {
+  const agg = await Review.aggregate([
+    { $match: { dish: dishId as never } },
     { $group: { _id: '$dish', avg: { $avg: '$rating' }, count: { $sum: 1 } } },
   ]);
   if (agg[0]) {
@@ -34,6 +41,10 @@ ReviewSchema.post('save', async function () {
       reviewCount: agg[0].count,
     });
   }
+}
+
+ReviewSchema.post('save', async function (doc) {
+  await recalcDishRating(doc.dish);
 });
 
 export const Review = model<ReviewDoc>('Review', ReviewSchema);
