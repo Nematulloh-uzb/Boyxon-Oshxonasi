@@ -95,6 +95,7 @@ export interface Order {
   paymentStatus: string;
   status: OrderStatus;
   statusHistory: { status: string; timestamp: string; note?: string }[];
+  taxi?: { driver?: string; carNumber?: string; service?: string; note?: string };
   estimatedDeliveryAt?: string;
   createdAt: string;
 }
