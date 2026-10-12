@@ -26,6 +26,8 @@ export default function SettingsPage() {
   const { user, setUser } = useAuthStore();
   const qc = useQueryClient();
   const [addressesOpen, setAddressesOpen] = useState(false);
+  const [ordersOpen, setOrdersOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
 
   const { data: orders } = useQuery({
     queryKey: ['orders'],
@@ -54,51 +56,71 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6 px-4 py-5">
       <h1 className="font-display text-2xl font-extrabold">{t('nav.settings')}</h1>
-
-      {/* Buyurtmalar tarixi — tepada ko'rinadi */}
-      <section>
-        <h2 className="mb-2 px-1 text-sm font-semibold uppercase tracking-wide text-ink-300">{t('settings.recent_orders')}</h2>
-        <div className="space-y-2">
-          {!orders?.data.length && <Card className="p-4 text-sm text-ink-300">{t('settings.no_orders')}</Card>}
-          {orders?.data.map((o) => (
-            <Card key={o._id} className="flex items-center justify-between p-4">
-              <div>
-                <p className="font-semibold">{o.orderNumber}</p>
-                <p className="text-xs text-ink-300">{formatDate(o.createdAt)} · {tVal(t('settings.dishes_count'), { count: o.items.length })}</p>
-              </div>
-              <div className="text-right">
-                <p className="font-bold text-primary-600">{formatPrice(o.total)}</p>
-                <p className="text-xs text-ink-300">{t(`status.${o.status}`)}</p>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </section>
-
       <ProfileCard user={user} />
 
       <SettingsGroup title={t('settings.account')}>
+        {/* Manzillarim — bosilsa o'z tagida ochiladi */}
         <SettingsRow
           icon={MapPin}
           label={t('settings.addresses')}
           value={tVal(t('home.items_count'), { count: user.addresses?.length ?? 0 })}
           right={
-            <ChevronDown
-              className={`h-4 w-4 shrink-0 text-ink-300 transition-transform ${addressesOpen ? 'rotate-180' : ''}`}
-            />
+            <ChevronDown className={`h-4 w-4 shrink-0 text-ink-300 transition-transform ${addressesOpen ? 'rotate-180' : ''}`} />
           }
           onClick={() => setAddressesOpen((v) => !v)}
         />
-        <SettingsRow icon={Package} label={t('settings.orders')} value={orders ? tVal(t('home.items_count'), { count: orders.pagination.total }) : '...'} onClick={() => toast.info(t('settings.orders_hint'))} />
-        <SettingsRow icon={Bell} label={t('settings.notifications')} onClick={() => toast.info(t('settings.bell_hint'))} />
-      </SettingsGroup>
+        {addressesOpen && (
+          <div className="border-t border-ink-line/60 px-4 py-3">
+            <AddressManager />
+          </div>
+        )}
 
-      {addressesOpen && (
-        <section>
-          <h2 className="mb-2 px-1 text-sm font-semibold uppercase tracking-wide text-ink-300">{t('settings.addresses')}</h2>
-          <AddressManager />
-        </section>
-      )}
+        {/* Buyurtmalarim — bosilsa o'z tagida ochiladi */}
+        <SettingsRow
+          icon={Package}
+          label={t('settings.orders')}
+          value={orders ? tVal(t('home.items_count'), { count: orders.pagination.total }) : '...'}
+          right={
+            <ChevronDown className={`h-4 w-4 shrink-0 text-ink-300 transition-transform ${ordersOpen ? 'rotate-180' : ''}`} />
+          }
+          onClick={() => setOrdersOpen((v) => !v)}
+        />
+        {ordersOpen && (
+          <div className="space-y-2 border-t border-ink-line/60 px-4 py-3">
+            {!orders?.data.length && <Card className="p-4 text-sm text-ink-300">{t('settings.no_orders')}</Card>}
+            {orders?.data.map((o) => (
+              <Card key={o._id} className="flex items-center justify-between p-3.5">
+                <div>
+                  <p className="font-semibold">{o.orderNumber}</p>
+                  <p className="text-xs text-ink-300">{formatDate(o.createdAt)} · {tVal(t('settings.dishes_count'), { count: o.items.length })}</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold text-primary-600">{formatPrice(o.total)}</p>
+                  <p className="text-xs text-ink-300">{t(`status.${o.status}`)}</p>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {/* Bildirishnomalar — bosilsa o'z tagida ochiladi */}
+        <SettingsRow
+          icon={Bell}
+          label={t('settings.notifications')}
+          right={
+            <ChevronDown className={`h-4 w-4 shrink-0 text-ink-300 transition-transform ${notifOpen ? 'rotate-180' : ''}`} />
+          }
+          onClick={() => setNotifOpen((v) => !v)}
+        />
+        {notifOpen && (
+          <div className="border-t border-ink-line/60 px-1 py-1">
+            <NotificationPrefs
+              bare
+              prefs={user.notificationPrefs ?? { pushEnabled: true, orderUpdates: true, promos: true, newDishes: true, systemMessages: true }}
+            />
+          </div>
+        )}
+      </SettingsGroup>
 
       <SettingsGroup title={t('settings.preferences')}>
         <SettingsRow
@@ -129,8 +151,6 @@ export default function SettingsPage() {
           }
         />
       </SettingsGroup>
-
-      <NotificationPrefs prefs={user.notificationPrefs ?? { pushEnabled: true, orderUpdates: true, promos: true, newDishes: true, systemMessages: true }} />
 
       <SettingsGroup title={t('settings.security')}>
         <SettingsRow

@@ -15,7 +15,7 @@ const ROWS: { key: keyof Prefs; k: string }[] = [
   { key: 'systemMessages', k: 'notif.system' },
 ];
 
-export function NotificationPrefs({ prefs }: { prefs: Prefs }) {
+export function NotificationPrefs({ prefs, bare }: { prefs: Prefs; bare?: boolean }) {
   const { t } = useTranslation();
   const qc = useQueryClient();
   const mutation = useMutation({
@@ -27,21 +27,22 @@ export function NotificationPrefs({ prefs }: { prefs: Prefs }) {
     onError: () => toast.error(t('settings.save_error')),
   });
 
-  return (
-    <SettingsGroup title={t('settings.notifications')}>
-      {ROWS.map((r) => (
-        <SettingsRow
-          key={r.key}
+  const rows = ROWS.map((r) => (
+    <SettingsRow
+      key={r.key}
+      label={t(r.k)}
+      right={
+        <Switch
+          checked={Boolean(prefs[r.key])}
+          onChange={(v) => mutation.mutate({ [r.key]: v })}
           label={t(r.k)}
-          right={
-            <Switch
-              checked={Boolean(prefs[r.key])}
-              onChange={(v) => mutation.mutate({ [r.key]: v })}
-              label={t(r.k)}
-            />
-          }
         />
-      ))}
-    </SettingsGroup>
-  );
+      }
+    />
+  ));
+
+  // bare — SettingsRowsni o'z kartasiz, chaqiruvchi joyning (satr tagida) ichida ko'rsatadi.
+  if (bare) return <>{rows}</>;
+
+  return <SettingsGroup title={t('settings.notifications')}>{rows}</SettingsGroup>;
 }
