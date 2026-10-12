@@ -116,7 +116,7 @@ export default function SettingsPage() {
           <div className="border-t border-ink-line/60 px-1 py-1">
             <NotificationPrefs
               bare
-              prefs={user.notificationPrefs ?? { pushEnabled: true, orderUpdates: true, promos: true, newDishes: true, systemMessages: true }}
+              prefs={user.notificationPrefs ?? { pushEnabled: true }}
             />
           </div>
         )}
