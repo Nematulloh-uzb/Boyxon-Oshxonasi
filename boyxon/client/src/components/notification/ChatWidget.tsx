@@ -45,3 +45,86 @@ function TypingDots() {
     </div>
   );
 }
+
+/**
+ * User uchun real-time chat — floating tugma + ochiladigan chat oynasi.
+ * Faqat login bo'lganda ko'rinadi. Admin bilan to'g'ridan-to'g'ri yozishadi.
+ */
+export function ChatWidget() {
+  const { t } = useTranslation();
+  const qc = useQueryClient();
+  const { chatOpen, set } = useUiStore();
+  const user = useAuthStore((s) => s.user);
+  const token = useAuthStore((s) => s.accessToken);
+  const [draft, setDraft] = useState('');
+  const [adminTyping, setAdminTyping] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const typingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const myId = user?._id;
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['chat-me'],
+    queryFn: () => chatApi.myConversation(),
+    enabled: Boolean(token) && chatOpen,
+    staleTime: Infinity,
+  });
+
+  const messages: ChatMessage[] = data?.data.messages ?? [];
+
+  const invalidate = useCallback(() => {
+    void qc.invalidateQueries({ queryKey: ['chat-me'] });
+  }, [qc]);
+
+  const socket = useChatSocket({
+    onMessage: (p) => {
+      const msg = p.message as ChatMessage | undefined;
+      if (msg?._id) {
+        qc.setQueryData<{ data: { conversation: unknown; messages: ChatMessage[] } } | undefined>(
+          ['chat-me'],
+          (old) => (old ? { ...old, data: { ...old.data, messages: [...old.data.messages, msg] } } : old),
+        );
+      }
+      setAdminTyping(false);
+      invalidate();
+    },
+    onTyping: () => {
+      setAdminTyping(true);
+      if (typingTimer.current) clearTimeout(typingTimer.current);
+      typingTimer.current = setTimeout(() => setAdminTyping(false), 2500);
+    },
+  });
+  const emitTyping = useChatTyping(socket);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
+  }, [messages.length, adminTyping]);
+
+  if (!token) return null;
+
+  const send = (): void => {
+    const text = draft.trim();
+    if (!text) return;
+    setDraft('');
+    const optimistic: ChatMessage = {
+      _id: `tmp-${Date.now()}`,
+      conversation: '',
+      sender: myId ?? '',
+      senderRole: 'user',
+      text,
+      readAt: null,
+      createdAt: new Date().toISOString(),
+    };
+    qc.setQueryData<{ data: { conversation: unknown; messages: ChatMessage[] } } | undefined>(
+      ['chat-me'],
+      (old) => (old ? { ...old, data: { ...old.data, messages: [...old.data.messages, optimistic] } } : old),
+    );
+    chatApi
+      .sendUserMessage(text)
+      .then(() => invalidate())
+      .catch(() => {
+        toast.error(t('chat.send_error'));
+        invalidate();
+      });
+  };
+
