@@ -100,7 +100,7 @@ export default function DishPage() {
               {dish.deliveryTime} {t('dish.minutes')}
             </span>
             {typeof dish.calories === 'number' && dish.calories > 0 && (
-              <span>{t('dish.calories', { count: dish.calories })}</span>
+              <span>{tVal(t('dish.calories'), { count: dish.calories })}</span>
             )}
             {dish.tags.includes('vegetarian') && <Badge tone="success">{t('dish.vegetarian')}</Badge>}
             {dish.tags.includes('spicy') && <Badge tone="danger">{t('dish.spicy')}</Badge>}
