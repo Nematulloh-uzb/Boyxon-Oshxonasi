@@ -69,7 +69,7 @@ export interface Dish {
   isFeatured: boolean;
 }
 
-export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'on_way' | 'delivered' | 'cancelled';
+export type OrderStatus = 'pending' | 'confirmed' | 'packing' | 'handed_to_taxi' | 'delivered' | 'cancelled';
 
 export interface OrderItem {
   dish: string;
