@@ -54,8 +54,8 @@ export default function SettingsPage() {
       <ProfileCard user={user} />
 
       <SettingsGroup title={t('settings.account')}>
-        <SettingsRow icon={MapPin} label={t('settings.addresses')} value={t('home.items_count', { count: user.addresses?.length ?? 0 })} onClick={() => toast.info(t('settings.addresses_soon'))} />
-        <SettingsRow icon={Package} label={t('settings.orders')} value={orders ? t('home.items_count', { count: orders.pagination.total }) : '...'} onClick={() => toast.info(t('settings.orders_hint'))} />
+        <SettingsRow icon={MapPin} label={t('settings.addresses')} value={tVal(t('home.items_count'), { count: user.addresses?.length ?? 0 })} onClick={() => toast.info(t('settings.addresses_soon'))} />
+        <SettingsRow icon={Package} label={t('settings.orders')} value={orders ? tVal(t('home.items_count'), { count: orders.pagination.total }) : '...'} onClick={() => toast.info(t('settings.orders_hint'))} />
         <SettingsRow icon={Bell} label={t('settings.notifications')} onClick={() => toast.info(t('settings.bell_hint'))} />
       </SettingsGroup>
 
