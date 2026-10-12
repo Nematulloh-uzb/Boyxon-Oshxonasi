@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { Dish } from '../../types';
-import { formatPrice, localizedDishDescription, localizedDishName } from '../../lib/format';
+import { formatPrice, localizedDishDescription, localizedDishName, tVal } from '../../lib/format';
 import { useCart } from '../../hooks/useCart';
 import { DishPlaceholder } from './DishPlaceholder';
 import { Badge } from '../ui/Badge';
