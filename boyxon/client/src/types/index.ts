@@ -131,6 +131,37 @@ export interface ApiOk<T> {
   data: T;
 }
 
+// ── Chat (real-time user ↔ admin) ──
+export interface ChatMessage {
+  _id: string;
+  conversation: string;
+  sender: string;
+  senderRole: 'user' | 'admin';
+  text: string;
+  readAt?: string | null;
+  createdAt: string;
+}
+
+export interface ChatUser {
+  _id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  avatar?: string | null;
+}
+
+export interface ChatConversation {
+  _id: string;
+  user: string | ChatUser;
+  lastMessage?: string;
+  lastSenderRole?: 'user' | 'admin';
+  lastMessageAt?: string;
+  adminUnread: number;
+  userUnread: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // ── Chat ──
 export interface ChatUser {
   _id: string;
