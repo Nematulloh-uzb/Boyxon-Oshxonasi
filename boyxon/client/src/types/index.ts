@@ -136,7 +136,7 @@ export interface ChatMessage {
   createdAt: string;
 }
 
-export interface Conversation {
+export interface ChatConversation {
   _id: string;
   user: string | ChatUser;
   lastMessage: string;
