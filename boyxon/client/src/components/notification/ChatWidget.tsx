@@ -127,4 +127,98 @@ export function ChatWidget() {
         invalidate();
       });
   };
+  return (
+    <>
+      {/* Floating tugma */}
+      <AnimatePresence>
+        {!chatOpen && (
+          <motion.button
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            onClick={() => set({ chatOpen: true })}
+            className="fixed bottom-20 right-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-gradient-to-r from-[#E67E22] to-[#F39C12] text-white shadow-lg shadow-primary-500/30 transition hover:brightness-110 md:bottom-6"
+            aria-label={t('chat.open')}
+          >
+            <MessageCircle className="h-6 w-6" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* Chat oynasi */}
+      <AnimatePresence>
+        {chatOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.96 }}
+            transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+            className="fixed inset-x-4 bottom-20 z-50 flex h-[70vh] max-h-[560px] flex-col overflow-hidden rounded-3xl border border-ink-line bg-surface shadow-2xl md:inset-x-auto md:bottom-6 md:right-6 md:h-[520px] md:w-[380px]"
+          >
+            <div className="flex items-center gap-3 border-b border-ink-line bg-gradient-to-r from-[#E67E22] to-[#F39C12] px-4 py-3 text-white">
+              <span className="grid h-9 w-9 place-items-center rounded-full bg-white/20">
+                <Headset className="h-5 w-5" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="font-display font-bold">{t('chat.title')}</p>
+                <p className="text-xs text-white/80">{t('chat.subtitle')}</p>
+              </div>
+              <button onClick={() => set({ chatOpen: false })} className="rounded-full p-1.5 hover:bg-white/20" aria-label={t('common.close')}>
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-bg p-4">
+              {isLoading && (
+                <div className="flex h-full items-center justify-center text-ink-300">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                </div>
+              )}
+              {!isLoading && !messages.length && (
+                <div className="flex h-full flex-col items-center justify-center text-center">
+                  <span className="grid h-14 w-14 place-items-center rounded-full bg-primary-100 text-primary-600">
+                    <MessageCircle className="h-7 w-7" />
+                  </span>
+                  <p className="mt-3 text-sm font-semibold text-ink-700">{t('chat.welcome_title')}</p>
+                  <p className="mt-1 max-w-[240px] text-xs text-ink-300">{t('chat.welcome_desc')}</p>
+                </div>
+              )}
+              {messages.map((m) => (
+                <Bubble key={m._id} m={m} />
+              ))}
+              {adminTyping && <TypingDots />}
+            </div>
+
+            <form
+              className="flex items-center gap-2 border-t border-ink-line bg-surface p-3"
+              onSubmit={(e) => {
+                e.preventDefault();
+                send();
+              }}
+            >
+              <input
+                value={draft}
+                onChange={(e) => {
+                  setDraft(e.target.value);
+                  emitTyping();
+                }}
+                placeholder={t('chat.placeholder')}
+                className="h-11 flex-1 rounded-full border border-ink-line bg-bg px-4 text-sm outline-none focus:border-primary-500"
+              />
+              <button
+                type="submit"
+                disabled={!draft.trim()}
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-r from-[#E67E22] to-[#F39C12] text-white transition disabled:opacity-40"
+                aria-label={t('chat.send')}
+              >
+                <Send className="h-5 w-5" />
+              </button>
+            </form>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
 
