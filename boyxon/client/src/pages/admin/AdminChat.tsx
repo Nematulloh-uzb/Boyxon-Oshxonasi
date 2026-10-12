@@ -109,12 +109,3 @@ export default function AdminChat() {
   );
 }
 
-// useConversations — alohida query uchun helper (shu fayl ostida).
-import { useQuery } from '@tanstack/react-query';
-function useConversations(qc: unknown, search: string) {
-  void qc;
-  return useQuery({
-    queryKey: ['admin-conversations', search],
-    queryFn: () => chatApi.conversations({ search, limit: 50 }),
-  });
-}
