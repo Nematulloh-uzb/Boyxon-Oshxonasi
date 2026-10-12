@@ -3,18 +3,21 @@ import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { Dish } from '../../types';
-import { formatPrice } from '../../lib/format';
+import { formatPrice, localizedDishDescription, localizedDishName } from '../../lib/format';
 import { useCart } from '../../hooks/useCart';
 import { DishPlaceholder } from './DishPlaceholder';
 import { Badge } from '../ui/Badge';
 
 export function DishCard({ dish }: { dish: Dish }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { add } = useCart();
+  const lang = i18n.language;
+  const name = localizedDishName(dish, lang);
+  const desc = localizedDishDescription(dish, lang);
 
   const addToCart = (): void => {
     add({ dishId: dish._id, name: dish.name, price: dish.price, image: dish.image }, 1);
-    toast.success(t('dish.added', { name: dish.name }));
+    toast.success(t('dish.added', { name }));
   };
 
   return (
