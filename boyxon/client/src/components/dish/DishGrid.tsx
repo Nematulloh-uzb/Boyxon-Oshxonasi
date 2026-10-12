@@ -23,9 +23,12 @@ export function DishGrid({ dishes, loading, emptyText }: Props) {
   }
   if (!dishes?.length) {
     return (
-      <div className="py-14 text-center">
-        <UtensilsCrossed className="mx-auto h-12 w-12 text-ink-300" />
-        <p className="mt-3 text-ink-300">{emptyText ?? t('home.no_dishes')}</p>
+      <div className="mx-auto max-w-sm px-6 py-14 text-center">
+        <div className="mx-auto grid h-24 w-24 place-items-center rounded-full bg-surface-raised">
+          <UtensilsCrossed className="h-12 w-12 text-ink-300" />
+        </div>
+        <p className="mt-4 font-display text-lg font-bold text-ink-900">{t('home.no_dishes')}</p>
+        <p className="mt-1 text-sm text-ink-300">{t('home.no_dishes_hint')}</p>
       </div>
     );
   }
