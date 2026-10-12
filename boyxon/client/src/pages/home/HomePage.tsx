@@ -99,23 +99,24 @@ export default function HomePage() {
         <p className="font-display text-2xl font-extrabold">{t('home.promo_title')}</p>
         <p className="mt-1 text-sm text-white/80">{t('home.promo_code')}</p>
         <div className="mt-4">
-          {cartSubtotal === 0 ? (
-            <p className="text-sm font-semibold text-white/90">
-              {tVal(t('home.promo_progress'), { amount: formatPrice(FREE_DELIVERY_FROM), fee: formatPrice(DELIVERY_FEE) })}
-            </p>
-          ) : cartSubtotal >= FREE_DELIVERY_FROM ? (
+          {cartSubtotal >= FREE_DELIVERY_FROM ? (
             <p className="text-sm font-semibold text-white">{tVal(t('home.promo_unlocked'), { fee: formatPrice(DELIVERY_FEE) })}</p>
           ) : (
             <>
-              <p className="text-sm font-semibold text-white">
-                {tVal(t('home.promo_progress'), { amount: formatPrice(FREE_DELIVERY_FROM - cartSubtotal), fee: formatPrice(DELIVERY_FEE) })}
+              <p className="text-sm font-semibold text-white/90">
+                {tVal(t('home.promo_progress'), {
+                  amount: formatPrice(cartSubtotal === 0 ? FREE_DELIVERY_FROM : FREE_DELIVERY_FROM - cartSubtotal),
+                  fee: formatPrice(DELIVERY_FEE),
+                })}
               </p>
-              <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/25">
-                <div
-                  className="h-full rounded-full bg-white transition-all"
-                  style={{ width: `${Math.min(100, Math.round((cartSubtotal / FREE_DELIVERY_FROM) * 100))}%` }}
-                />
-              </div>
+              {cartSubtotal > 0 && (
+                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/25">
+                  <div
+                    className="h-full rounded-full bg-white transition-all"
+                    style={{ width: `${Math.min(100, Math.round((cartSubtotal / FREE_DELIVERY_FROM) * 100))}%` }}
+                  />
+                </div>
+              )}
             </>
           )}
         </div>
