@@ -7,26 +7,13 @@ import { useAuthStore } from '../store/auth.store';
 const SOCKET_URL = (import.meta.env.VITE_SOCKET_URL as string | undefined) ?? 'http://localhost:5000';
 
 /**
- * Toast ko'rsatilsinmi — foydalanuvchi bildirishnoma sozlamalariga bog'liq.
- * pushEnabled = umumiy "yoqish/o'chirish"; qolganlari kategoriya bo'yicha.
+ * Toast ko'rsatilsinmi — faqat umumiy "Sayt bildirishnomalari" (pushEnabled) ga bog'liq.
  */
 function toastAllowed(type: string): boolean {
+  void type; // kategoriya bo'yicha filtr yo'q — endi faqat umumiy switch.
   const p = useAuthStore.getState().user?.notificationPrefs;
   if (!p) return true;
-  if (p.pushEnabled === false) return false;
-  switch (type) {
-    case 'order':
-      return p.orderUpdates !== false;
-    case 'promo':
-      return p.promos !== false;
-    case 'new_dish':
-      return p.newDishes !== false;
-    case 'system':
-    case 'bonus':
-      return p.systemMessages !== false;
-    default:
-      return true;
-  }
+  return p.pushEnabled !== false;
 }
 
 /** Login dan keyin socket ulanish — order:status da toast + query invalidate. */
