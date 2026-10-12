@@ -26,6 +26,7 @@
   "home.order_now": "Order now",
   "home.loading": "Loading...",
   "home.no_dishes": "No dishes found",
+  "home.no_dishes_hint": "Try another category or search term",
   "home.items_count": "{{count}} items",
   "home.load_error": "Failed to load data",
   "dish.no_image": "No image",
