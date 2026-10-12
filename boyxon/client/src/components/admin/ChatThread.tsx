@@ -6,9 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { chatApi } from '../../api/chat.api';
 import { useChatSocket, useChatTyping } from '../../hooks/useChatSocket';
 import { cn } from '../../lib/utils';
-import type { ChatMessage, ChatUser } from '../../types';
-
-import type { ChatConversation } from '../../types';
+import type { ChatMessage, ChatUser, ChatConversation } from '../../types';
 
 interface ThreadData {
   success: boolean;
