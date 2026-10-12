@@ -44,13 +44,15 @@ interface Props {
 }
 
 export function CategoryChips({ categories, active, onChange }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
   const items = [{ _id: 'all', name: t('category.all'), slug: '' } as unknown as Category, ...categories];
   return (
     <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 md:mx-0 md:flex-wrap md:px-0">
       {items.map((c) => {
-        const Icon = iconMap[c.icon ?? ''] ?? LayoutGrid;
+        const Icon = iconMap[c.icon ?? ''] ?? iconMap[(c.icon ?? '').toLowerCase()] ?? LayoutGrid;
         const isActive = active === c.slug || (!active && !c.slug);
+        const label = !c.slug ? t('category.all') : (localizedCategoryName(c, lang) || c.name);
         return (
           <button
             key={c._id}
