@@ -20,8 +20,7 @@ export function Footer() {
         </div>
         <div>
           <p className="font-semibold text-ink-700">{t('footer.contact')}</p>
-          <p className="mt-2">+998 71 200 00 00</p>
-          <p>{t('footer.address_line')}</p>
+          <p className="mt-2">+998 (91) 346-60-67</p>
         </div>
       </div>
     </footer>
