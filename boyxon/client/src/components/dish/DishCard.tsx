@@ -26,7 +26,7 @@ export function DishCard({ dish }: { dish: Dish }) {
         {dish.image ? (
           <img
             src={dish.image}
-            alt={dish.name}
+            alt={name}
             loading="lazy"
             className="aspect-[4/3] w-full rounded-t-[20px] object-cover"
           />
