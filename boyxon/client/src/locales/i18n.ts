@@ -6,11 +6,24 @@ import en from './en.json';
 
 const saved = localStorage.getItem('boyxon-lang') ?? 'uz';
 
+// Eski build/localStorage'dagi '{count}' (bitta qavs) yozuvlar ham uchraydi —
+// ularni to'g'rilab olamiz, aks holda ekranda "{count} ta" xom matn chiqadi.
+function normalizeBraces(dict: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(dict)) {
+    out[k] =
+      typeof v === 'string'
+        ? v.replace(/(?<!\{)\{([A-Za-z_][A-Za-z0-9_]*)\}(?!\})/g, '{{$1}}')
+        : v;
+  }
+  return out;
+}
+
 void i18n.use(initReactI18next).init({
   resources: {
-    uz: { translation: uz },
-    ru: { translation: ru },
-    en: { translation: en },
+    uz: { translation: normalizeBraces(uz as Record<string, unknown>) },
+    ru: { translation: normalizeBraces(ru as Record<string, unknown>) },
+    en: { translation: normalizeBraces(en as Record<string, unknown>) },
   },
   lng: saved,
   fallbackLng: 'uz',
