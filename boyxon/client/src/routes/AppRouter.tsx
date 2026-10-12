@@ -21,7 +21,7 @@ const AdminPush = lazy(() => import('../pages/admin/AdminPush'));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 
 function Fallback() {
-  return <div className="min-h-screen grid place-items-center text-ink-300">Yuklanmoqda...</div>;
+  return <div className="min-h-screen grid place-items-center text-ink-300">...</div>;
 }
 
 export function AppRouter() {
