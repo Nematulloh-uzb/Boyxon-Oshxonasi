@@ -20,7 +20,7 @@ const ROWS: { key: keyof Prefs; k: string }[] = [
 export function NotificationPrefs({ prefs, bare }: { prefs: Prefs; bare?: boolean }) {
   const { t } = useTranslation();
   const qc = useQueryClient();
-  const { supported, permission, subscribed, busy, ready, subscribe, unsubscribe } = usePush();
+  const { supported, permission, subscribed, ready, subscribe, unsubscribe } = usePush();
 
   // Optimistik holat: bosilishi bilanoq DARHOL aks etadi (SW/server javobini kutmaydi).
   // null = haqiqiy holatga tayanamiz. Faqat haqiqiy holat (subscribed) o'zgarganda tozalanadi.
@@ -45,14 +45,18 @@ export function NotificationPrefs({ prefs, bare }: { prefs: Prefs; bare?: boolea
     onError: () => toast.error(t('settings.save_error')),
   });
 
-  const handleToggle = async (key: keyof Prefs, v: boolean): Promise<void> => {
+  /**
+   * Latencysiz: bu funksiya SINXRON — hech qanday await yo'q.
+   * Switc bosilishi bilan DARHOL o'zgaradi; subscribe/unsubscribe/server
+   * hammasi FON rejimida ketadi. Faqat haqiqiy xatoda optimistik orqaga qaytadi.
+   */
+  const handleToggle = (key: keyof Prefs, v: boolean): void => {
     if (key === 'pushEnabled') {
-      if (busy) return;
       if (!supported) {
         toast.error(t('notifications.unsupported'));
         return;
       }
-      // Optimistik — darhol ko'rsatamiz (hech qanday kutish yo'q).
+      // 1) DARHOL, sinxron — switc shu soniyada o'zgaradi.
       setOptimistic(v);
       if (v) {
         if (permission === 'denied') {
@@ -60,18 +64,20 @@ export function NotificationPrefs({ prefs, bare }: { prefs: Prefs; bare?: boolea
           toast.error(t('notifications.push_enable_failed'));
           return;
         }
-        const okSub = await subscribe();
-        if (!okSub) {
-          setOptimistic(null); // xato — orqaga qaytaramiz
-          toast.error(t('notifications.push_enable_failed'));
-          return;
-        }
+        // 2) Fon rejimida obuna bo'lish; xato bo'lsa orqaga qaytaramiz.
+        void subscribe().then((ok) => {
+          if (!ok) {
+            setOptimistic(null);
+            toast.error(t('notifications.push_enable_failed'));
+          }
+        });
       } else {
-        // O'chirish — fon rejimida, kutmaymiz (switc darhol o'chgan ko'rinadi).
+        // 3) Fon rejimida obunani bekor qilish — kutmaymiz.
         void unsubscribe();
         localStorage.setItem('boyxon-push-asked', 'off');
       }
     }
+    // Server pref — ham fire-and-forget (React Query o'zi boshqaradi).
     mutation.mutate({ [key]: v });
   };
 
@@ -86,7 +92,7 @@ export function NotificationPrefs({ prefs, bare }: { prefs: Prefs; bare?: boolea
         <Switch
           checked={isChecked(r.key)}
           disabled={r.key === 'pushEnabled' && !ready}
-          onChange={(v) => void handleToggle(r.key, v)}
+          onChange={(v) => handleToggle(r.key, v)}
           label={t(r.k)}
         />
       }
