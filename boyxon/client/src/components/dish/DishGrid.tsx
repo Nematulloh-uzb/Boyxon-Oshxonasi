@@ -27,8 +27,8 @@ export function DishGrid({ dishes, loading, emptyText }: Props) {
         <div className="mx-auto grid h-24 w-24 place-items-center rounded-full bg-surface-raised">
           <UtensilsCrossed className="h-12 w-12 text-ink-300" />
         </div>
-        <p className="mt-4 font-display text-lg font-bold text-ink-900">{t('home.no_dishes')}</p>
-        <p className="mt-1 text-sm text-ink-300">{t('home.no_dishes_hint')}</p>
+        <p className="mt-4 font-display text-lg font-bold text-ink-900">{emptyText ?? t('home.no_dishes')}</p>
+        {!emptyText && <p className="mt-1 text-sm text-ink-300">{t('home.no_dishes_hint')}</p>}
       </div>
     );
   }
