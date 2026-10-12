@@ -125,90 +125,23 @@ export interface Paginated<T> {
   pagination: { page: number; limit: number; total: number; pages: number };
 }
 
+// ── Chat (real-time user ↔ admin suhbat) ──
 export interface ChatUser {
   _id: string;
   name: string;
   email?: string;
-  avatar?: string | null;
   phone?: string;
+  avatar?: string | null;
 }
 
 export interface ChatMessage {
   _id: string;
   conversation: string;
-  sender: string;
+  sender: string | ChatUser;
   senderRole: 'user' | 'admin';
   text: string;
   readAt?: string | null;
   createdAt: string;
-}
-
-export interface ChatConversation {
-  _id: string;
-  user?: ChatUser;
-  lastMessage: string;
-  lastSenderRole?: 'user' | 'admin';
-  lastMessageAt?: string;
-  adminUnread: number;
-  userUnread: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface ApiOk<T> {
-  success: boolean;
-  message: string;
-  data: T;
-}
-
-// ── Chat (real-time admin↔user suhbat) ──
-export interface ChatUser {
-  _id: string;
-  name: string;
-  email?: string;
-  phone?: string;
-  avatar?: string | null;
-}
-
-export interface ChatMessage {
-  _id: string;
-  conversation: string;
-  sender: string;
-  senderRole: 'user' | 'admin';
-  text: string;
-  readAt: string | null;
-  createdAt: string;
-}
-
-export interface ChatConversation {
-  _id: string;
-  user: ChatUser | string;
-  lastMessage: string;
-  lastSenderRole?: 'user' | 'admin';
-  lastMessageAt?: string;
-  adminUnread: number;
-  userUnread: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-// ── Chat (real-time user ↔ admin) ──
-export interface ChatMessage {
-  _id: string;
-  conversation: string;
-  sender: string;
-  senderRole: 'user' | 'admin';
-  text: string;
-  readAt?: string | null;
-  createdAt: string;
-}
-
-export interface ChatUser {
-  _id: string;
-  name: string;
-  email?: string;
-  phone?: string;
-  avatar?: string | null;
 }
 
 export interface ChatConversation {
@@ -223,32 +156,9 @@ export interface ChatConversation {
   updatedAt: string;
 }
 
-// ── Chat ──
-export interface ChatUser {
-  _id: string;
-  name: string;
-  email?: string;
-  avatar?: string | null;
-  phone?: string;
+export interface ApiOk<T> {
+  success: boolean;
+  message: string;
+  data: T;
 }
 
-export interface ChatMessage {
-  _id: string;
-  conversation: string;
-  sender: string | ChatUser;
-  senderRole: 'user' | 'admin';
-  text: string;
-  readAt?: string | null;
-  createdAt: string;
-}
-
-export interface Conversation {
-  _id: string;
-  user: string | ChatUser;
-  lastMessage: string;
-  lastSenderRole?: 'user' | 'admin';
-  lastMessageAt?: string;
-  adminUnread: number;
-  userUnread: number;
-  updatedAt: string;
-}
