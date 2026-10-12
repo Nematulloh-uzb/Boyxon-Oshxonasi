@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { isValidObjectId } from 'mongoose';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ok, paginated } from '../utils/ApiResponse';
 import { ApiError } from '../utils/ApiError';
@@ -218,12 +219,28 @@ export const adminDishes = asyncHandler(async (req: Request, res: Response) => {
 /** POST /api/admin/dishes — taom yaratish (multipart, rasm ixtiyoriy). */
 export const createDish = asyncHandler(async (req: Request, res: Response) => {
   const body = req.body as Record<string, string>;
+  // Kategoriya mavjudligini erta tekshiramiz — CastError (500) o'rniga tushunarli 400 qaytadi.
+  if (body.category) {
+    const cat = isValidObjectId(body.category)
+      ? await Category.findById(body.category).lean()
+      : await Category.findOne({ $or: [{ slug: body.category }, { name: body.category }] }).lean();
+    if (!cat) throw ApiError.badRequest('Kategoriya topilmadi. Iltimos, ro‘yxatdan tanlang.');
+  }
   let image: string | null = null;
   let imagePublicId: string | undefined;
+  let imageWarning = '';
   if (req.file) {
-    const up = await uploadBufferToCloudinary(req.file.buffer);
-    image = up.url;
-    imagePublicId = up.publicId;
+    try {
+      const up = await uploadBufferToCloudinary(req.file.buffer);
+      image = up.url;
+      imagePublicId = up.publicId;
+    } catch (e) {
+      // Cloudinary sozlanmagan bo'lsa ham taom yaratilishiga to'sqinlik qilmaymiz —
+      // rasmsiz saqlaymiz va ogohlantirishni javob xabariga qo'shamiz.
+      if (e instanceof ApiError && e.statusCode === 400) {
+        imageWarning = ' (Rasm yuklanmadi: Cloudinary sozlanmagan, taom rasmsiz saqlandi)';
+      } else throw e;
+    }
   }
   const dish = await Dish.create({
     name: body.name,
@@ -243,7 +260,7 @@ export const createDish = asyncHandler(async (req: Request, res: Response) => {
     isActive: body.isActive !== 'false',
     isFeatured: body.isFeatured === 'true',
   });
-  res.status(201).json(ok(dish, 'Taom yaratildi'));
+  res.status(201).json(ok(dish, `Taom yaratildi${imageWarning}`));
 });
 
 /** PATCH /api/admin/dishes/:id — taomni yangilash. */
@@ -251,11 +268,23 @@ export const updateDish = asyncHandler(async (req: Request, res: Response) => {
   const dish = await Dish.findById(req.params.id);
   if (!dish) throw ApiError.notFound('Taom topilmadi');
   const body = req.body as Record<string, string>;
+  // Kategoriya o'zgartirilayotgan bo'lsa — mavjudligini tekshiramiz.
+  if (body.category !== undefined) {
+    const cat = isValidObjectId(body.category)
+      ? await Category.findById(body.category).lean()
+      : await Category.findOne({ $or: [{ slug: body.category }, { name: body.category }] }).lean();
+    if (!cat) throw ApiError.badRequest('Kategoriya topilmadi. Iltimos, ro‘yxatdan tanlang.');
+  }
   if (req.file) {
     if (dish.imagePublicId) await deleteFromCloudinary(dish.imagePublicId);
-    const up = await uploadBufferToCloudinary(req.file.buffer);
-    dish.image = up.url;
-    dish.imagePublicId = up.publicId;
+    try {
+      const up = await uploadBufferToCloudinary(req.file.buffer);
+      dish.image = up.url;
+      dish.imagePublicId = up.publicId;
+    } catch (e) {
+      if (!(e instanceof ApiError && e.statusCode === 400)) throw e;
+      // Cloudinary yo'q bo'lsa — rasmni o'zgarishsiz qoldiramiz, lekin taomni yangilaymiz.
+    }
   }
   const fields = ['name', 'nameRu', 'nameEn', 'description', 'descriptionRu', 'descriptionEn', 'category'];
   for (const f of fields) if (body[f] !== undefined) (dish as unknown as Record<string, unknown>)[f] = body[f];
