@@ -7,7 +7,7 @@ import { chatApi } from '../../api/chat.api';
 import { ChatThread } from '../../components/admin/ChatThread';
 import { useChatSocket } from '../../hooks/useChatSocket';
 import { cn } from '../../lib/utils';
-import type { Conversation } from '../../types';
+import type { ChatConversation, ChatUser } from '../../types';
 
 /** Admin chat — suhbatlar ro'yxati (chap) + tanlangan suhbat xabar oynasi (o'ng). */
 export default function AdminChat() {
