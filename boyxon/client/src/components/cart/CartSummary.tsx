@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { formatPrice, tVal } from '../../lib/format';
-import { FREE_DELIVERY_FROM } from '../../lib/constants';
+import { DELIVERY_FEE, FREE_DELIVERY_FROM } from '../../lib/constants';
 import { Card } from '../ui/Card';
 
 interface Props {
@@ -12,7 +12,9 @@ interface Props {
 
 export function CartSummary({ subtotal, deliveryFee, discount, total }: Props) {
   const { t } = useTranslation();
-  const toFree = FREE_DELIVERY_FROM - subtotal;
+  // Yetkazish "bepul" emas — mijozning cho'ntagida qoladigan pul sifatida ko'rsatiladi.
+  const toFree = Math.max(0, FREE_DELIVERY_FROM - subtotal);
+  const progress = Math.min(100, Math.round((subtotal / FREE_DELIVERY_FROM) * 100));
   return (
     <Card className="space-y-2.5 p-4">
       <div className="flex justify-between text-sm">
@@ -29,9 +31,22 @@ export function CartSummary({ subtotal, deliveryFee, discount, total }: Props) {
           <span className="font-medium text-success">−{formatPrice(discount)}</span>
         </div>
       )}
-      {toFree > 0 && (
-        <p className="rounded-xl bg-primary-50 px-3 py-2 text-xs text-primary-700">
-          {tVal(t('cart.free_delivery_hint'), { amount: formatPrice(toFree) })}
+      {subtotal > 0 && toFree > 0 && (
+        <div className="space-y-1.5 rounded-xl bg-primary-50 px-3 py-2.5">
+          <p className="text-xs font-semibold text-primary-700">
+            {tVal(t('cart.free_delivery_hint'), {
+              amount: formatPrice(toFree),
+              fee: formatPrice(DELIVERY_FEE),
+            })}
+          </p>
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-primary-100" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}>
+            <div className="h-full rounded-full bg-primary-500 transition-all" style={{ width: `${progress}%` }} />
+          </div>
+        </div>
+      )}
+      {subtotal >= FREE_DELIVERY_FROM && (
+        <p className="rounded-xl bg-success/10 px-3 py-2 text-xs font-semibold text-success">
+          {tVal(t('cart.free_delivery_done'), { fee: formatPrice(DELIVERY_FEE) })}
         </p>
       )}
       <div className="flex justify-between border-t border-ink-line pt-2.5 text-base font-bold">
