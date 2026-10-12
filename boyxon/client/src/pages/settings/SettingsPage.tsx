@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Bell, Globe, LogOut, MapPin, Moon, Package, Sun } from 'lucide-react';
+import { Bell, ChevronDown, Globe, LogOut, MapPin, Moon, Package, Sun } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { ProfileCard } from '../../components/settings/ProfileCard';
