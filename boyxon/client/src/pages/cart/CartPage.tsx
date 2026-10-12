@@ -52,8 +52,14 @@ export default function CartPage() {
       <div className="fixed inset-x-0 bottom-16 z-20 border-t border-ink-line bg-surface p-3 md:hidden">
         <div className="mx-auto flex max-w-lg items-center justify-between gap-3">
           <div>
-            <p className="text-xs text-ink-300">{t('cart.total')}</p>
-            <p className="font-bold text-primary-600">{formatPrice(total)}</p>
+            <p className="text-xs font-semibold text-primary-700">
+              {toFree > 0
+                ? tVal(t('cart.free_delivery_hint'), { amount: formatPrice(toFree), fee: formatPrice(DELIVERY_FEE) })
+                : tVal(t('cart.free_delivery_done'), { fee: formatPrice(DELIVERY_FEE) })}
+            </p>
+            <p className="text-xs text-ink-300">
+              {t('cart.total')}: <span className="font-bold text-primary-600">{formatPrice(total)}</span>
+            </p>
           </div>
           <Button onClick={() => set({ checkoutOpen: true })}>{t('cart.checkout')}</Button>
         </div>
