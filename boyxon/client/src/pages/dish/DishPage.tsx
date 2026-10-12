@@ -43,7 +43,7 @@ export default function DishPage() {
   const addToCart = (): void => {
     if (!dish) return;
     add({ dishId: dish._id, name: dish.name, price: dish.price, image: dish.image }, 1);
-    toast.success(t('dish.added', { name: localizedDishName(dish, lang) }));
+    toast.success(tVal(t('dish.added'), { name: localizedDishName(dish, lang) }));
   };
 
   if (isLoading) {
