@@ -5,7 +5,7 @@ import { Footer } from './Footer';
 import { MobileDrawer } from './MobileDrawer';
 import { NotificationDrawer } from '../notification/NotificationDrawer';
 import { PushPermissionPrompt } from '../notification/PushPermissionPrompt';
-import { ChatWidget } from '../notification/ChatWidget';
+import { ChatWidget } from '../chat/ChatWidget';
 
 export function Layout() {
   return (
