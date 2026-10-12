@@ -17,7 +17,7 @@ export function DishCard({ dish }: { dish: Dish }) {
 
   const addToCart = (): void => {
     add({ dishId: dish._id, name: dish.name, price: dish.price, image: dish.image }, 1);
-    toast.success(t('dish.added', { name }));
+    toast.success(tVal(t('dish.added'), { name }));
   };
 
   return (
