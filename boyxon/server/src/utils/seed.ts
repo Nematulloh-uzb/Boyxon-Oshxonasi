@@ -95,7 +95,7 @@ async function seedData(): Promise<void> {
 
   await Order.deleteMany({});
   const dishes = await Dish.find().limit(6);
-  const statuses = ['pending', 'confirmed', 'preparing', 'on_way', 'delivered'];
+  const statuses = ['pending', 'confirmed', 'packing', 'handed_to_taxi', 'delivered'];
   for (let i = 0; i < 5; i++) {
     const st = statuses[i];
     const items = dishes.slice(i, i + 2).map((d) => ({ dish: d._id, name: d.name, price: d.price, quantity: i + 1 }));
