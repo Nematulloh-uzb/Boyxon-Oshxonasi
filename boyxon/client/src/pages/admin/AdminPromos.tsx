@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { adminApi } from '../../api/admin.api';
 import { PromosTable } from '../../components/admin/PromosTable';
 import { Sheet } from '../../components/ui/Sheet';
