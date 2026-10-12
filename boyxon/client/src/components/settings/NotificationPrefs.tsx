@@ -10,7 +10,6 @@ import { usePush } from '../../hooks/usePush';
 import type { NotificationPrefs as Prefs } from '../../types';
 
 const ROWS: { key: keyof Prefs; k: string }[] = [
-  { key: 'pushEnabled', k: 'notif.push' },
   { key: 'orderUpdates', k: 'notif.orders' },
   { key: 'promos', k: 'notif.promos' },
   { key: 'newDishes', k: 'notif.dishes' },
@@ -30,7 +29,8 @@ export function NotificationPrefs({ prefs, bare }: { prefs: Prefs; bare?: boolea
     setOptimistic(null);
   }, [subscribed]);
 
-  const pushOn = optimistic ?? subscribed;
+  // "Sayt bildirishnomalari" — umumiy master (push obunasi). Uni o'chirsangiz hech narsa kelmaydi.
+  const siteOn = optimistic ?? subscribed;
 
   const mutation = useMutation({
     mutationFn: (patch: Partial<Prefs>) => usersApi.updateNotifPrefs(patch),
@@ -81,17 +81,30 @@ export function NotificationPrefs({ prefs, bare }: { prefs: Prefs; bare?: boolea
     mutation.mutate({ [key]: v });
   };
 
-  const isChecked = (key: keyof Prefs): boolean =>
-    key === 'pushEnabled' ? pushOn : Boolean(prefs[key]);
+  // Umumiy master satr — "Sayt bildirishnomalari".
+  const master = (
+    <SettingsRow
+      label={t('notif.site')}
+      right={
+        <Switch
+          checked={siteOn}
+          disabled={!ready}
+          onChange={(v) => handleToggle('pushEnabled', v)}
+          label={t('notif.site')}
+        />
+      }
+    />
+  );
 
-  const rows = ROWS.map((r) => (
+  // Ichkaridagi filtrlar — master o'chsa ular disabled ko'rinadi.
+  const nested = ROWS.map((r) => (
     <SettingsRow
       key={r.key}
       label={t(r.k)}
       right={
         <Switch
-          checked={isChecked(r.key)}
-          disabled={r.key === 'pushEnabled' && !ready}
+          checked={Boolean(prefs[r.key])}
+          disabled={!siteOn}
           onChange={(v) => handleToggle(r.key, v)}
           label={t(r.k)}
         />
@@ -100,7 +113,21 @@ export function NotificationPrefs({ prefs, bare }: { prefs: Prefs; bare?: boolea
   ));
 
   // bare — SettingsRowsni o'z kartasiz, chaqiruvchi joyning (satr tagida) ichida ko'rsatadi.
-  if (bare) return <>{rows}</>;
+  if (bare) {
+    return (
+      <>
+        {master}
+        <div className="border-t border-ink-line/40 bg-surface-raised/40 px-4 pl-12">
+          {nested}
+        </div>
+      </>
+    );
+  }
 
-  return <SettingsGroup title={t('settings.notifications')}>{rows}</SettingsGroup>;
+  return (
+    <SettingsGroup title={t('settings.notifications')}>
+      {master}
+      <div className="border-t border-ink-line/40 bg-surface-raised/40 px-4 pl-12">{nested}</div>
+    </SettingsGroup>
+  );
 }
