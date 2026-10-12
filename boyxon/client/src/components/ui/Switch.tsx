@@ -5,9 +5,10 @@ interface Props {
   onChange: (v: boolean) => void;
   label?: string;
   disabled?: boolean;
+  pending?: boolean;
 }
 
-export function Switch({ checked, onChange, label, disabled }: Props) {
+export function Switch({ checked, onChange, label, disabled, pending }: Props) {
   return (
     <button
       role="switch"
@@ -19,6 +20,9 @@ export function Switch({ checked, onChange, label, disabled }: Props) {
         'h-7 w-12 rounded-full p-1 transition',
         checked ? 'bg-accent' : 'bg-line-strong',
         disabled && 'cursor-not-allowed opacity-50',
+        // Latency paytida biroz o'chganroq — request ketayotganini bildiradi,
+        // lekin disabled emas (optimistik UI saqlanadi).
+        pending && !disabled && 'opacity-60',
       )}
     >
       <span

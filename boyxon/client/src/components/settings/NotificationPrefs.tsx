@@ -16,7 +16,7 @@ import type { NotificationPrefs as Prefs } from '../../types';
 export function NotificationPrefs({ bare }: { prefs?: Prefs; bare?: boolean }) {
   const { t } = useTranslation();
   const qc = useQueryClient();
-  const { supported, permission, subscribed, ready, subscribe, unsubscribe } = usePush();
+  const { supported, permission, subscribed, ready, busy, subscribe, unsubscribe } = usePush();
 
   // Optimistik holat: bosilishi bilanoq DARHOL aks etadi (SW/server javobini kutmaydi).
   // null = haqiqiy holatga tayanamiz. Faqat haqiqiy holat (subscribed) o'zgarganda tozalanadi.
@@ -78,7 +78,15 @@ export function NotificationPrefs({ bare }: { prefs?: Prefs; bare?: boolean }) {
   const row = (
     <SettingsRow
       label={t('notif.site')}
-      right={<Switch checked={siteOn} disabled={!ready} onChange={handleToggle} label={t('notif.site')} />}
+      right={
+        <Switch
+          checked={siteOn}
+          disabled={!ready}
+          pending={busy || mutation.isPending}
+          onChange={handleToggle}
+          label={t('notif.site')}
+        />
+      }
     />
   );
 
