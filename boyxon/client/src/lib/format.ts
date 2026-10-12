@@ -60,3 +60,16 @@ export function orderStatusKey(status: string): string {
   return `status.${status}`;
 }
 
+/**
+ * Xavfsiz interpolatsiya: i18next qiymat qo'ymay qoldirgan bo'lsa ham
+ * ("{count} ta" / "{{count}} ta" xom matn ko'rinmasligi uchun) o'zimiz to'ldiramiz.
+ * Eski bundle/kesh bilan ham ekranda chiroyli son chiqadi.
+ */
+export function tVal(template: string, values: Record<string, string | number>): string {
+  let out = template;
+  for (const [k, v] of Object.entries(values)) {
+    out = out.split(`{{${k}}}`).join(String(v)).split(`{${k}}`).join(String(v));
+  }
+  return out;
+}
+

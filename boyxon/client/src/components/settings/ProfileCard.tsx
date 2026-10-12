@@ -6,7 +6,7 @@ import type { User as UserType } from '../../types';
 import { Card } from '../ui/Card';
 import { usersApi } from '../../api/users.api';
 import { useAuthStore } from '../../store/auth.store';
-import { formatPrice } from '../../lib/format';
+import { formatPrice, tVal } from '../../lib/format';
 
 export function ProfileCard({ user }: { user: UserType }) {
   const { t } = useTranslation();
