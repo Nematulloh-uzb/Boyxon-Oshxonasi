@@ -57,10 +57,27 @@ export default function SettingsPage() {
       <ProfileCard user={user} />
 
       <SettingsGroup title={t('settings.account')}>
-        <SettingsRow icon={MapPin} label={t('settings.addresses')} value={tVal(t('home.items_count'), { count: user.addresses?.length ?? 0 })} onClick={() => toast.info(t('settings.addresses_soon'))} />
+        <SettingsRow
+          icon={MapPin}
+          label={t('settings.addresses')}
+          value={tVal(t('home.items_count'), { count: user.addresses?.length ?? 0 })}
+          right={
+            <ChevronDown
+              className={`h-4 w-4 shrink-0 text-ink-300 transition-transform ${addressesOpen ? 'rotate-180' : ''}`}
+            />
+          }
+          onClick={() => setAddressesOpen((v) => !v)}
+        />
         <SettingsRow icon={Package} label={t('settings.orders')} value={orders ? tVal(t('home.items_count'), { count: orders.pagination.total }) : '...'} onClick={() => toast.info(t('settings.orders_hint'))} />
         <SettingsRow icon={Bell} label={t('settings.notifications')} onClick={() => toast.info(t('settings.bell_hint'))} />
       </SettingsGroup>
+
+      {addressesOpen && (
+        <section>
+          <h2 className="mb-2 px-1 text-sm font-semibold uppercase tracking-wide text-ink-300">{t('settings.addresses')}</h2>
+          <AddressManager />
+        </section>
+      )}
 
       <SettingsGroup title={t('settings.preferences')}>
         <SettingsRow
