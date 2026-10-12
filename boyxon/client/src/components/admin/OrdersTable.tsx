@@ -20,7 +20,8 @@ export function OrdersTable({ orders, loading }: { orders: Order[]; loading?: bo
   const { t } = useTranslation();
   const qc = useQueryClient();
   const statusM = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) => adminApi.updateStatus(id, status),
+    mutationFn: ({ id, status, taxi }: { id: string; status: string; taxi?: { driver?: string; carNumber?: string; service?: string; note?: string } }) =>
+      adminApi.updateStatus(id, status, undefined, taxi),
     onSuccess: (r) => {
       void qc.invalidateQueries({ queryKey: ['admin-orders'] });
       void qc.invalidateQueries({ queryKey: ['admin-stats'] });
@@ -28,6 +29,21 @@ export function OrdersTable({ orders, loading }: { orders: Order[]; loading?: bo
     },
     onError: () => toast.error(t('admin.status_error')),
   });
+
+  /** Taksiga topshirish — haydovchi va davlat raqami ixtiyoriy. */
+  const handleStatusChange = (order: Order, nextStatus: string) => {
+    if (nextStatus !== 'handed_to_taxi') {
+      statusM.mutate({ id: order._id, status: nextStatus });
+      return;
+    }
+    const driver = window.prompt(t('admin.taxi_driver'))?.trim();
+    const carNumber = window.prompt(t('admin.taxi_car_number'))?.trim();
+    statusM.mutate({
+      id: order._id,
+      status: nextStatus,
+      taxi: driver || carNumber ? { driver: driver || undefined, carNumber: carNumber || undefined } : undefined,
+    });
+  };
 
   if (loading) return <div className="rounded-card bg-surface p-6 text-center text-ink-300">{t('common.loading')}</div>;
   if (!orders.length) return <div className="rounded-card bg-surface p-6 text-center text-ink-300">{t('admin.orders_empty')}</div>;
@@ -62,7 +78,7 @@ export function OrdersTable({ orders, loading }: { orders: Order[]; loading?: bo
                   </span>
                   <select
                     value={o.status}
-                    onChange={(e) => statusM.mutate({ id: o._id, status: e.target.value })}
+                    onChange={(e) => handleStatusChange(o, e.target.value)}
                     className="h-8 rounded-lg border border-ink-line bg-surface px-1.5 text-xs outline-none"
                     disabled={statusM.isPending}
                   >

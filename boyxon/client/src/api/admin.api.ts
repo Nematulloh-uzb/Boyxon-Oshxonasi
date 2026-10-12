@@ -40,8 +40,12 @@ export const adminApi = {
   orders: (params: Record<string, unknown> = {}) =>
     api.get<Paginated<Order>>('/admin/orders', { params }).then((r) => r.data),
   orderDetail: (id: string) => api.get<ApiOk<Order>>(`/admin/orders/${id}`).then((r) => r.data),
-  updateStatus: (id: string, status: string, note?: string) =>
-    api.patch<ApiOk<Order>>(`/admin/orders/${id}/status`, { status, note }).then((r) => r.data),
+  updateStatus: (
+    id: string,
+    status: string,
+    note?: string,
+    taxi?: { driver?: string; carNumber?: string; service?: string; note?: string },
+  ) => api.patch<ApiOk<Order>>(`/admin/orders/${id}/status`, { status, note, taxi }).then((r) => r.data),
 
   users: (params: Record<string, unknown> = {}) =>
     api.get<Paginated<User>>('/admin/users', { params }).then((r) => r.data),
