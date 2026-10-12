@@ -37,7 +37,7 @@ export default function AdminPromos() {
 
   const deleteM = useMutation({
     mutationFn: (id: string) => adminApi.deletePromo(id),
-    onSuccess: () => { toast.success('O‘chirildi'); refresh(); },
+    onSuccess: () => { toast.success(t('common.deleted')); refresh(); },
   });
 
   const inputCls = 'h-11 w-full rounded-xl border border-ink-line px-3 text-sm outline-none focus:border-primary-500';
