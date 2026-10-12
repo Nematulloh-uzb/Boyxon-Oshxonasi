@@ -7,6 +7,7 @@ interface UiState {
   filterOpen: boolean;
   notifOpen: boolean;
   checkoutOpen: boolean;
+  chatOpen: boolean;
   theme: Theme;
   set: (patch: Partial<UiState>) => void;
   setTheme: (t: Theme) => void;
@@ -17,6 +18,7 @@ export const useUiStore = create<UiState>()((set) => ({
   filterOpen: false,
   notifOpen: false,
   checkoutOpen: false,
+  chatOpen: false,
   theme: 'dark',
   set: (patch) => set(patch),
   setTheme: (theme) => {

@@ -16,6 +16,7 @@ import { userRouter } from './routes/user.routes';
 import { notificationRouter } from './routes/notification.routes';
 import { pushRouter } from './routes/push.routes';
 import { adminRouter } from './routes/admin.routes';
+import { chatRouter } from './routes/chat.routes';
 
 export function createApp() {
   const app = express();
@@ -45,6 +46,7 @@ export function createApp() {
   app.use('/api/notifications', notificationRouter);
   app.use('/api/push', pushRouter);
   app.use('/api/admin', adminRouter);
+  app.use('/api/chat', chatRouter);
 
   app.use((_req, res) => {
     res.status(404).json({ success: false, message: 'Topilmadi', data: null });
