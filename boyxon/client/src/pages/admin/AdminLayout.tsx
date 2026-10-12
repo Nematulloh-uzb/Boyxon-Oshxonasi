@@ -9,6 +9,7 @@ const titleKeys: Record<string, string> = {
   '/admin/orders': 'admin.orders',
   '/admin/users': 'admin.users',
   '/admin/promos': 'admin.promos',
+  '/admin/categories': 'admin.categories',
   '/admin/push': 'admin.push_title',
 };
 
@@ -16,7 +17,7 @@ export default function AdminLayout() {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   return (
-    <div className="min-h-screen bg-muted md:flex">
+    <div className="min-h-screen bg-bg md:flex">
       <AdminSidebar />
       <div className="flex-1">
         <AdminTopBar title={t(titleKeys[pathname] ?? 'admin.title')} />

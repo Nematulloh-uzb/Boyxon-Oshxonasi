@@ -53,7 +53,7 @@ export function NotificationDrawer() {
           <NotificationItem key={n._id} n={n} onClick={() => void openItem(n._id, n.link)} />
         ))}
       </div>
-      <div className="sr-only"><Bell /></div>
+      {/* qo'ng'iroq ikonkasi bildirishnoma elementlarida chiziladi */}
     </Sheet>
   );
 }
