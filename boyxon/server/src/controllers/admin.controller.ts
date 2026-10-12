@@ -41,16 +41,26 @@ export const adminOrderDetail = asyncHandler(async (req: Request, res: Response)
 
 /** PATCH /api/admin/orders/:id/status — status + socket + notification + push. */
 export const updateOrderStatus = asyncHandler(async (req: Request, res: Response) => {
-  const { status, note } = req.body as { status: string; note?: string };
+  const { status, note, taxi } = req.body as {
+    status: string;
+    note?: string;
+    taxi?: { driver?: string; carNumber?: string; service?: string; note?: string };
+  };
+  const ALLOWED = ['pending', 'confirmed', 'packing', 'handed_to_taxi', 'delivered', 'cancelled'];
+  if (!ALLOWED.includes(status)) throw ApiError.badRequest('Noto‘g‘ri status');
   const order = await Order.findById(req.params.id);
   if (!order) throw ApiError.notFound('Buyurtma topilmadi');
   order.status = status as typeof order.status;
   order.statusHistory.push({ status, timestamp: new Date(), note });
+  if (taxi) order.taxi = { ...(order.taxi ?? {}), ...taxi };
+  if (status === 'handed_to_taxi' && note && !order.taxi?.note) {
+    order.taxi = { ...(order.taxi ?? {}), note };
+  }
   if (status === 'delivered') order.deliveredAt = new Date();
   await order.save();
   const labels: Record<string, string> = {
-    confirmed: 'Tasdiqlandi', preparing: 'Tayyorlanmoqda', on_way: 'Yo‘lda',
-    delivered: 'Yetkazildi', cancelled: 'Bekor qilindi',
+    pending: 'Kutilmoqda', confirmed: 'Tasdiqlandi', packing: 'Qadoqlanmoqda',
+    handed_to_taxi: 'Taksiga topshirildi', delivered: 'Yetkazildi', cancelled: 'Bekor qilindi',
   };
   const msg = `Buyurtma ${order.orderNumber}: ${labels[status] ?? status}`;
   const userId = order.user.toString();

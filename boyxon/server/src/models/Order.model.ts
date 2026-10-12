@@ -1,6 +1,6 @@
 import { Schema, model, type Document, type Types } from 'mongoose';
 
-export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'on_way' | 'delivered' | 'cancelled';
+export type OrderStatus = 'pending' | 'confirmed' | 'packing' | 'handed_to_taxi' | 'delivered' | 'cancelled';
 
 export interface OrderItem {
   dish: Types.ObjectId;
@@ -28,6 +28,8 @@ export interface OrderDoc extends Document {
   status: OrderStatus;
   statusHistory: { status: string; timestamp: Date; note?: string }[];
   courier?: { name?: string; phone?: string };
+  /** Taksi orqali yuborilganda — haydovchi/mashina/taksi xizmati izohi. */
+  taxi?: { driver?: string; carNumber?: string; service?: string; note?: string };
   estimatedDeliveryAt?: Date;
   deliveredAt?: Date;
   cancelReason?: string;
@@ -72,7 +74,7 @@ const OrderSchema = new Schema<OrderDoc>(
     },
     status: {
       type: String,
-      enum: ['pending', 'confirmed', 'preparing', 'on_way', 'delivered', 'cancelled'],
+      enum: ['pending', 'confirmed', 'packing', 'handed_to_taxi', 'delivered', 'cancelled'],
       default: 'pending',
       index: true,
     },
@@ -84,6 +86,7 @@ const OrderSchema = new Schema<OrderDoc>(
       },
     ],
     courier: { name: String, phone: String },
+    taxi: { driver: String, carNumber: String, service: String, note: String },
     estimatedDeliveryAt: { type: Date },
     deliveredAt: { type: Date },
     cancelReason: { type: String },
