@@ -54,36 +54,36 @@ export default function AdminPromos() {
         onDelete={(p) => { if (confirm(t('admin.delete_confirm', { name: p.code }))) deleteM.mutate(p._id); }}
       />
 
-      <Sheet open={open} onClose={() => setOpen(false)} title="Yangi promo kod">
+      <Sheet open={open} onClose={() => setOpen(false)} title={t('admin.new_promo_title')}>
         <div className="space-y-3">
           <div>
-            <label className="mb-1 block text-xs font-semibold text-ink-700">Kod *</label>
+            <label className="mb-1 block text-xs font-semibold text-ink-700">{t('admin.promo_code_field')} *</label>
             <input className={inputCls} value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} placeholder="YANGI25" />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-semibold text-ink-700">Tavsif</label>
+            <label className="mb-1 block text-xs font-semibold text-ink-700">{t('admin.promo_description')}</label>
             <input className={inputCls} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1 block text-xs font-semibold text-ink-700">Turi</label>
+              <label className="mb-1 block text-xs font-semibold text-ink-700">{t('admin.promo_type')}</label>
               <select className={inputCls} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
-                <option value="percent">Foiz (%)</option>
-                <option value="fixed">Qat’iy (so‘m)</option>
+                <option value="percent">{t('admin.promo_percent')}</option>
+                <option value="fixed">{t('admin.promo_fixed')}</option>
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold text-ink-700">Qiymat *</label>
+              <label className="mb-1 block text-xs font-semibold text-ink-700">{t('admin.promo_value')} *</label>
               <input type="number" className={inputCls} value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })} />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1 block text-xs font-semibold text-ink-700">Min. summa</label>
+              <label className="mb-1 block text-xs font-semibold text-ink-700">{t('admin.promo_min')}</label>
               <input type="number" className={inputCls} value={form.minOrderAmount} onChange={(e) => setForm({ ...form, minOrderAmount: e.target.value })} />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold text-ink-700">Max chegirma</label>
+              <label className="mb-1 block text-xs font-semibold text-ink-700">{t('admin.promo_max')}</label>
               <input type="number" className={inputCls} value={form.maxDiscount} onChange={(e) => setForm({ ...form, maxDiscount: e.target.value })} />
             </div>
           </div>
@@ -92,7 +92,7 @@ export default function AdminPromos() {
             disabled={createM.isPending || !form.code || !form.value}
             onClick={() => createM.mutate()}
           >
-            {createM.isPending ? 'Yaratilmoqda...' : 'Yaratish'}
+            {createM.isPending ? t('common.creating') : t('common.create')}
           </Button>
         </div>
       </Sheet>
