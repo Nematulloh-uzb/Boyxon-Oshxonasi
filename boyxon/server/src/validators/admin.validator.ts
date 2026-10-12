@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 export const updateOrderStatusSchema = z.object({
   status: z.enum(['pending', 'confirmed', 'packing', 'handed_to_taxi', 'delivered', 'cancelled']),
   note: z.string().max(500).optional(),
