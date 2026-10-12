@@ -119,7 +119,7 @@ export default function SettingsPage() {
             <Card key={o._id} className="flex items-center justify-between p-4">
               <div>
                 <p className="font-semibold">{o.orderNumber}</p>
-                <p className="text-xs text-ink-300">{formatDate(o.createdAt)} · {t('settings.dishes_count', { count: o.items.length })}</p>
+                <p className="text-xs text-ink-300">{formatDate(o.createdAt)} · {tVal(t('settings.dishes_count'), { count: o.items.length })}</p>
               </div>
               <div className="text-right">
                 <p className="font-bold text-primary-600">{formatPrice(o.total)}</p>
