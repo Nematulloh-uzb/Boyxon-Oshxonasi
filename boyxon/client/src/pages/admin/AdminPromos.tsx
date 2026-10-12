@@ -45,7 +45,7 @@ export default function AdminPromos() {
   return (
     <div className="space-y-4">
       <Button onClick={() => setOpen(true)}>
-        <Plus className="h-4 w-4" /> Yangi promo
+        <Plus className="h-4 w-4" /> {t('admin.new_promo')}
       </Button>
 
       <PromosTable
