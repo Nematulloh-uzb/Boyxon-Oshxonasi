@@ -76,6 +76,11 @@ export function OrdersTable({ orders, loading }: { orders: Order[]; loading?: bo
                   <span className={`rounded-full px-2 py-1 text-xs font-semibold ${tone[o.status]}`}>
                     {t(`status.${o.status}`)}
                   </span>
+                  {o.taxi && (
+                    <span className="max-w-[160px] truncate text-xs text-ink-300" title={[o.taxi.driver, o.taxi.carNumber, o.taxi.service, o.taxi.note].filter(Boolean).join(' · ')}>
+                      {[o.taxi.driver, o.taxi.carNumber].filter(Boolean).join(' · ') || t('orders.taxi_added')}
+                    </span>
+                  )}
                   <select
                     value={o.status}
                     onChange={(e) => handleStatusChange(o, e.target.value)}
