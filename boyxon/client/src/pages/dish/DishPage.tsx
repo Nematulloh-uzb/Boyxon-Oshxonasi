@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { dishesApi } from '../../api/dishes.api';
 import { useCart } from '../../hooks/useCart';
-import { formatPrice, localizedDishName, localizedDishDescription } from '../../lib/format';
+import { formatPrice, localizedDishName, localizedDishDescription, tVal } from '../../lib/format';
 import { QUERY_KEYS } from '../../lib/constants';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
