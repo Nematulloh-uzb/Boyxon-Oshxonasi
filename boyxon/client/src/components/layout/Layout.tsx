@@ -12,7 +12,8 @@ export function Layout() {
       <Header />
       <MobileDrawer />
       <NotificationDrawer />
-      <main className="flex-1 pb-24 md:pb-8">
+      {/* mobil pastki menyu balandligi: ~64px + safe-area; kontent yopishmasligi uchun */}
+      <main className="flex-1 pb-28 md:pb-8">
         <Outlet />
       </main>
       <Footer />
