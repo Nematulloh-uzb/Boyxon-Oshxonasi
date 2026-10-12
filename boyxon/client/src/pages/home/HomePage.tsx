@@ -9,8 +9,9 @@ import { DishGrid } from '../../components/dish/DishGrid';
 import { DishCard } from '../../components/dish/DishCard';
 import { DishFilterSheet, type DishFilterValues } from '../../components/dish/DishFilterSheet';
 import { useDebounce } from '../../hooks/useDebounce';
-import { QUERY_KEYS } from '../../lib/constants';
-import { tVal } from '../../lib/format';
+import { useCartStore } from '../../store/cart.store';
+import { DELIVERY_FEE, FREE_DELIVERY_FROM, QUERY_KEYS } from '../../lib/constants';
+import { formatPrice, tVal } from '../../lib/format';
 
 export default function HomePage() {
   const { t } = useTranslation();

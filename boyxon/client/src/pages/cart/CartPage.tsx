@@ -36,6 +36,11 @@ export default function CartPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-5">
       <h1 className="mb-4 font-display text-2xl font-extrabold">{t('cart.title')}</h1>
+      <div className="mb-4 rounded-xl bg-primary-50 px-3 py-2.5 text-sm font-semibold text-primary-700">
+        {toFree > 0
+          ? tVal(t('cart.free_delivery_hint'), { amount: formatPrice(toFree), fee: formatPrice(DELIVERY_FEE) })
+          : tVal(t('cart.free_delivery_done'), { fee: formatPrice(DELIVERY_FEE) })}
+      </div>
       <div className="grid gap-5 lg:grid-cols-3">
         <div className="space-y-3 lg:col-span-2">
           {lines.map((l) => (
