@@ -5,8 +5,7 @@ import { ApiError } from '../utils/ApiError';
 import { Conversation, type ConversationDoc } from '../models/Conversation.model';
 import { Message } from '../models/Message.model';
 import { User } from '../models/User.model';
-import { emitChatMessage } from '../services/chat.service';
-import { emitConversationUpdated } from '../services/chat.service';
+import { emitChatMessage, emitConversationUpdated } from '../services/chat.service';
 import type { AuthRequest } from '../types/express';
 
 const uid = (req: Request): string => (req as AuthRequest).user!.id;
