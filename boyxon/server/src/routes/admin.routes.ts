@@ -5,6 +5,7 @@ import { validate } from '../middlewares/validate.middleware';
 import { uploadImage } from '../middlewares/upload.middleware';
 import { dishCreateSchema, dishUpdateSchema } from '../validators/dish.validator';
 import { promoCreateSchema, promoUpdateSchema } from '../validators/promo.validator';
+import { updateOrderStatusSchema } from '../validators/admin.validator';
 import * as c from '../controllers/admin.controller';
 
 export const adminRouter = Router();
