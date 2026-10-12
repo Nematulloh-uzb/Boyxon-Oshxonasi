@@ -15,6 +15,7 @@ import { formatPrice, tVal } from '../../lib/format';
 
 export default function HomePage() {
   const { t } = useTranslation();
+  const cartSubtotal = useCartStore((s) => s.lines.reduce((a, l) => a + l.price * l.quantity, 0));
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<string | undefined>();
   const [filterOpen, setFilterOpen] = useState(false);
