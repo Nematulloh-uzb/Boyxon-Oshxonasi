@@ -19,9 +19,9 @@ export function SettingsRow({ icon: Icon, label, value, onClick, danger, right }
           <Icon className="h-5 w-5" />
         </span>
       )}
-      <span className={`min-w-0 flex-1 text-sm font-medium ${danger ? 'text-danger' : 'text-ink-900'}`}>{label}</span>
-      {value && <span className="text-sm text-ink-300">{value}</span>}
-      {right}
+      <span className={`min-w-0 flex-1 truncate text-sm font-medium ${danger ? 'text-danger' : 'text-ink-900'}`}>{label}</span>
+      {value && <span className="max-w-[140px] shrink-0 truncate text-right text-sm text-ink-300">{value}</span>}
+      {right && <span className="shrink-0">{right}</span>}
       {onClick && !right && <ChevronRight className="h-4 w-4 shrink-0 text-ink-300" />}
     </>
   );
