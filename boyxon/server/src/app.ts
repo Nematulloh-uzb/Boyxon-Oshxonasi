@@ -48,6 +48,7 @@ export function createApp() {
   app.use('/api/push', pushRouter);
   app.use('/api/admin', adminRouter);
   app.use('/api/chat', chatRouter);
+  app.use('/api/chat', chatRouter);
 
   app.use((_req, res) => {
     res.status(404).json({ success: false, message: 'Topilmadi', data: null });
