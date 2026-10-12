@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { formatPrice } from '../../lib/format';
+import { formatPrice, tVal } from '../../lib/format';
 import { FREE_DELIVERY_FROM } from '../../lib/constants';
 import { Card } from '../ui/Card';
 
