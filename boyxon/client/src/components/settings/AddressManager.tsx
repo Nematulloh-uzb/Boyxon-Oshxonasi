@@ -64,6 +64,16 @@ export function AddressManager() {
       toast.success(t('settings.address_deleted'));
     },
     onError,
+  });
+
+  const submitAdd = (): void => {
+    if (!label.trim() || !address.trim()) {
+      toast.error(t('settings.address_required'));
+      return;
+    }
+    addM.mutate();
+  };
+
   return (
     <div className="space-y-3 px-1 pb-1">
       {addresses.length === 0 && !adding && (
