@@ -65,14 +65,24 @@ export function Header() {
         </nav>
         <div className="ml-auto flex items-center gap-1">
           {accessToken && (
-            <button className="relative rounded-full p-2.5 hover:bg-surface-raised" onClick={() => set({ notifOpen: true })} aria-label={t('nav.notifications')}>
-              <Bell className="h-5 w-5" />
-              {(data ?? 0) > 0 && (
-                <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-danger px-1 text-[10px] font-bold text-white">
-                  {(data ?? 0) > 99 ? '99+' : data}
-                </span>
-              )}
-            </button>
+            <>
+              <button className="relative rounded-full p-2.5 hover:bg-surface-raised" onClick={() => set({ notifOpen: true })} aria-label={t('nav.notifications')}>
+                <Bell className="h-5 w-5" />
+                {(data ?? 0) > 0 && (
+                  <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-danger px-1 text-[10px] font-bold text-white">
+                    {(data ?? 0) > 99 ? '99+' : data}
+                  </span>
+                )}
+              </button>
+              <button className="relative rounded-full p-2.5 hover:bg-surface-raised cursor-pointer" onClick={() => undefined} aria-label={t('chat.title')}>
+                <MessageCircle className="h-5 w-5" />
+                {(data ?? 0) > 0 && (
+                  <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-primary-500 px-1 text-[10px] font-bold text-white">
+                    {(data ?? 0) > 99 ? '99+' : data}
+                  </span>
+                )}
+              </button>
+            </>
           )}
           <button className="relative rounded-full p-2.5 hover:bg-surface-raised" onClick={() => nav('/cart')} aria-label={t('nav.cart')}>
             <ShoppingBag className="h-5 w-5" />
