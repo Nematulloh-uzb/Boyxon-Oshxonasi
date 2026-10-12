@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { promosApi } from '../../api/promos.api';
 import { useCart } from '../../hooks/useCart';
+import { tVal } from '../../lib/format';
 
 export function PromoInput() {
   const { t } = useTranslation();
