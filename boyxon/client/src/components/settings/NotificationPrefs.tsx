@@ -9,14 +9,11 @@ import { usersApi } from '../../api/users.api';
 import { usePush } from '../../hooks/usePush';
 import type { NotificationPrefs as Prefs } from '../../types';
 
-const ROWS: { key: keyof Prefs; k: string }[] = [
-  { key: 'orderUpdates', k: 'notif.orders' },
-  { key: 'promos', k: 'notif.promos' },
-  { key: 'newDishes', k: 'notif.dishes' },
-  { key: 'systemMessages', k: 'notif.system' },
-];
-
-export function NotificationPrefs({ prefs, bare }: { prefs: Prefs; bare?: boolean }) {
+/**
+ * Yagona "Sayt bildirishnomalari" switci. pushEnabled = barcha bildirishnomalar
+ * (in-app + brauzer push) yoqilganmi. Boshqa kategoriya filtri yo'q.
+ */
+export function NotificationPrefs({ bare }: { prefs?: Prefs; bare?: boolean }) {
   const { t } = useTranslation();
   const qc = useQueryClient();
   const { supported, permission, subscribed, ready, subscribe, unsubscribe } = usePush();
@@ -29,7 +26,6 @@ export function NotificationPrefs({ prefs, bare }: { prefs: Prefs; bare?: boolea
     setOptimistic(null);
   }, [subscribed]);
 
-  // "Sayt bildirishnomalari" — umumiy master (push obunasi). Uni o'chirsangiz hech narsa kelmaydi.
   const siteOn = optimistic ?? subscribed;
 
   const mutation = useMutation({
@@ -50,84 +46,44 @@ export function NotificationPrefs({ prefs, bare }: { prefs: Prefs; bare?: boolea
    * Switc bosilishi bilan DARHOL o'zgaradi; subscribe/unsubscribe/server
    * hammasi FON rejimida ketadi. Faqat haqiqiy xatoda optimistik orqaga qaytadi.
    */
-  const handleToggle = (key: keyof Prefs, v: boolean): void => {
-    if (key === 'pushEnabled') {
-      if (!supported) {
-        toast.error(t('notifications.unsupported'));
+  const handleToggle = (v: boolean): void => {
+    if (!supported) {
+      toast.error(t('notifications.unsupported'));
+      return;
+    }
+    // 1) DARHOL, sinxron — switc shu soniyada o'zgaradi.
+    setOptimistic(v);
+    if (v) {
+      if (permission === 'denied') {
+        setOptimistic(null);
+        toast.error(t('notifications.push_enable_failed'));
         return;
       }
-      // 1) DARHOL, sinxron — switc shu soniyada o'zgaradi.
-      setOptimistic(v);
-      if (v) {
-        if (permission === 'denied') {
+      // 2) Fon rejimida obuna bo'lish; xato bo'lsa orqaga qaytaramiz.
+      void subscribe().then((ok) => {
+        if (!ok) {
           setOptimistic(null);
           toast.error(t('notifications.push_enable_failed'));
-          return;
         }
-        // 2) Fon rejimida obuna bo'lish; xato bo'lsa orqaga qaytaramiz.
-        void subscribe().then((ok) => {
-          if (!ok) {
-            setOptimistic(null);
-            toast.error(t('notifications.push_enable_failed'));
-          }
-        });
-      } else {
-        // 3) Fon rejimida obunani bekor qilish — kutmaymiz.
-        void unsubscribe();
-        localStorage.setItem('boyxon-push-asked', 'off');
-      }
+      });
+    } else {
+      // 3) Fon rejimida obunani bekor qilish — kutmaymiz.
+      void unsubscribe();
+      localStorage.setItem('boyxon-push-asked', 'off');
     }
     // Server pref — ham fire-and-forget (React Query o'zi boshqaradi).
-    mutation.mutate({ [key]: v });
+    mutation.mutate({ pushEnabled: v });
   };
 
-  // Umumiy master satr — "Sayt bildirishnomalari".
-  const master = (
+  const row = (
     <SettingsRow
       label={t('notif.site')}
-      right={
-        <Switch
-          checked={siteOn}
-          disabled={!ready}
-          onChange={(v) => handleToggle('pushEnabled', v)}
-          label={t('notif.site')}
-        />
-      }
+      right={<Switch checked={siteOn} disabled={!ready} onChange={handleToggle} label={t('notif.site')} />}
     />
   );
 
-  // Ichkaridagi filtrlar — master o'chsa ular disabled ko'rinadi.
-  const nested = ROWS.map((r) => (
-    <SettingsRow
-      key={r.key}
-      label={t(r.k)}
-      right={
-        <Switch
-          checked={Boolean(prefs[r.key])}
-          disabled={!siteOn}
-          onChange={(v) => handleToggle(r.key, v)}
-          label={t(r.k)}
-        />
-      }
-    />
-  ));
+  // bare — satrni o'z kartasiz, chaqiruvchi joyning (Bildirishnomalar satri tagida) ichida ko'rsatadi.
+  if (bare) return <>{row}</>;
 
-  // bare — SettingsRowsni o'z kartasiz, chaqiruvchi joyning (satr tagida) ichida ko'rsatadi.
-  if (bare) {
-    return (
-      <>
-        {master}
-        <div className="border-t border-ink-line/40 bg-surface-raised/40 px-4 pl-12">
-          {nested}
-        </div>
-      </>
-    );
-  }
-
-  return (
-    <SettingsGroup title={t('settings.notifications')}>
-      {master}
-      <div className="border-t border-ink-line/40 bg-surface-raised/40 px-4 pl-12">{nested}</div>
-    </SettingsGroup>
-  );
+  return <SettingsGroup title={t('settings.notifications')}>{row}</SettingsGroup>;
 }
