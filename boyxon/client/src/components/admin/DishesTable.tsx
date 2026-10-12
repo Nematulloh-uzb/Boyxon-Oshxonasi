@@ -36,12 +36,12 @@ export function DishesTable({ dishes, loading, onEdit, onToggle, onDelete }: Pro
                 <div className="flex items-center gap-3">
                   <div className="h-11 w-14 shrink-0 overflow-hidden rounded-lg">
                     {d.image ? (
-                      <img src={d.image} alt={d.name} className="h-full w-full object-cover" />
+                      <img src={d.image} alt={localizedDishName(d, i18n.language)} className="h-full w-full object-cover" />
                     ) : (
                       <div className="grid h-full w-full place-items-center bg-muted text-[10px] text-ink-300">{t('dish.no_image')}</div>
                     )}
                   </div>
-                  <span className="font-medium">{d.name}</span>
+                  <span className="font-medium">{localizedDishName(d, i18n.language)}</span>
                 </div>
               </td>
               <td className="px-4 py-3">{formatPrice(d.price)}</td>
