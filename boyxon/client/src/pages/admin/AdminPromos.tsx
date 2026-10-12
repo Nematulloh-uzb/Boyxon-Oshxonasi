@@ -31,8 +31,8 @@ export default function AdminPromos() {
         maxDiscount: form.maxDiscount ? Number(form.maxDiscount) : undefined,
         isActive: true,
       }),
-    onSuccess: () => { toast.success('Promo yaratildi'); refresh(); setOpen(false); setForm(emptyForm); },
-    onError: (e) => toast.error((e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Xatolik'),
+    onSuccess: () => { toast.success(t('admin.promo_created')); refresh(); setOpen(false); setForm(emptyForm); },
+    onError: (e) => toast.error((e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('common.error')),
   });
 
   const deleteM = useMutation({
