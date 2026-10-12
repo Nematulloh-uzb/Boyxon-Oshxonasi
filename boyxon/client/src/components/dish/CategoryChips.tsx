@@ -65,7 +65,7 @@ export function CategoryChips({ categories, active, onChange }: Props) {
             )}
           >
             <Icon className="h-4 w-4" />
-            {c.name}
+            {label}
           </button>
         );
       })}
