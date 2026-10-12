@@ -101,14 +101,14 @@ export default function HomePage() {
         <div className="mt-4">
           {cartSubtotal === 0 ? (
             <p className="text-sm font-semibold text-white/90">
-              {tVal(t('cart.free_delivery_hint'), { amount: formatPrice(FREE_DELIVERY_FROM), fee: formatPrice(DELIVERY_FEE) })}
+              {tVal(t('home.promo_progress'), { amount: formatPrice(FREE_DELIVERY_FROM), fee: formatPrice(DELIVERY_FEE) })}
             </p>
           ) : cartSubtotal >= FREE_DELIVERY_FROM ? (
-            <p className="text-sm font-semibold text-white">{tVal(t('cart.free_delivery_done'), { fee: formatPrice(DELIVERY_FEE) })}</p>
+            <p className="text-sm font-semibold text-white">{tVal(t('home.promo_unlocked'), { fee: formatPrice(DELIVERY_FEE) })}</p>
           ) : (
             <>
               <p className="text-sm font-semibold text-white">
-                {tVal(t('cart.free_delivery_hint'), { amount: formatPrice(FREE_DELIVERY_FROM - cartSubtotal), fee: formatPrice(DELIVERY_FEE) })}
+                {tVal(t('home.promo_progress'), { amount: formatPrice(FREE_DELIVERY_FROM - cartSubtotal), fee: formatPrice(DELIVERY_FEE) })}
               </p>
               <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/25">
                 <div
