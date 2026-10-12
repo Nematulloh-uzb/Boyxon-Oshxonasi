@@ -23,13 +23,12 @@ export function NotificationPrefs({ prefs, bare }: { prefs: Prefs; bare?: boolea
   const { supported, permission, subscribed, busy, ready, subscribe, unsubscribe } = usePush();
 
   // Optimistik holat: bosilishi bilanoq DARHOL aks etadi (SW/server javobini kutmaydi).
-  // null = haqiqiy holatga tayanamiz.
+  // null = haqiqiy holatga tayanamiz. Faqat haqiqiy holat (subscribed) o'zgarganda tozalanadi.
   const [optimistic, setOptimistic] = useState<boolean | null>(null);
 
-  // Haqiqiy brauzer holati o'zgarganda optimistikni tozalaymiz.
   useEffect(() => {
-    if (!busy) setOptimistic(null);
-  }, [busy]);
+    setOptimistic(null);
+  }, [subscribed]);
 
   const pushOn = optimistic ?? subscribed;
 
@@ -53,7 +52,7 @@ export function NotificationPrefs({ prefs, bare }: { prefs: Prefs; bare?: boolea
         toast.error(t('notifications.unsupported'));
         return;
       }
-      // Optimistik — darhol ko'rsatamiz.
+      // Optimistik — darhol ko'rsatamiz (hech qanday kutish yo'q).
       setOptimistic(v);
       if (v) {
         if (permission === 'denied') {
@@ -68,7 +67,8 @@ export function NotificationPrefs({ prefs, bare }: { prefs: Prefs; bare?: boolea
           return;
         }
       } else {
-        await unsubscribe();
+        // O'chirish — fon rejimida, kutmaymiz (switc darhol o'chgan ko'rinadi).
+        void unsubscribe();
         localStorage.setItem('boyxon-push-asked', 'off');
       }
     }
@@ -85,7 +85,7 @@ export function NotificationPrefs({ prefs, bare }: { prefs: Prefs; bare?: boolea
       right={
         <Switch
           checked={isChecked(r.key)}
-          disabled={r.key === 'pushEnabled' && (busy || !ready)}
+          disabled={r.key === 'pushEnabled' && !ready}
           onChange={(v) => void handleToggle(r.key, v)}
           label={t(r.k)}
         />
