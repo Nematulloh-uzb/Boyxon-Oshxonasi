@@ -8,6 +8,14 @@ import { useChatSocket, useChatTyping } from '../../hooks/useChatSocket';
 import { cn } from '../../lib/utils';
 import type { ChatMessage, ChatUser } from '../../types';
 
+import type { ChatConversation } from '../../types';
+
+interface ThreadData {
+  success: boolean;
+  message: string;
+  data: { conversation: ChatConversation; messages: ChatMessage[] };
+}
+
 function time(iso: string): string {
   return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
