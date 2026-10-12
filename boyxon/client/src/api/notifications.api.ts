@@ -1,23 +1,27 @@
 import { api } from './axios';
-import type { ApiOk, ChatMessage, Conversation, Paginated } from '../types';
+import type { ApiOk, AppNotification, Paginated } from '../types';
 
-export interface MyConversation {
-  conversation: Conversation;
-  messages: ChatMessage[];
+export const notificationsApi = {
+  list: (page = 1, limit = 20) =>
+    api.get<Paginated<AppNotification>>('/notifications', { params: { page, limit } }).then((r) => r.data),
+  unreadCount: () =>
+    api.get<ApiOk<{ count: number }>>('/notifications/unread-count').then((r) => r.data),
+  readAll: () => api.patch('/notifications/read-all').then((r) => r.data),
+  readOne: (id: string) => api.patch(`/notifications/${id}/read`).then((r) => r.data),
+  remove: (id: string) => api.delete(`/notifications/${id}`).then((r) => r.data),
+};
+
+export interface PushKeys {
+  p256dh: string;
+  auth: string;
 }
 
-export const chatApi = {
-  // USER
-  myConversation: () => api.get<ApiOk<MyConversation>>('/chat/me').then((r) => r.data),
-  sendUserMessage: (text: string) =>
-    api.post<ApiOk<ChatMessage>>('/chat/me/messages', { text }).then((r) => r.data),
-
-  // ADMIN
-  conversations: (params: Record<string, unknown> = {}) =>
-    api.get<Paginated<Conversation>>('/chat/conversations', { params }).then((r) => r.data),
-  conversation: (id: string) =>
-    api.get<ApiOk<MyConversation>>(`/chat/conversations/${id}`).then((r) => r.data),
-  sendAdminMessage: (id: string, text: string) =>
-    api.post<ApiOk<ChatMessage>>(`/chat/conversations/${id}/messages`, { text }).then((r) => r.data),
+export const pushApi = {
+  vapidKey: () => api.get<ApiOk<{ key: string }>>('/push/vapid-public-key').then((r) => r.data),
+  subscribe: (body: { endpoint: string; keys: PushKeys; userAgent?: string }) =>
+    api.post<ApiOk<null>>('/push/subscribe', body).then((r) => r.data),
+  unsubscribe: (endpoint: string) =>
+    api.post<ApiOk<null>>('/push/unsubscribe', { endpoint }).then((r) => r.data),
 };
+
 
