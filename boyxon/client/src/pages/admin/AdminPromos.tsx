@@ -51,7 +51,7 @@ export default function AdminPromos() {
       <PromosTable
         promos={data?.data ?? []}
         loading={isLoading}
-        onDelete={(p) => { if (confirm(`“${p.code}” o‘chirilsinmi?`)) deleteM.mutate(p._id); }}
+        onDelete={(p) => { if (confirm(t('admin.delete_confirm', { name: p.code }))) deleteM.mutate(p._id); }}
       />
 
       <Sheet open={open} onClose={() => setOpen(false)} title="Yangi promo kod">
