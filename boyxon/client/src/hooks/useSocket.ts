@@ -24,6 +24,14 @@ export function useSocket(): void {
       toast.info(p.message ?? 'Buyurtma holati yangilandi');
       qc.invalidateQueries({ queryKey: ['orders'] });
       qc.invalidateQueries({ queryKey: ['notifications'] });
+      qc.invalidateQueries({ queryKey: ['unread-count'] });
+    });
+    // Real-time bildirishnoma — server yaratishi bilanoq qo'ng'iroq badge'i yangilanadi.
+    socket.on('notification:new', (p: { type?: string; title?: string; message?: string }) => {
+      qc.invalidateQueries({ queryKey: ['notifications'] });
+      qc.invalidateQueries({ queryKey: ['unread-count'] });
+      // order hodisasi o'z toast'ini beradi — ikki marta chiqmasligi uchun faqat promo/system ko'rsatamiz.
+      if (p.type !== 'order') toast.info(p.message ?? p.title ?? 'Yangi bildirishnoma');
     });
     socket.on('connect_error', () => undefined);
     return () => {

@@ -11,6 +11,7 @@ import { Category } from '../models/Category.model';
 import { Promo } from '../models/Promo.model';
 import { Notification } from '../models/Notification.model';
 import { sendPushToUsers } from '../services/push.service';
+import { notifyUser, emitNotification } from '../services/notify.service';
 import { getIo } from '../socket';
 
 /** GET /api/admin/orders — barcha buyurtmalar (status/date filtri). */
@@ -64,7 +65,7 @@ export const updateOrderStatus = asyncHandler(async (req: Request, res: Response
   };
   const msg = `Buyurtma ${order.orderNumber}: ${labels[status] ?? status}`;
   const userId = order.user.toString();
-  await Notification.create({ user: userId, type: 'order', title: 'Buyurtma holati', message: msg, link: `/orders/${order.id}` });
+  await notifyUser({ user: userId, type: 'order', title: 'Buyurtma holati', message: msg, link: `/orders/${order.id}` });
   const u = await User.findById(userId);
   if (u?.notificationPrefs?.pushEnabled && u?.notificationPrefs?.orderUpdates) {
     sendPushToUsers([userId], { title: 'Boyxon Oshxonasi', message: msg, url: `/orders/${order.id}` }).catch(() => undefined);
@@ -157,19 +158,31 @@ export const deletePromo = asyncHandler(async (req: Request, res: Response) => {
   res.json(ok(null, 'Promo o‘chirildi'));
 });
 
-/** POST /api/admin/push/send — auditoriyaga push + in-app. */
+/** POST /api/admin/push/send — auditoriyaga push + in-app (foydalanuvchi sozlamalariga hurmat). */
 export const sendPush = asyncHandler(async (req: Request, res: Response) => {
   const { title, message, audience } = req.body as { title: string; message: string; audience: string };
-  let users: { _id: unknown }[] = [];
-  if (audience === 'all') users = await User.find({ isActive: true }, '_id');
-  else if (audience === 'active') users = await User.find({ isActive: true, lastLoginAt: { $gte: new Date(Date.now() - 30 * 864e5) } }, '_id');
-  else if (audience === 'new') users = await User.find({ isActive: true, createdAt: { $gte: new Date(Date.now() - 7 * 864e5) } }, '_id');
+  type Row = { _id: unknown; notificationPrefs?: { pushEnabled?: boolean; promos?: boolean; systemMessages?: boolean } };
+  let users: Row[] = [];
+  if (audience === 'all') users = await User.find({ isActive: true }, '_id notificationPrefs');
+  else if (audience === 'active') users = await User.find({ isActive: true, lastLoginAt: { $gte: new Date(Date.now() - 30 * 864e5) } }, '_id notificationPrefs');
+  else if (audience === 'new') users = await User.find({ isActive: true, createdAt: { $gte: new Date(Date.now() - 7 * 864e5) } }, '_id notificationPrefs');
   else if (audience.startsWith('user:')) users = [{ _id: audience.slice(5) }];
   else throw ApiError.badRequest('Audience: all | active | new | user:<id>');
-  const ids = users.map((x) => String(x._id));
-  await Notification.insertMany(ids.map((id) => ({ user: id, type: 'promo', title, message })));
-  const sent = await sendPushToUsers(ids, { title, message }).catch(() => 0);
-  res.json(ok({ recipients: ids.length, sent }, `${ids.length} kishiga yuborildi`));
+
+  // In-app: promos (yoki tizim) xabarlari yoqilganlar; Push: pushEnabled ham yoqilganlar.
+  const inAppIds = users
+    .filter((u) => u.notificationPrefs?.promos !== false && u.notificationPrefs?.systemMessages !== false)
+    .map((u) => String(u._id));
+  const docs = await Notification.insertMany(
+    inAppIds.map((id) => ({ user: id, type: 'promo', title, message })),
+  );
+  for (const n of docs) emitNotification(n);
+
+  const pushIds = users
+    .filter((u) => u.notificationPrefs?.pushEnabled !== false && u.notificationPrefs?.promos !== false)
+    .map((u) => String(u._id));
+  const sent = await sendPushToUsers(pushIds, { title, message }).catch(() => 0);
+  res.json(ok({ recipients: inAppIds.length, sent }, `${inAppIds.length} kishiga yuborildi`));
 });
 
 function parseTags(raw: unknown): string[] {

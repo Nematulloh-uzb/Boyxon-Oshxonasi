@@ -5,9 +5,9 @@ import { ApiError } from '../utils/ApiError';
 import { Order } from '../models/Order.model';
 import { Dish } from '../models/Dish.model';
 import { Promo } from '../models/Promo.model';
-import { Notification } from '../models/Notification.model';
 import { User } from '../models/User.model';
 import { sendOrderEmail } from '../services/email.service';
+import { notifyUser } from '../services/notify.service';
 import { getIo } from '../socket';
 import { Review, recalcDishRating } from '../models/Review.model';
 import type { AuthRequest } from '../types/express';
@@ -139,7 +139,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
   await Dish.updateMany({ _id: { $in: dishIds } }, { $inc: { orderCount: 1 } });
   const user = await User.findById(userId);
   if (user) {
-    await Notification.create({
+    await notifyUser({
       user: userId,
       type: 'order',
       title: 'Buyurtma qabul qilindi',
