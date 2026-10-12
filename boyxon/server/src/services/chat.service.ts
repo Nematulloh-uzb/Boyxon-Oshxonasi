@@ -14,3 +14,9 @@ export function emitChatMessage(room: string, payload: Record<string, unknown>):
 export function emitConversationUpdated(): void {
   getIo()?.emit('chat:conversation-updated');
 }
+
+/** "Yozyapti..." indikatori — room ga signal (userId kim yozayotgani). */
+export function emitTyping(room: string, userId: string): void {
+  getIo()?.to(room).emit('chat:typing', { userId });
+}
+
