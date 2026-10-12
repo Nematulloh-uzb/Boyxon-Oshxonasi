@@ -1,6 +1,6 @@
-﻿import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Bell, Menu, Moon, ShoppingBag, Sun, User } from 'lucide-react';
+import { Bell, Menu, MessageCircle, Moon, ShoppingBag, Sun, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCartStore } from '../../store/cart.store';
 import { useAuthStore } from '../../store/auth.store';
@@ -27,7 +27,7 @@ export function Header() {
     refetchInterval: 60_000,
   });
 
-  // Tema toggle â€” guest uchun ham ishlaydi (localStorage'da saqlanadi)
+  // Tema toggle — guest uchun ham ishlaydi (localStorage'da saqlanadi)
   const [theme, setTheme] = useState<Theme>(() => {
     const stored = localStorage.getItem('boyxon-theme') as Theme | null;
     return stored ?? user?.preferences?.theme ?? currentTheme();
@@ -38,7 +38,7 @@ export function Header() {
     document.documentElement.classList.toggle('dark', t === 'dark');
     localStorage.setItem('boyxon-theme', t);
     setTheme(t);
-    // theme dependency'siz â€” aks holda toggle server preference'ga qaytadi
+    // theme dependency'siz — aks holda toggle server preference'ga qaytadi
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
@@ -74,7 +74,7 @@ export function Header() {
                   </span>
                 )}
               </button>
-              <button className="relative rounded-full p-2.5 hover:bg-surface-raised cursor-pointer" onClick={() => undefined} aria-label={t('chat.title')}>
+              <button className="relative rounded-full p-2.5 hover:bg-surface-raised cursor-pointer" onClick={() => set({ chatOpen: true })} aria-label={t('chat.title')}>
                 <MessageCircle className="h-5 w-5" />
                 {(data ?? 0) > 0 && (
                   <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-primary-500 px-1 text-[10px] font-bold text-white">
