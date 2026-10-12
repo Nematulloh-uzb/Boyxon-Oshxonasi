@@ -33,7 +33,9 @@ export function AddressManager() {
     void qc.invalidateQueries({ queryKey: ['me'] });
   };
 
-  const onError = (): void => toast.error(t('settings.save_error'));
+  const onError = (): void => {
+    toast.error(t('settings.save_error'));
+  };
 
   const addM = useMutation({
     mutationFn: () => usersApi.addAddress({ label: label.trim(), address: address.trim(), isDefault }),
