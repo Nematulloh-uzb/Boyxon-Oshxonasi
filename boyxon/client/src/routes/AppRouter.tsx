@@ -18,6 +18,7 @@ const AdminUsers = lazy(() => import('../pages/admin/AdminUsers'));
 const AdminCategories = lazy(() => import('../pages/admin/AdminCategories'));
 const AdminPromos = lazy(() => import('../pages/admin/AdminPromos'));
 const AdminPush = lazy(() => import('../pages/admin/AdminPush'));
+const AdminChat = lazy(() => import('../pages/admin/AdminChat'));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 
 function Fallback() {
