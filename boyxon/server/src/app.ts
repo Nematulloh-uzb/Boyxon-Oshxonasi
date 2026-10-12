@@ -15,6 +15,7 @@ import { promoRouter } from './routes/promo.routes';
 import { userRouter } from './routes/user.routes';
 import { notificationRouter } from './routes/notification.routes';
 import { pushRouter } from './routes/push.routes';
+import { chatRouter } from './routes/chat.routes';
 import { adminRouter } from './routes/admin.routes';
 import { chatRouter } from './routes/chat.routes';
 
