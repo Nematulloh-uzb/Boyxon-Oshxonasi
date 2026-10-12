@@ -8,7 +8,7 @@ import { CartSummary } from '../../components/cart/CartSummary';
 import { CheckoutSheet } from '../../components/cart/CheckoutSheet';
 import { Button } from '../../components/ui/Button';
 import { DELIVERY_FEE, FREE_DELIVERY_FROM } from '../../lib/constants';
-import { formatPrice } from '../../lib/format';
+import { formatPrice, tVal } from '../../lib/format';
 
 export default function CartPage() {
   const { t } = useTranslation();
@@ -16,6 +16,7 @@ export default function CartPage() {
   const set = useUiStore((s) => s.set);
   const deliveryFee = subtotal >= FREE_DELIVERY_FROM ? 0 : DELIVERY_FEE;
   const total = Math.max(0, subtotal + deliveryFee - discount);
+  const toFree = Math.max(0, FREE_DELIVERY_FROM - subtotal);
 
   if (!lines.length) {
     return (
