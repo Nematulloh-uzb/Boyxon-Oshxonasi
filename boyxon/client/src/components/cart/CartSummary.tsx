@@ -31,7 +31,7 @@ export function CartSummary({ subtotal, deliveryFee, discount, total }: Props) {
       )}
       {toFree > 0 && (
         <p className="rounded-xl bg-primary-50 px-3 py-2 text-xs text-primary-700">
-          {t('cart.free_delivery_hint', { amount: formatPrice(toFree) })}
+          {tVal(t('cart.free_delivery_hint'), { amount: formatPrice(toFree) })}
         </p>
       )}
       <div className="flex justify-between border-t border-ink-line pt-2.5 text-base font-bold">
