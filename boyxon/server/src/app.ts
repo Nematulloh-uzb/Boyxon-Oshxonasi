@@ -17,7 +17,6 @@ import { notificationRouter } from './routes/notification.routes';
 import { pushRouter } from './routes/push.routes';
 import { adminRouter } from './routes/admin.routes';
 import { chatRouter } from './routes/chat.routes';
-import { chatRouter } from './routes/chat.routes';
 
 export function createApp() {
   const app = express();
