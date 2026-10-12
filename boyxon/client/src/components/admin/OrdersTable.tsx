@@ -5,13 +5,13 @@ import type { Order, OrderStatus } from '../../types';
 import { formatDate, formatPrice } from '../../lib/format';
 import { adminApi } from '../../api/admin.api';
 
-const STATUSES: OrderStatus[] = ['pending', 'confirmed', 'preparing', 'on_way', 'delivered', 'cancelled'];
+const STATUSES: OrderStatus[] = ['pending', 'confirmed', 'packing', 'handed_to_taxi', 'delivered', 'cancelled'];
 
 const tone: Record<OrderStatus, string> = {
   pending: 'bg-surface-raised text-ink-700',
   confirmed: 'bg-primary-100 text-primary-700',
-  preparing: 'bg-primary-50 text-primary-700',
-  on_way: 'bg-primary-100 text-primary-700',
+  packing: 'bg-primary-50 text-primary-700',
+  handed_to_taxi: 'bg-primary-100 text-primary-700',
   delivered: 'bg-success/10 text-success',
   cancelled: 'bg-danger/10 text-danger',
 };

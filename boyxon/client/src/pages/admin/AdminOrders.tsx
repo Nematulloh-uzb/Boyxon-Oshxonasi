@@ -8,8 +8,8 @@ const FILTERS = [
   { v: '', k: 'common.all' },
   { v: 'pending', k: 'status.pending' },
   { v: 'confirmed', k: 'status.confirmed' },
-  { v: 'preparing', k: 'status.preparing' },
-  { v: 'on_way', k: 'status.on_way' },
+  { v: 'packing', k: 'status.packing' },
+  { v: 'handed_to_taxi', k: 'status.handed_to_taxi' },
   { v: 'delivered', k: 'status.delivered' },
   { v: 'cancelled', k: 'status.cancelled' },
 ];
