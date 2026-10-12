@@ -8,7 +8,18 @@ import './styles/globals.css';
 import './locales/i18n';
 
 const qc = new QueryClient({
-  defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false, staleTime: 30_000 } },
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      // Hech qanday AVTOMATIK qayta yuklash yo'q — ma'lumotlar "muzlatilgan".
+      // Faqat qo'lda (invalidateQueries/refetch) yoki real-time socket hodisasi
+      // bilan yangilanadi. Foydalanuvchi ma'lumoti (auth store) o'zidan o'zgarmaydi.
+      refetchOnWindowFocus: false,
+      refetchOnMount: false, // sahifa/komponent qayta mount bo'lganda
+      refetchOnReconnect: false, // internet qayta ulanganda
+      staleTime: Infinity, // hech qachon "eskirigan" deb hisoblanmaydi
+    },
+  },
 });
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
