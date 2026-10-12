@@ -7,6 +7,7 @@ import { ProfileCard } from '../../components/settings/ProfileCard';
 import { SettingsGroup } from '../../components/settings/SettingsGroup';
 import { SettingsRow } from '../../components/settings/SettingsRow';
 import { NotificationPrefs } from '../../components/settings/NotificationPrefs';
+import { AddressManager } from '../../components/settings/AddressManager';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { useAuthStore } from '../../store/auth.store';
