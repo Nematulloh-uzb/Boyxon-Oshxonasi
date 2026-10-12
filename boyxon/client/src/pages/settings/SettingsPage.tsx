@@ -54,6 +54,27 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6 px-4 py-5">
       <h1 className="font-display text-2xl font-extrabold">{t('nav.settings')}</h1>
+
+      {/* Buyurtmalar tarixi — tepada ko'rinadi */}
+      <section>
+        <h2 className="mb-2 px-1 text-sm font-semibold uppercase tracking-wide text-ink-300">{t('settings.recent_orders')}</h2>
+        <div className="space-y-2">
+          {!orders?.data.length && <Card className="p-4 text-sm text-ink-300">{t('settings.no_orders')}</Card>}
+          {orders?.data.map((o) => (
+            <Card key={o._id} className="flex items-center justify-between p-4">
+              <div>
+                <p className="font-semibold">{o.orderNumber}</p>
+                <p className="text-xs text-ink-300">{formatDate(o.createdAt)} · {tVal(t('settings.dishes_count'), { count: o.items.length })}</p>
+              </div>
+              <div className="text-right">
+                <p className="font-bold text-primary-600">{formatPrice(o.total)}</p>
+                <p className="text-xs text-ink-300">{t(`status.${o.status}`)}</p>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </section>
+
       <ProfileCard user={user} />
 
       <SettingsGroup title={t('settings.account')}>
@@ -129,26 +150,6 @@ export default function SettingsPage() {
           }}
         />
       </SettingsGroup>
-
-      {/* Buyurtmalar tarixi */}
-      <section>
-        <h2 className="mb-2 px-1 text-sm font-semibold uppercase tracking-wide text-ink-300">{t('settings.recent_orders')}</h2>
-        <div className="space-y-2">
-          {!orders?.data.length && <Card className="p-4 text-sm text-ink-300">{t('settings.no_orders')}</Card>}
-          {orders?.data.map((o) => (
-            <Card key={o._id} className="flex items-center justify-between p-4">
-              <div>
-                <p className="font-semibold">{o.orderNumber}</p>
-                <p className="text-xs text-ink-300">{formatDate(o.createdAt)} · {tVal(t('settings.dishes_count'), { count: o.items.length })}</p>
-              </div>
-              <div className="text-right">
-                <p className="font-bold text-primary-600">{formatPrice(o.total)}</p>
-                <p className="text-xs text-ink-300">{t(`status.${o.status}`)}</p>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </section>
 
       <div className="pb-4">
         <Button variant="outline" className="w-full" onClick={() => toast.info(t('settings.help_contact'))}>
