@@ -20,8 +20,9 @@ export function Switch({ checked, onChange, label, disabled, pending }: Props) {
         'h-7 w-12 rounded-full p-1 transition',
         checked ? 'bg-accent' : 'bg-line-strong',
         disabled && 'cursor-not-allowed opacity-50',
-        // Latency paytida biroz o'chganroq — request ketayotganini bildiradi,
-        // lekin disabled emas (optimistik UI saqlanadi).
+        // Latency paytida: disabled bo'lgani uchun opacity-50 (biroz o'chganroq)
+        // qo'llanadi va bosilmaydi. pending — bo'yama/o'chirishda qo'shimcha
+        // yarim shaffoflik uchun (disabled bo'lmasa).
         pending && !disabled && 'opacity-60',
       )}
     >
