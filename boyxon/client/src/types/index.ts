@@ -125,6 +125,36 @@ export interface Paginated<T> {
   pagination: { page: number; limit: number; total: number; pages: number };
 }
 
+export interface ChatUser {
+  _id: string;
+  name: string;
+  email?: string;
+  avatar?: string | null;
+  phone?: string;
+}
+
+export interface ChatMessage {
+  _id: string;
+  conversation: string;
+  sender: string;
+  senderRole: 'user' | 'admin';
+  text: string;
+  readAt?: string | null;
+  createdAt: string;
+}
+
+export interface ChatConversation {
+  _id: string;
+  user?: ChatUser;
+  lastMessage: string;
+  lastSenderRole?: 'user' | 'admin';
+  lastMessageAt?: string;
+  adminUnread: number;
+  userUnread: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ApiOk<T> {
   success: boolean;
   message: string;
