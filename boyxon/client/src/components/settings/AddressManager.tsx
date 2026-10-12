@@ -64,6 +64,56 @@ export function AddressManager() {
       toast.success(t('settings.address_deleted'));
     },
     onError,
+  return (
+    <div className="space-y-3 px-1 pb-1">
+      {addresses.length === 0 && !adding && (
+        <Card className="p-4 text-center">
+          <MapPin className="mx-auto h-8 w-8 text-ink-300" />
+          <p className="mt-2 text-sm text-ink-300">{t('cart.no_address')}</p>
+        </Card>
+      )}
+
+      {addresses.map((a) => (
+        <Card key={a._id} className="flex items-center gap-3 p-3.5">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary-50 text-primary-600">
+            <Home className="h-5 w-5" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="flex items-center gap-1.5 text-sm font-semibold">
+              {a.label}
+              {a.isDefault && (
+                <span className="rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-bold uppercase text-success">
+                  {t('settings.address_default')}
+                </span>
+              )}
+            </p>
+            <p className="truncate text-xs text-ink-300">{a.address}</p>
+          </div>
+          {!a.isDefault && (
+            <button
+              onClick={() => a._id && defaultM.mutate(a._id)}
+              disabled={defaultM.isPending}
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-ink-300 hover:bg-surface-raised hover:text-secondary"
+              aria-label={t('settings.address_set_default')}
+              title={t('settings.address_set_default')}
+            >
+              <Star className="h-4 w-4" />
+            </button>
+          )}
+          <button
+            onClick={() => {
+              if (a._id && window.confirm(t('settings.address_delete_confirm'))) deleteM.mutate(a._id);
+            }}
+            disabled={deleteM.isPending}
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-ink-300 hover:bg-danger/10 hover:text-danger"
+            aria-label={t('settings.address_delete')}
+            title={t('settings.address_delete')}
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </Card>
+      ))}
+
   });
 
   const submitAdd = (): void => {
