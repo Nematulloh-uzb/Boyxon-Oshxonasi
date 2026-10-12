@@ -27,7 +27,7 @@ adminRouter.delete('/categories/:id', c.deleteCategory);
 
 adminRouter.get('/orders', c.adminOrders);
 adminRouter.get('/orders/:id', c.adminOrderDetail);
-adminRouter.patch('/orders/:id/status', c.updateOrderStatus);
+adminRouter.patch('/orders/:id/status', validate({ body: updateOrderStatusSchema }), c.updateOrderStatus);
 
 adminRouter.get('/users', c.adminUsers);
 adminRouter.patch('/users/:id/role', c.changeRole);
