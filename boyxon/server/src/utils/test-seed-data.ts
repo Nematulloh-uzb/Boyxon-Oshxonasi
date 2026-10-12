@@ -66,7 +66,7 @@ export async function seedTestData(): Promise<void> {
     { code: 'FREEDEL', description: '8000 chegirma', type: 'fixed', value: 8000, minOrderAmount: 50000, validFrom: now, validUntil: next, isActive: true },
   ]);
   const dishes = await Dish.find().limit(6);
-  const statuses = ['pending', 'confirmed', 'preparing', 'on_way', 'delivered'];
+  const statuses = ['pending', 'confirmed', 'packing', 'handed_to_taxi', 'delivered'];
   for (let i = 0; i < 5; i++) {
     const items = dishes.slice(i, i + 2).map((d) => ({ dish: d._id, name: d.name, price: d.price, quantity: i + 1 }));
     const subtotal = items.reduce((s, x) => s + x.price * x.quantity, 0);
