@@ -1,18 +1,20 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ChefHat } from 'lucide-react';
 
 /** 404 — sahifa topilmadi. */
 export default function NotFoundPage() {
+  const { t } = useTranslation();
   return (
-    <div className="min-h-screen bg-cream flex flex-col items-center justify-center gap-4 px-6 text-center">
+    <div className="min-h-screen bg-bg flex flex-col items-center justify-center gap-4 px-6 text-center">
       <ChefHat className="h-16 w-16 text-primary-500" />
       <h1 className="font-display text-4xl font-bold text-ink-900">404</h1>
-      <p className="text-ink-500">Bu sahifa topilmadi. Balki menyuga qaytamiz?</p>
+      <p className="text-ink-300">{t('pages.404.desc')}</p>
       <Link
         to="/"
         className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary-500 px-6 text-[15px] font-semibold text-white transition hover:bg-primary-600 active:scale-[0.98]"
       >
-        Bosh sahifaga
+        {t('pages.404.go_home')}
       </Link>
     </div>
   );
