@@ -143,7 +143,7 @@ function DishReviews({ reviews, reviewCount }: { reviews: Review[]; reviewCount:
       <h2 className="mb-2 font-display text-lg font-bold">
         {t('dish.reviews')}{' '}
         <span className="text-sm font-normal text-ink-300">
-          {t('dish.reviews_count', { count: reviewCount })}
+          {tVal(t('dish.reviews_count'), { count: reviewCount })}
         </span>
       </h2>
       {reviews.length ? (
