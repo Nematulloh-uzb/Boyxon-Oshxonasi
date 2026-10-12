@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Check, Copy } from 'lucide-react';
 
-const PHONE_DISPLAY = '+998 (91) 346-60-67';
-const PHONE_COPY = '+998913466067';
+const PHONE_DISPLAY = '+998 (93) 958-84-58';
+const PHONE_COPY = '+998939588458';
 
 export function Footer() {
   const { t } = useTranslation();
