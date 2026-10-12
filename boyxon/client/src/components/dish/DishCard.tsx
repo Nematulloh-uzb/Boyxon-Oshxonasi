@@ -36,7 +36,7 @@ export function DishCard({ dish }: { dish: Dish }) {
       </Link>
       <div className="flex flex-col gap-2 p-3">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="line-clamp-1 font-display font-semibold text-ink-900">{dish.name}</h3>
+          <h3 className="line-clamp-1 font-display font-semibold text-ink-900">{name}</h3>
           <span className="flex shrink-0 items-center gap-1 text-xs font-semibold text-ink-700">
             <Star className="h-3.5 w-3.5 fill-[#FDAB12] text-[#FDAB12]" />
             {dish.rating.toFixed(1)}
