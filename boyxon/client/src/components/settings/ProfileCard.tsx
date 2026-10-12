@@ -51,7 +51,7 @@ export function ProfileCard({ user }: { user: UserType }) {
           type="file"
           accept="image/*"
           className="hidden"
-          onChange={(e) => void onPick(e.target.files?.[0])}
+          onChange={(e) => { void onPick(e.target.files?.[0]); e.target.value = ''; }}
         />
       </div>
       <div className="min-w-0">

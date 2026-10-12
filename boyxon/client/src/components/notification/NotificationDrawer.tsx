@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { Bell, BellOff } from 'lucide-react';
+import { BellOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Sheet } from '../ui/Sheet';
 import { NotificationItem } from './NotificationItem';

@@ -25,7 +25,7 @@ export function KpiCard({ icon: Icon, label, value, loading, tone = 'primary' }:
       </span>
       <div className="min-w-0">
         <p className="text-xs text-ink-300">{label}</p>
-        {loading ? <Skeleton className="mt-1 h-6 w-20" /> : <p className="truncate font-display text-xl font-bold">{value}</p>}
+        {loading ? <Skeleton className="mt-1 h-6 w-20" /> : <p className="break-words font-display text-xl font-bold leading-tight">{value}</p>}
       </div>
     </Card>
   );
