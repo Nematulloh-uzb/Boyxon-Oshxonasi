@@ -79,7 +79,8 @@ export function usePush() {
       const reg = await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.getSubscription();
       if (sub) {
-        await pushApi.unsubscribe(sub.endpoint).catch(() => undefined);
+        // Server bilan FON rejimida — brauzer obunasini darhol bekor qilamiz.
+        void pushApi.unsubscribe(sub.endpoint).catch(() => undefined);
         await sub.unsubscribe();
       }
     } finally {
