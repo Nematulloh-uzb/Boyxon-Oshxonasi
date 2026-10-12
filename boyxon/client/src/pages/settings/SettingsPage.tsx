@@ -25,6 +25,7 @@ export default function SettingsPage() {
   const { t, i18n } = useTranslation();
   const { user, setUser } = useAuthStore();
   const qc = useQueryClient();
+  const [addressesOpen, setAddressesOpen] = useState(false);
 
   const { data: orders } = useQuery({
     queryKey: ['orders'],
