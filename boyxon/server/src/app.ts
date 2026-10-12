@@ -46,6 +46,7 @@ export function createApp() {
   app.use('/api/users', userRouter);
   app.use('/api/notifications', notificationRouter);
   app.use('/api/push', pushRouter);
+  app.use('/api/chat', chatRouter);
   app.use('/api/admin', adminRouter);
   app.use('/api/chat', chatRouter);
   app.use('/api/chat', chatRouter);
