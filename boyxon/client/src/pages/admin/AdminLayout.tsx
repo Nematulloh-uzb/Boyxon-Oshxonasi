@@ -5,6 +5,7 @@ import { AdminTopBar } from '../../components/admin/AdminTopBar';
 
 const titleKeys: Record<string, string> = {
   '/admin': 'admin.dashboard',
+  '/admin/chat': 'admin.chat',
   '/admin/dishes': 'admin.dishes',
   '/admin/orders': 'admin.orders',
   '/admin/users': 'admin.users',
