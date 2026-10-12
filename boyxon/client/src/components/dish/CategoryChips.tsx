@@ -1,10 +1,40 @@
-import { CakeSlice, ChefHat, Croissant, CupSoda, Flame, Salad, Soup, Wheat, LayoutGrid } from 'lucide-react';
+import { CakeSlice, ChefHat, Croissant, CupSoda, Flame, Salad, Soup, Wheat, LayoutGrid, CookingPot, Drumstick, Fish, IceCreamCone, Pizza } from 'lucide-react';
 import type { Category } from '../../types';
 import { useTranslation } from 'react-i18next';
+import { localizedCategoryName } from '../../lib/format';
 import { cn } from '../../lib/utils';
 
 const iconMap: Record<string, typeof Soup> = {
-  Soup, CookingPot: ChefHat, Croissant, Flame, Salad, CakeSlice, CupSoda, Wheat, ChefHat,
+  soup: Soup,
+  Soup,
+  palov: CookingPot,
+  CookingPot,
+  samsa: Croissant,
+  Croissant,
+  kabob: Flame,
+  kebab: Flame,
+  Flame,
+  salad: Salad,
+  Salad,
+  desert: CakeSlice,
+  dessert: CakeSlice,
+  CakeSlice,
+  drink: CupSoda,
+  drinks: CupSoda,
+  CupSoda,
+  bread: Wheat,
+  non: Wheat,
+  Wheat,
+  chicken: Drumstick,
+  Drumstick,
+  fish: Fish,
+  Fish,
+  icecream: IceCreamCone,
+  IceCreamCone,
+  pizza: Pizza,
+  Pizza,
+  chef: ChefHat,
+  ChefHat,
 };
 
 interface Props {
