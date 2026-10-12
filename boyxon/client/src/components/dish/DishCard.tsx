@@ -42,7 +42,7 @@ export function DishCard({ dish }: { dish: Dish }) {
             {dish.rating.toFixed(1)}
           </span>
         </div>
-        <p className="line-clamp-2 text-sm text-ink-300">{dish.description}</p>
+        <p className="line-clamp-2 text-sm text-ink-300">{desc}</p>
         <div className="flex items-center gap-3 text-xs text-ink-300">
           <span className="flex items-center gap-1">
             <Timer className="h-3.5 w-3.5" />
