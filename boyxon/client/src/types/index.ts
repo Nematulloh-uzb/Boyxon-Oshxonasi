@@ -156,46 +156,16 @@ export interface ChatConversation {
   updatedAt: string;
 }
 
+/** GET /chat/me va admin GET /chat/conversations/:id javobi. */
+export interface ChatThreadResponse {
+  conversation: ChatConversation;
+  messages: ChatMessage[];
+}
+
 export interface ApiOk<T> {
   success: boolean;
   message: string;
   data: T;
 }
 
-// ── Chat (real-time support) ──
-export interface ChatMessage {
-  _id: string;
-  conversation: string;
-  sender: string;
-  senderRole: 'user' | 'admin';
-  text: string;
-  readAt: string | null;
-  createdAt: string;
-}
-
-export interface ChatUser {
-  _id: string;
-  name: string;
-  email?: string;
-  phone?: string;
-  avatar?: string | null;
-}
-
-export interface ChatConversation {
-  _id: string;
-  user: ChatUser | string;
-  lastMessage?: string;
-  lastSenderRole?: 'user' | 'admin';
-  lastMessageAt?: string;
-  adminUnread: number;
-  userUnread: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-/** GET /chat/conversations/me va admin GET /chat/conversations/:id javobi. */
-export interface ChatThreadResponse {
-  conversation: ChatConversation;
-  messages: ChatMessage[];
-}
 
