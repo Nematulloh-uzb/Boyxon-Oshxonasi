@@ -130,7 +130,7 @@ export default function HomePage() {
       <section>
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-display text-lg font-bold">{t('home.all_dishes')}</h2>
-          <span className="text-sm text-ink-300">{t('home.items_count', { count: data?.pagination.total ?? 0 })}</span>
+          <span className="shrink-0 text-sm text-ink-300">{tVal(t('home.items_count'), { count: data?.pagination.total ?? 0 })}</span>
         </div>
 
         {isError ? (
