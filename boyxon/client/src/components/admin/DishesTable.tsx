@@ -12,7 +12,7 @@ interface Props {
 }
 
 export function DishesTable({ dishes, loading, onEdit, onToggle, onDelete }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   if (loading) return <div className="rounded-card bg-surface p-6 text-center text-ink-300">{t('common.loading')}</div>;
   if (!dishes.length) return <div className="rounded-card bg-surface p-6 text-center text-ink-300">{t('admin.dishes_empty')}</div>;
 
