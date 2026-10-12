@@ -189,7 +189,7 @@ export const stats = asyncHandler(async (_req: Request, res: Response) => {
   const [users, dishes, pendingOrders, revenueAgg, recentOrders] = await Promise.all([
     User.countDocuments({ isActive: true }),
     Dish.countDocuments({ isActive: true }),
-    Order.countDocuments({ status: { $in: ['pending', 'confirmed', 'preparing', 'on_way'] } }),
+    Order.countDocuments({ status: { $in: ['pending', 'confirmed', 'packing', 'handed_to_taxi'] } }),
     Order.aggregate([
       { $match: { status: { $ne: 'cancelled' } } },
       { $group: { _id: null, total: { $sum: '$total' }, count: { $sum: 1 } } },
