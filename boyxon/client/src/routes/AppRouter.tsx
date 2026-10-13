@@ -38,6 +38,9 @@ export function AppRouter() {
         {/* Email tasdiqlash: token bilan (havoladan) yoki tokensiz (kutish ekrani). */}
         <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
+        {/* Parolni tiklash: email kiritish + havoladagi token bilan yangi parol. */}
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/dish/:slug" element={<DishPage />} />
