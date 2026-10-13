@@ -61,8 +61,13 @@ Demo loginlar (seed dan keyin):
 
 | Rol | Email | Parol |
 |-----|-------|-------|
-| Admin | admin@boyxon.uz | Admin123! |
-| Demo | aziz@example.com | User123! |
+| Admin | `.env` dagi `ADMIN_EMAIL` | `.env` dagi `ADMIN_PASSWORD` |
+| Demo | aziz@example.com | `.env` dagi `DEMO_PASSWORD` (default: `User123!`) |
+
+> **Xavfsizlik:** admin paroli endi kodda yoki README'da saqlanmaydi — faqat `.env` da.
+> `npm run seed` admin hisobini `ADMIN_EMAIL` / `ADMIN_PASSWORD` qiymatlari bilan yaratadi.
+> Production'da `ADMIN_PASSWORD` kamida 12 belgi bo'lishi shart, aks holda server
+> ishga tushmaydi. Batafsil: [SECURITY.md](SECURITY.md).
 
 Promo kodlar: `BOYXON20` (20% ≤30 000, min 100 000) · `WELCOME10` (10%) ·
 `FREEDEL` (8 000 chegirma, min 50 000).

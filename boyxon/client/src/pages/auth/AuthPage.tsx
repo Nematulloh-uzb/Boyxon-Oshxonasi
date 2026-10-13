@@ -61,6 +61,7 @@ function AuthForm({ from, onDone }: { from: string; onDone: (token: string, u: U
   const { t } = useTranslation();
   const [tab, setTab] = useState<'signin' | 'signup'>('signin');
   const googleUrl = authApi.googleUrl();
+  const nav = useNavigate();
 
   const loginForm = useForm<LoginForm>({ resolver: zodResolver(loginValidator), defaultValues: { email: '', password: '' } });
   const regForm = useForm<RegisterForm>({ resolver: zodResolver(registerValidator), defaultValues: { name: '', email: '', password: '' } });
@@ -71,15 +72,27 @@ function AuthForm({ from, onDone }: { from: string; onDone: (token: string, u: U
       onDone(r.data.accessToken, r.data.user);
       toast.success(t('auth.welcome_back'));
     } catch (e) {
-      toast.error((e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('auth.login_error'));
+      const res = (e as { response?: { data?: { message?: string; code?: string; data?: { email?: string } } } })?.response?.data;
+      // Email tasdiqlanmagan — foydalanuvchini tasdiqlash sahifasiga yuboramiz.
+      if (res?.code === 'EMAIL_NOT_VERIFIED') {
+        toast.error(res.message ?? t('auth.verify_not_verified'));
+        nav(`/verify-email?email=${encodeURIComponent(res.data?.email ?? v.email)}`, { replace: true });
+        return;
+      }
+      toast.error(res?.message ?? t('auth.login_error'));
     }
   });
 
   const onRegister = regForm.handleSubmit(async (v) => {
     try {
       const r = await authApi.register(v);
+      toast.success(r.message);
+      // Email tasdiqlash majburiy bo'lsa token berilmaydi — tasdiqlash sahifasiga o'tamiz.
+      if (r.data.verificationRequired || !r.data.accessToken) {
+        nav(`/verify-email?email=${encodeURIComponent(r.data.user.email)}`, { replace: true });
+        return;
+      }
       onDone(r.data.accessToken, r.data.user);
-      toast.success(t('auth.signup_success'));
     } catch (e) {
       toast.error((e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('common.error'));
     }

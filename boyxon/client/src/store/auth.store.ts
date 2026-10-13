@@ -55,6 +55,34 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'boyxon-auth',
+      /**
+       * Xavfsizlik: access token `sessionStorage`da saqlanadi (localStorage emas).
+       *
+       * Sabab: localStorage qiymatlari cheksiz yashaydi va har qanday XSS bir marta
+       * ishlashi bilan tokenni doimiy o'g'irlash imkonini beradi. sessionStorage esa
+       * tab yopilishi bilan tozalanadi, ya'ni o'g'irlangan token umri qisqa bo'ladi.
+       * Uzoq muddatli sessiya httpOnly cookie (refresh token) orqali tiklanadi —
+       * uni JavaScript umuman o'qiy olmaydi.
+       */
+      storage: {
+        getItem: (name) => {
+          const value = sessionStorage.getItem(name);
+          if (value) return JSON.parse(value) as never;
+          // Eski localStorage yozuvini bir marta ko'chirib olamiz (migratsiya).
+          const legacy = localStorage.getItem(name);
+          if (legacy) {
+            sessionStorage.setItem(name, legacy);
+            localStorage.removeItem(name);
+            return JSON.parse(legacy) as never;
+          }
+          return null;
+        },
+        setItem: (name, value) => sessionStorage.setItem(name, JSON.stringify(value)),
+        removeItem: (name) => {
+          sessionStorage.removeItem(name);
+          localStorage.removeItem(name);
+        },
+      },
       // Persist'dan qaytgan eski user'ni ham normalize qilish (migratsiya)
       merge: (persisted, current) => {
         const p = persisted as Partial<AuthState> | undefined;

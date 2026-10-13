@@ -1,13 +1,23 @@
 import type { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
+import { randomUUID } from 'node:crypto';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ok } from '../utils/ApiResponse';
 import { ApiError } from '../utils/ApiError';
 import { User } from '../models/User.model';
-import { registerUser, loginUser } from '../services/auth.service';
-import { signAccessToken, signRefreshToken, verifyRefreshToken, refreshCookieOptions } from '../services/token.service';
-import { sendResetEmail } from '../services/email.service';
+import { registerUser, loginUser, issueTokens } from '../services/auth.service';
+import {
+  signAccessToken,
+  signRefreshToken,
+  verifyRefreshToken,
+  signResetToken,
+  verifyResetToken,
+  signEmailVerifyToken,
+  verifyEmailVerifyToken,
+  refreshCookieOptions,
+} from '../services/token.service';
+import { sendResetEmail, sendVerifyEmail } from '../services/email.service';
 import { env } from '../config/env';
+import { logger } from '../utils/logger';
 import type { AuthRequest } from '../types/express';
 
 function setRefreshCookie(res: Response, token: string): void {
@@ -17,23 +27,139 @@ function setRefreshCookie(res: Response, token: string): void {
 /**
  * POST /api/auth/register — yangi hisob ochish.
  * Body: { name, email, phone?, password }
+ *
+ * Email uch darajada tekshiriladi (format → bir martalik domen → MX yozuvi) va
+ * tasdiqlash havolasi yuboriladi. Tasdiqlanmaguncha kirish yopiq bo'ladi
+ * (`ALLOW_UNVERIFIED_LOGIN` bilan boshqariladi).
  */
 export const register = asyncHandler(async (req: Request, res: Response) => {
-  const { accessToken, refreshToken } = await registerUser(req.body);
-  const user = await User.findOne({ email: req.body.email.toLowerCase() });
-  setRefreshCookie(res, refreshToken);
-  res.status(201).json(ok({ accessToken, user }, 'Ro‘yxatdan o‘tish muvaffaqiyatli'));
+  const { user, accessToken, refreshToken } = await registerUser(req.body);
+
+  // Tasdiqlash havosini yuboramiz. SMTP yo'q bo'lsa `false` qaytadi.
+  const sent = await issueVerificationEmail(user);
+
+  /**
+   * Muhim: email tasdiqlash majburiy bo'lsa (`ALLOW_UNVERIFIED_LOGIN=false`),
+   * ro'yxatdan o'tishda token BERILMAYDI.
+   *
+   * Aks holda himoya chetlab o'tilardi: foydalanuvchi ro'yxatdan o'tib, login
+   * qilmasdan turib to'liq API huquqiga ega bo'lardi (login'dagi tekshiruv
+   * shunchaki aylanib o'tilardi).
+   */
+  const mustVerify = !env.ALLOW_UNVERIFIED_LOGIN && !user.emailVerified;
+  if (!mustVerify) {
+    setRefreshCookie(res, refreshToken);
+  }
+
+  res.status(201).json(
+    ok(
+      {
+        accessToken: mustVerify ? null : accessToken,
+        user,
+        verificationSent: sent,
+        verificationRequired: mustVerify,
+        // Xat yuborilmagan bo'lsa frontend aniq xabar ko'rsatadi.
+        emailDelivered: sent,
+      },
+      mustVerify
+        ? 'Ro‘yxatdan o‘tdingiz! Email manzilingizga tasdiqlash havolasi yuborildi — hisobni faollashtirish uchun uni bosing.'
+        : 'Ro‘yxatdan o‘tdingiz!',
+    ),
+  );
+});
+
+/** Tasdiqlash tokenini yaratib, emailga yuboradi. Yuborilgan bo'lsa `true`. */
+async function issueVerificationEmail(user: {
+  id?: string;
+  _id?: unknown;
+  email: string;
+  tokenVersion?: number;
+}): Promise<boolean> {
+  const userId = String(user.id ?? user._id);
+  const token = signEmailVerifyToken(userId, user.tokenVersion ?? 0);
+  return sendVerifyEmail(user.email, `${env.CLIENT_URL}/verify-email/${token}`);
+}
+
+/**
+ * POST /api/auth/verify-email/:token — emailni tasdiqlash.
+ *
+ * Token bir martalik: tasdiqlangandan keyin `tokenVersion` oshiriladi, shuning uchun
+ * o'sha havola qayta ishlatilmaydi.
+ */
+export const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
+  const { token } = req.params;
+  let payload: { id: string; ver: number };
+  try {
+    payload = verifyEmailVerifyToken(token);
+  } catch {
+    throw ApiError.badRequest('Havola yaroqsiz yoki muddati o‘tgan (24 soat)');
+  }
+  const user = await User.findById(payload.id);
+  if (!user) throw ApiError.notFound('Foydalanuvchi topilmadi');
+  // Avval token avlodini tekshiramiz: token bir martalik, qayta ishlatilsa eskiradi.
+  if ((user.tokenVersion ?? 0) !== payload.ver) {
+    // Allaqachon tasdiqlangan bo'lsa — bu xato emas, shunchaki takroriy bosish.
+    if (user.emailVerified) {
+      return res.json(ok({ alreadyVerified: true, email: user.email }, 'Email allaqachon tasdiqlangan'));
+    }
+    throw ApiError.badRequest('Bu havola eskirgan — yangisini so‘rang');
+  }
+  if (user.emailVerified) {
+    return res.json(ok({ alreadyVerified: true, email: user.email }, 'Email allaqachon tasdiqlangan'));
+  }
+  user.emailVerified = true;
+  // Token bir martalik bo'lishi uchun avlodni oshiramiz (boshqa sessiyalarga ta'sir qilmaydi).
+  user.tokenVersion = (user.tokenVersion ?? 0) + 1;
+  await user.save();
+  logger.info({ userId: user.id }, 'Email tasdiqlandi');
+  res.json(ok({ email: user.email }, 'Email tasdiqlandi! Endi kirishingiz mumkin.'));
 });
 
 /**
+ * POST /api/auth/resend-verification — tasdiqlash havosini qayta yuborish.
+ * Body: { email }
+ *
+ * Javob har doim bir xil (email ro'yxatda bor-yo'qligini oshkor qilmaydi).
+ */
+export const resendVerification = asyncHandler(async (req: Request, res: Response) => {
+  const { email } = req.body as { email: string };
+  const user = await User.findOne({ email: email.toLowerCase() });
+  if (user && !user.emailVerified && user.isActive) {
+    await issueVerificationEmail(user);
+  }
+  res.json(ok(null, 'Agar bu email ro‘yxatda bo‘lsa va tasdiqlanmagan bo‘lsa, havola qayta yuborildi'));
+});
+
+/**
+ * GET /api/auth/me — joriy foydalanuvchi (auth talab qiladi).
+ */
+
+/**
  * POST /api/auth/login — email + parol bilan kirish.
+ *
+ * Email tasdiqlanmagan bo'lsa 403 + `code: 'EMAIL_NOT_VERIFIED'` qaytadi.
+ * Frontend shu kodga qarab "qayta yuborish" tugmasini ko'rsatadi.
  */
 export const login = asyncHandler(async (req: Request, res: Response) => {
   const { email, password } = req.body as { email: string; password: string };
-  const { accessToken, refreshToken } = await loginUser(email, password);
-  const user = await User.findOne({ email: email.toLowerCase() });
-  setRefreshCookie(res, refreshToken);
-  res.json(ok({ accessToken, user }, 'Xush kelibsiz!'));
+  try {
+    const { accessToken, refreshToken } = await loginUser(email, password);
+    const user = await User.findOne({ email: email.toLowerCase() });
+    setRefreshCookie(res, refreshToken);
+    res.json(ok({ accessToken, user }, 'Xush kelibsiz!'));
+  } catch (e) {
+    // Maxsus holat: parol to'g'ri, lekin email tasdiqlanmagan.
+    if (e instanceof ApiError && e.message === 'EMAIL_NOT_VERIFIED') {
+      res.status(403).json({
+        success: false,
+        message: 'Email manzilingiz hali tasdiqlanmagan. Pochtangizga yuborilgan havolani bosing.',
+        code: 'EMAIL_NOT_VERIFIED',
+        data: { email: email.toLowerCase() },
+      });
+      return;
+    }
+    throw e;
+  }
 });
 
 /** POST /api/auth/logout — refresh cookie ni tozalash. */
@@ -44,11 +170,28 @@ export const logout = asyncHandler(async (_req: Request, res: Response) => {
   res.json(ok(null, 'Chiqish muvaffaqiyatli'));
 });
 
-/** POST /api/auth/refresh — cookie dagi refresh token orqali yangi access token. */
+/**
+ * POST /api/auth/logout-all — barcha qurilmalardan chiqish.
+ * tokenVersion oshiriladi: barcha access va refresh tokenlar darhol o'ladi.
+ */
+export const logoutAll = asyncHandler(async (req: Request, res: Response) => {
+  const userId = (req as AuthRequest).user!.id;
+  const user = await User.findById(userId);
+  if (user) await user.bumpTokenVersion();
+  res.clearCookie('refreshToken', { ...refreshCookieOptions(), maxAge: undefined });
+  res.json(ok(null, 'Barcha qurilmalardan chiqdingiz'));
+});
+
+/**
+ * POST /api/auth/refresh — cookie dagi refresh token orqali yangi access token.
+ *
+ * Refresh token rotatsiyasi: har yangilanishda tokenVersion oshiriladi va yangi juftlik
+ * beriladi. Shu tufayli o'g'irlangan refresh token keyingi yangilanishdan keyin ishlamaydi.
+ */
 export const refresh = asyncHandler(async (req: Request, res: Response) => {
   const token = req.cookies?.refreshToken as string | undefined;
   if (!token) throw ApiError.unauthorized('Refresh token topilmadi');
-  let payload: { id: string };
+  let payload: { id: string; ver: number };
   try {
     payload = verifyRefreshToken(token);
   } catch {
@@ -56,10 +199,16 @@ export const refresh = asyncHandler(async (req: Request, res: Response) => {
   }
   const user = await User.findById(payload.id);
   if (!user || !user.isActive) throw ApiError.unauthorized('Foydalanuvchi topilmadi');
-  const accessToken = signAccessToken({ id: user.id as string, role: user.role });
-  const refreshToken = signRefreshToken({ id: user.id as string });
-  setRefreshCookie(res, refreshToken);
-  res.json(ok({ accessToken, user }, 'Token yangilandi'));
+  if ((user.tokenVersion ?? 0) !== payload.ver) {
+    throw ApiError.unauthorized('Sessiya bekor qilingan — qaytadan kiring');
+  }
+
+  user.tokenVersion = (user.tokenVersion ?? 0) + 1;
+  await user.save();
+
+  const tokens = issueTokens(user.id as string, user.role, user.tokenVersion);
+  setRefreshCookie(res, tokens.refreshToken);
+  res.json(ok({ accessToken: tokens.accessToken, user }, 'Token yangilandi'));
 });
 
 /** GET /api/auth/me — joriy foydalanuvchi (auth talab qiladi). */
@@ -71,48 +220,106 @@ export const me = asyncHandler(async (req: Request, res: Response) => {
 
 /**
  * GET /api/auth/google/callback — Passport Google dan qaytganda.
- * Yangi access token + refresh cookie beradi, frontend AuthCallback sahifasiga
- * redirect qiladi. Admin bo'lsa `next=/admin` parametri qo'shiladi.
+ *
+ * Xavfsizlik: access token endi URL'da BERILMAYDI. Buning o'rniga bir martalik,
+ * 60 soniya yashaydigan kod beriladi; frontend uni POST /api/auth/google/exchange
+ * orqali tokenga almashtiradi. Sabab: URL manzillar brauzer tarixiga, server
+ * loglariga va Referer sarlavhasi orqali uchinchi tomonlarga tushib qoladi.
  */
+const googleCodes = new Map<string, { userId: string; expiresAt: number }>();
+
+export function takeGoogleCode(code: string): string | null {
+  const entry = googleCodes.get(code);
+  if (!entry) return null;
+  googleCodes.delete(code); // bir martalik — qayta ishlatilmaydi
+  if (entry.expiresAt < Date.now()) return null;
+  return entry.userId;
+}
+
 export const googleCallback = asyncHandler(async (req: Request, res: Response) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const user = req.user as any;
   const userDoc = user?._id ? user : await User.findOne({ email: user?.email });
   if (!userDoc) throw ApiError.unauthorized('Google login xatosi');
+  if (!userDoc.isActive) {
+    return res.redirect(`${env.CLIENT_URL}/auth?error=blocked`);
+  }
   userDoc.lastLoginAt = new Date();
   await userDoc.save();
-  const accessToken = signAccessToken({ id: userDoc.id as string, role: userDoc.role });
-  setRefreshCookie(res, signRefreshToken({ id: userDoc.id as string }));
+
+  const code = randomCode();
+  googleCodes.set(code, { userId: userDoc.id as string, expiresAt: Date.now() + 60_000 });
+  // Eskirgan kodlarni tozalash (xotira o'sib ketmasligi uchun).
+  if (googleCodes.size > 500) {
+    for (const [k, v] of googleCodes) if (v.expiresAt < Date.now()) googleCodes.delete(k);
+  }
+
   const next = userDoc.role === 'admin' ? '&next=/admin' : '';
-  res.redirect(`${env.CLIENT_URL}/auth/callback?token=${accessToken}${next}`);
+  res.redirect(`${env.CLIENT_URL}/auth/callback?code=${code}${next}`);
 });
+
+/**
+ * POST /api/auth/google/exchange — bir martalik kodni tokenga almashtirish.
+ * Body: { code }
+ */
+export const googleExchange = asyncHandler(async (req: Request, res: Response) => {
+  const { code } = req.body as { code?: string };
+  if (!code) throw ApiError.badRequest('Kod kerak');
+  const userId = takeGoogleCode(code);
+  if (!userId) throw ApiError.unauthorized('Kod yaroqsiz yoki muddati o‘tgan');
+  const user = await User.findById(userId);
+  if (!user || !user.isActive) throw ApiError.unauthorized('Foydalanuvchi topilmadi');
+  const tokens = issueTokens(user.id as string, user.role, user.tokenVersion ?? 0);
+  setRefreshCookie(res, tokens.refreshToken);
+  res.json(ok({ accessToken: tokens.accessToken, user }, 'Kirdingiz'));
+});
+
+function randomCode(): string {
+  // crypto.randomUUID — kriptografik jihatdan xavfsiz, taxmin qilinmaydi.
+  return randomUUID();
+}
 
 /** POST /api/auth/forgot-password — reset havolasini emailga yuborish. */
 export const forgotPassword = asyncHandler(async (req: Request, res: Response) => {
   const { email } = req.body as { email: string };
   const user = await User.findOne({ email: email.toLowerCase() });
   if (user) {
-    const token = jwt.sign({ id: user.id }, env.JWT_REFRESH_SECRET, { expiresIn: '15m' });
+    const token = signResetToken(user.id as string, user.tokenVersion ?? 0);
     await sendResetEmail(user.email, `${env.CLIENT_URL}/reset-password/${token}`);
   }
+  // Javob har doim bir xil — email ro'yxatda bor-yo'qligini aniqlash imkoni bo'lmasin.
   res.json(ok(null, 'Agar email ro‘yxatda bo‘lsa, havola yuborildi'));
 });
 
-/** POST /api/auth/reset-password/:token — yangi parol o'rnatish. */
+/**
+ * POST /api/auth/reset-password/:token — yangi parol o'rnatish.
+ *
+ * Xavfsizlik: token alohida kalit bilan imzolangan, 15 daqiqa amal qiladi va
+ * bir marta ishlatiladi (tokenVersion oshiriladi). Parol almashgach barcha eski
+ * sessiyalar o'ladi.
+ */
 export const resetPassword = asyncHandler(async (req: Request, res: Response) => {
   const { token } = req.params;
   const { password } = req.body as { password: string };
-  let payload: { id: string };
+  let payload: { id: string; ver: number };
   try {
-    payload = jwt.verify(token, env.JWT_REFRESH_SECRET) as { id: string };
+    payload = verifyResetToken(token);
   } catch {
     throw ApiError.badRequest('Havola yaroqsiz yoki muddati o‘tgan');
   }
   const user = await User.findById(payload.id);
   if (!user) throw ApiError.notFound('Foydalanuvchi topilmadi');
+  // Token bir marta ishlaydi: tokenVersion o'zgargan bo'lsa, havola eskirgan.
+  if ((user.tokenVersion ?? 0) !== payload.ver) {
+    throw ApiError.badRequest('Bu havola allaqachon ishlatilgan');
+  }
   user.password = password;
+  user.tokenVersion = (user.tokenVersion ?? 0) + 1;
+  user.failedLoginAttempts = 0;
+  user.lockedUntil = null;
   await user.save();
-  res.json(ok(null, 'Parol yangilandi'));
+  logger.info({ userId: user.id }, 'Parol tiklandi — barcha eski sessiyalar bekor qilindi');
+  res.json(ok(null, 'Parol yangilandi. Endi qaytadan kiring.'));
 });
 
 /** PATCH /api/auth/change-password — auth talab qiladi. */
@@ -123,7 +330,14 @@ export const changePassword = asyncHandler(async (req: Request, res: Response) =
   if (!user.password || !(await user.comparePassword(oldPassword))) {
     throw ApiError.badRequest('Eski parol noto‘g‘ri');
   }
+  if (oldPassword === newPassword) {
+    throw ApiError.badRequest('Yangi parol eskisidan farq qilishi kerak');
+  }
   user.password = newPassword;
+  // Parol almashdi — barcha eski tokenlar bekor qilinadi (o'g'irlangan sessiyalar o'ladi).
+  user.tokenVersion = (user.tokenVersion ?? 0) + 1;
   await user.save();
-  res.json(ok(null, 'Parol o‘zgartirildi'));
+  const tokens = issueTokens(user.id as string, user.role, user.tokenVersion);
+  setRefreshCookie(res, tokens.refreshToken);
+  res.json(ok({ accessToken: tokens.accessToken }, 'Parol o‘zgartirildi'));
 });

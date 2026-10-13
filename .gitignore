@@ -1,6 +1,9 @@
 node_modules/
 *.log
 .env
+.env.*
+!.env.example
+.dev-secrets.json
 dist/
 build/
 # ---------------------------------------------------------

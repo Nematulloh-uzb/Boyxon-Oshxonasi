@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import { z } from 'zod';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { randomBytes } from 'node:crypto';
 import { resolve } from 'node:path';
 
 // .env — server papkasidan qat'iy joylash (CommonJS/tsc uchun xavfsiz)
@@ -20,37 +21,199 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.coerce.number().default(5000),
   CLIENT_URL: z.string().default('http://localhost:5173'),
+
+  /**
+   * Ishonchli proksi sozlamasi. Faqat haqiqiy proksi ortida turganda 1 (yoki undan ko'p)
+   * qilib qo'yiladi. Aks holda hujumchi X-Forwarded-For sarlavhasini soxtalashtirib
+   * rate-limit ni chetlab o'tishi mumkin.
+   */
+  TRUST_PROXY: z.coerce.number().int().min(0).default(0),
+
   MONGODB_URI: z.string().default('mongodb://127.0.0.1:27017/boyxon'),
-  JWT_ACCESS_SECRET: z.string().default('boyxon-access-dev-secret-change-me'),
-  JWT_REFRESH_SECRET: z.string().default('boyxon-refresh-dev-secret-change-me'),
+  JWT_ACCESS_SECRET: z.string().default(''),
+  JWT_REFRESH_SECRET: z.string().default(''),
+  /** Parolni tiklash tokenlari uchun alohida kalit (refresh kaliti bilan aralashmasin). */
+  JWT_RESET_SECRET: z.string().default(''),
   JWT_ACCESS_EXPIRES: z.string().default('15m'),
   JWT_REFRESH_EXPIRES: z.string().default('7d'),
+
   GOOGLE_CLIENT_ID: z.string().default(''),
   GOOGLE_CLIENT_SECRET: z.string().default(''),
   GOOGLE_CALLBACK_URL: z.string().default('http://localhost:5000/api/auth/google/callback'),
+
   CLOUDINARY_CLOUD_NAME: z.string().default(''),
   CLOUDINARY_API_KEY: z.string().default(''),
   CLOUDINARY_API_SECRET: z.string().default(''),
+
   VAPID_PUBLIC_KEY: z.string().default(''),
   VAPID_PRIVATE_KEY: z.string().default(''),
   VAPID_EMAIL: z.string().default('mailto:admin@boyxon.uz'),
+
   SMTP_HOST: z.string().default('smtp.gmail.com'),
   SMTP_PORT: z.coerce.number().default(587),
   SMTP_USER: z.string().default(''),
   SMTP_PASS: z.string().default(''),
+
   ADMIN_EMAIL: z.string().default('admin@boyxon.uz'),
-  ADMIN_PASSWORD: z.string().default('Admin123!'),
+  ADMIN_PASSWORD: z.string().default(''),
+  /** Demo hisob paroli — faqat dev uchun; production'da seed bloklangan. */
+  DEMO_PASSWORD: z.string().default(''),
+
+  /**
+   * Tasdiqlanmagan email bilan kirishga ruxsat berilsinmi.
+   *
+   * `false` (standart production): email tasdiqlanmaguncha login ishlamaydi — eng xavfsiz.
+   * `true`: kirishga ruxsat, lekin ilova "emailni tasdiqlang" deb eslatib turadi.
+   *
+   * SMTP sozlanmagan bo'lsa `true` qilib qo'ying, aks holda yangi mijozlar
+   * ro'yxatdan o'tib, kira olmay qoladi (xat yuborilmaydi).
+   */
+  ALLOW_UNVERIFIED_LOGIN: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((v) => v === 'true'),
 });
 
 export type Env = z.infer<typeof envSchema>;
 
+/** Sirning kuchini tekshiradi: uzunlik + ma'lum zaif/default naqshlar. */
+function secretProblem(value: string, minLen = 32): string | null {
+  if (!value) return 'bo‘sh';
+  if (value.length < minLen) return `juda qisqa (${value.length} belgi, kamida ${minLen} kerak)`;
+  const weak = [
+    'change-me',
+    'changeme',
+    'secret',
+    'boyxon-access',
+    'boyxon-refresh',
+    'boyxon-reset',
+    'admin123',
+    'password',
+    'example',
+    'test',
+    'localhost',
+    'super-secret',
+    'jwt-secret',
+  ];
+  const lower = value.toLowerCase();
+  const hit = weak.find((w) => lower.includes(w));
+  if (hit) return `taxmin qilinadigan naqsh bor ("${hit}")`;
+  if (new Set(value).size < 8) return 'juda kam xil belgi ishlatilgan';
+  return null;
+}
+
+/**
+ * Dev uchun kalitlarni diskda saqlaydi.
+ *
+ * Nega kerak: har ishga tushishda yangi tasdiqlash kaliti generatsiya qilinsa,
+ * oldingi urinishda yuborilgan parol tiklash / email tasdiqlash havolalari
+ * server qayta ishga tushishi bilan o'ladi (foydalanuvchi uchun "havola
+ * yaroqsiz" xatosi sababsiz chiqadi).
+ *
+ * Fayl loyiha papkasida saqlanadi va `.gitignore` da (git'ga tushmaydi).
+ * Faqat NODE_ENV=development uchun ishlatiladi.
+ */
+function devSecret(name: string): string {
+  const file = resolve(process.cwd(), '.dev-secrets.json');
+  let store: Record<string, string> = {};
+  try {
+    if (existsSync(file)) store = JSON.parse(readFileSync(file, 'utf8')) as Record<string, string>;
+  } catch {
+    store = {};
+  }
+  if (typeof store[name] === 'string' && store[name].length >= 32) return store[name];
+  store[name] = randomBytes(48).toString('hex');
+  try {
+    writeFileSync(file, JSON.stringify(store, null, 2), { encoding: 'utf8', mode: 0o600 });
+  } catch {
+    // Yozib bo'lmasa ham davom etamiz — shunchaki har ishga tushishda yangilanadi.
+  }
+  return store[name];
+}
+
+/**
+ * Ishlab chiqishda kalit berilmagan bo'lsa — tasodifiy xavfsiz kalit generatsiya
+ * qilamiz (eski "default sir" muammosini butunlay yo'q qiladi: hech qachon
+ * taxmin qilinadigan qiymat bilan ishlamaydi).
+ *
+ * Production'da esa: kalit majburiy va kuchli bo'lishi shart, aks holda server ishga
+ * tushmaydi (fail-closed). Bu ataylab shunday — zaif kalit bilan ishga tushib,
+ * buzilgandan ko'ra ishga tushmasligi afzal.
+ */
 function loadEnv(): Env {
   const parsed = envSchema.safeParse(process.env);
   if (!parsed.success) {
     console.error('❌ .env validatsiya xatosi:', parsed.error.flatten().fieldErrors);
     throw new Error('.env validatsiyadan o‘tmadi');
   }
-  return parsed.data;
+  const e = parsed.data;
+  const isProd = e.NODE_ENV === 'production';
+
+  // Dev/test: kalitlar `.dev-secrets.json` da saqlanadi (qayta ishga tushganda ham barqaror).
+  if (!isProd) {
+    e.JWT_ACCESS_SECRET ||= devSecret('JWT_ACCESS_SECRET');
+    e.JWT_REFRESH_SECRET ||= devSecret('JWT_REFRESH_SECRET');
+    e.JWT_RESET_SECRET ||= devSecret('JWT_RESET_SECRET');
+    if (!e.ADMIN_PASSWORD) e.ADMIN_PASSWORD = devSecret('ADMIN_PASSWORD').slice(0, 20);
+
+    /**
+     * Dev'da SMTP ko'pincha sozlanmagan bo'ladi, ya'ni tasdiqlash xati yuborilmaydi.
+     * Bunday holatda email tasdiqlashni majburiy qilib qo'ysak, yangi hisoblar
+     * umuman kira olmay qolardi. Shuning uchun faqat shu holatda ruxsat beramiz.
+     */
+    if ((!e.SMTP_USER || !e.SMTP_PASS) && process.env.ALLOW_UNVERIFIED_LOGIN === undefined) {
+      e.ALLOW_UNVERIFIED_LOGIN = true;
+      console.warn('⚠️  SMTP sozlanmagan — email tasdiqlash vaqtincha majburiy emas (faqat dev)');
+    }
+  }
+
+  if (isProd) {
+    const failures: string[] = [];
+    const secrets: [string, string][] = [
+      ['JWT_ACCESS_SECRET', e.JWT_ACCESS_SECRET],
+      ['JWT_REFRESH_SECRET', e.JWT_REFRESH_SECRET],
+      ['JWT_RESET_SECRET', e.JWT_RESET_SECRET],
+    ];
+    for (const [name, value] of secrets) {
+      const problem = secretProblem(value);
+      if (problem) failures.push(`${name}: ${problem}`);
+    }
+    // Kalitlar bir-biridan farq qilishi shart — biri oqsa, qolganlari ham ochilmasin.
+    if (e.JWT_ACCESS_SECRET && e.JWT_ACCESS_SECRET === e.JWT_REFRESH_SECRET) {
+      failures.push('JWT_ACCESS_SECRET va JWT_REFRESH_SECRET bir xil bo‘lmasligi kerak');
+    }
+
+    const adminProblem = secretProblem(e.ADMIN_PASSWORD, 12);
+    if (adminProblem) failures.push(`ADMIN_PASSWORD: ${adminProblem}`);
+    if (!/@/.test(e.ADMIN_EMAIL)) failures.push('ADMIN_EMAIL: email formati noto‘g‘ri');
+    if (/localhost|127\.0\.0\.1/.test(e.CLIENT_URL)) {
+      failures.push('CLIENT_URL: production uchun haqiqiy domen kerak');
+    }
+    if (/localhost|127\.0\.0\.1/.test(e.MONGODB_URI)) {
+      console.warn('⚠️  MONGODB_URI lokal bazaga ishora qilyapti — production uchun tekshiring');
+    }
+
+    if (failures.length) {
+      console.error('❌ PRODUCTION xavfsizlik tekshiruvi muvaffaqiyatsiz:');
+      for (const f of failures) console.error(`   • ${f}`);
+      console.error('\n💡 Kuchli kalit generatsiya qilish:  node -e "console.log(require(\'crypto\').randomBytes(48).toString(\'hex\'))"');
+      throw new Error('Production uchun xavfsizlik sozlamalari yetarli emas (yuqoriga qarang)');
+    }
+  } else {
+    // Dev'da ham ogohlantiramiz — e'tiborsiz qolmasin.
+    for (const [name, value] of [
+      ['JWT_ACCESS_SECRET', e.JWT_ACCESS_SECRET],
+      ['JWT_REFRESH_SECRET', e.JWT_REFRESH_SECRET],
+      ['JWT_RESET_SECRET', e.JWT_RESET_SECRET],
+    ] as [string, string][]) {
+      const problem = secretProblem(value);
+      if (problem && process.env[name]) {
+        console.warn(`⚠️  ${name} zaif: ${problem} — production'dan oldin almashtiring`);
+      }
+    }
+  }
+
+  return e;
 }
 
 export const env = loadEnv();

@@ -1,20 +1,98 @@
 import jwt from 'jsonwebtoken';
+import { randomUUID } from 'node:crypto';
 import { env } from '../config/env';
 
-export function signAccessToken(payload: { id: string; role: string }): string {
-  return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
-    expiresIn: env.JWT_ACCESS_EXPIRES as jwt.SignOptions['expiresIn'],
+/**
+ * Tokenlar haqida muhim:
+ * - access/refresh payload'ida `ver` (tokenVersion) bo'ladi. Foydalanuvchi parolini
+ *   almashtirsa, bloklansa yoki "hammasidan chiqish" qilsa — tokenVersion oshiriladi va
+ *   eski tokenlar bir zumda yaroqsiz bo'ladi.
+ * - Parolni tiklash tokenlari ALOHIDA kalit (JWT_RESET_SECRET) bilan imzolanadi, shuning
+ *   uchun u hech qachon sessiya tokeni sifatida ishlatilishi mumkin emas.
+ */
+
+export interface AccessPayload {
+  id: string;
+  role: string;
+  ver: number;
+  jti: string;
+}
+
+export interface RefreshPayload {
+  id: string;
+  ver: number;
+  jti: string;
+}
+
+export function signAccessToken(payload: { id: string; role: string; ver?: number }): string {
+  return jwt.sign(
+    { id: payload.id, role: payload.role, ver: payload.ver ?? 0, jti: randomUUID() },
+    env.JWT_ACCESS_SECRET,
+    { expiresIn: env.JWT_ACCESS_EXPIRES as jwt.SignOptions['expiresIn'] },
+  );
+}
+
+export function signRefreshToken(payload: { id: string; ver?: number }): string {
+  return jwt.sign(
+    { id: payload.id, ver: payload.ver ?? 0, jti: randomUUID() },
+    env.JWT_REFRESH_SECRET,
+    { expiresIn: env.JWT_REFRESH_EXPIRES as jwt.SignOptions['expiresIn'] },
+  );
+}
+
+export function verifyRefreshToken(token: string): RefreshPayload {
+  const decoded = jwt.verify(token, env.JWT_REFRESH_SECRET) as Partial<RefreshPayload>;
+  // Eski tokenlarda `ver` bo'lmasligi mumkin — 0 deb qabul qilamiz (migratsiya).
+  return { id: String(decoded.id), ver: Number(decoded.ver ?? 0), jti: String(decoded.jti ?? '') };
+}
+
+export function verifyAccessToken(token: string): AccessPayload {
+  const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as Partial<AccessPayload>;
+  return {
+    id: String(decoded.id),
+    role: String(decoded.role),
+    ver: Number(decoded.ver ?? 0),
+    jti: String(decoded.jti ?? ''),
+  };
+}
+
+/** Parolni tiklash tokeni — alohida kalit, 15 daqiqa, bir marta ishlatiladi (ver orqali). */
+export function signResetToken(userId: string, tokenVersion: number): string {
+  return jwt.sign({ id: userId, ver: tokenVersion, purpose: 'reset' }, env.JWT_RESET_SECRET, {
+    expiresIn: '15m',
   });
 }
 
-export function signRefreshToken(payload: { id: string }): string {
-  return jwt.sign(payload, env.JWT_REFRESH_SECRET, {
-    expiresIn: env.JWT_REFRESH_EXPIRES as jwt.SignOptions['expiresIn'],
+export function verifyResetToken(token: string): { id: string; ver: number } {
+  const decoded = jwt.verify(token, env.JWT_RESET_SECRET) as {
+    id?: string;
+    ver?: number;
+    purpose?: string;
+  };
+  if (decoded.purpose !== 'reset') throw new Error('Token maqsadi noto‘g‘ri');
+  return { id: String(decoded.id), ver: Number(decoded.ver ?? 0) };
+}
+
+/**
+ * Email tasdiqlash tokeni — 24 soat amal qiladi.
+ *
+ * Nega `ver` (tokenVersion) ham kiradi: parol almashsa yoki hisob bloklansa,
+ * eski tasdiqlash havolasi ham avtomatik kuchini yo'qotadi.
+ */
+export function signEmailVerifyToken(userId: string, tokenVersion: number): string {
+  return jwt.sign({ id: userId, ver: tokenVersion, purpose: 'verify-email' }, env.JWT_RESET_SECRET, {
+    expiresIn: '24h',
   });
 }
 
-export function verifyRefreshToken(token: string): { id: string } {
-  return jwt.verify(token, env.JWT_REFRESH_SECRET) as { id: string };
+export function verifyEmailVerifyToken(token: string): { id: string; ver: number } {
+  const decoded = jwt.verify(token, env.JWT_RESET_SECRET) as {
+    id?: string;
+    ver?: number;
+    purpose?: string;
+  };
+  if (decoded.purpose !== 'verify-email') throw new Error('Token maqsadi noto‘g‘ri');
+  return { id: String(decoded.id), ver: Number(decoded.ver ?? 0) };
 }
 
 /**
@@ -22,9 +100,10 @@ export function verifyRefreshToken(token: string): { id: string } {
  * - Dev (localhost): sameSite 'lax' — OAuth top-level redirect'da cookie o'rnatiladi.
  * - Prod (Vercel + Railway = cross-site): sameSite 'none' + secure kerak,
  *   aks holda cross-site so'rovda cookie yuborilmaydi va refresh ishlamaydi.
+ * - path '/api/auth' — cookie faqat auth yo'llariga yuboriladi (CSRF yuzasini kamaytiradi).
  */
 export function refreshCookieOptions() {
-  const isProd = process.env.NODE_ENV === 'production';
+  const isProd = env.NODE_ENV === 'production';
   return {
     httpOnly: true,
     secure: isProd,

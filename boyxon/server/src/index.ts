@@ -4,7 +4,8 @@ import { createApp } from './app';
 import { connectDb } from './config/db';
 import { env } from './config/env';
 import { setIo } from './socket';
-import { verifyAccess } from './middlewares/auth.middleware';
+import { verifyAccessToken } from './services/token.service';
+import { User } from './models/User.model';
 
 async function main(): Promise<void> {
   await connectDb();
@@ -16,17 +17,28 @@ async function main(): Promise<void> {
   });
   setIo(io);
 
+  // Socket ham xuddi HTTP kabi qat'iy tekshiriladi: token imzosi + hisob holati +
+  // tokenVersion. Aks holda bloklangan foydalanuvchi real-time chatni davom ettirardi.
   io.use((socket, next) => {
     const token = socket.handshake.auth?.token as string | undefined;
     if (!token) return next(new Error('Token kerak'));
+    let decoded;
     try {
-      const decoded = verifyAccess(token);
-      socket.data.userId = decoded.id;
-      socket.data.role = decoded.role;
-      next();
+      decoded = verifyAccessToken(token);
     } catch {
-      next(new Error('Token yaroqsiz'));
+      return next(new Error('Token yaroqsiz'));
     }
+    void User.findById(decoded.id)
+      .select('role isActive tokenVersion')
+      .then((user) => {
+        if (!user) return next(new Error('Foydalanuvchi topilmadi'));
+        if (!user.isActive) return next(new Error('Hisob bloklangan'));
+        if ((user.tokenVersion ?? 0) !== decoded.ver) return next(new Error('Sessiya bekor qilingan'));
+        socket.data.userId = decoded.id;
+        socket.data.role = user.role;
+        next();
+      })
+      .catch(() => next(new Error('Autentifikatsiya xatosi')));
   });
 
   io.on('connection', (socket) => {

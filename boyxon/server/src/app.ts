@@ -3,7 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
-import { env } from './config/env';
+import { env, isProd } from './config/env';
 import { initPassport } from './config/passport';
 import { errorHandler } from './middlewares/error.middleware';
 import { apiLimiter } from './middlewares/rateLimit.middleware';
@@ -20,13 +20,59 @@ import { adminRouter } from './routes/admin.routes';
 
 export function createApp() {
   const app = express();
-  // Railway/Vercel kabi proxy ortida real IP ni olish uchun (rate-limit to'g'ri ishlashi uchun)
-  app.set('trust proxy', 1);
 
-  app.use(helmet({ crossOriginResourcePolicy: false }));
-  app.use(cors({ origin: env.CLIENT_URL.split(','), credentials: true }));
-  app.use(express.json({ limit: '1mb' }));
-  app.use(express.urlencoded({ extended: true }));
+  /**
+   * Ishonchli proksi FAQAT sozlangan bo'lsa yoqiladi.
+   *
+   * Ilgari bu shartsiz `1` edi — bu xavfli: proksi ortida bo'lmaganda hujumchi
+   * `X-Forwarded-For: <tasodifiy IP>` sarlavhasini yuborib, har bir so'rovda yangi
+   * "IP" ko'rsatib rate-limit ni butunlay chetlab o'tishi mumkin edi.
+   */
+  if (env.TRUST_PROXY > 0) app.set('trust proxy', env.TRUST_PROXY);
+
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: false,
+      // API javoblarida MIME-sniffing va frame-ga joylashni to'samiz.
+      contentSecurityPolicy: {
+        useDefaults: true,
+        directives: {
+          defaultSrc: ["'none'"],
+          frameAncestors: ["'none'"],
+          baseUri: ["'none'"],
+          formAction: ["'none'"],
+        },
+      },
+      referrerPolicy: { policy: 'no-referrer' },
+      hsts: isProd ? { maxAge: 31536000, includeSubDomains: true, preload: true } : false,
+    }),
+  );
+
+  // CORS: faqat aniq ro'yxatdagi domenlar. `*` hech qachon ishlatilmaydi, chunki
+  // credentials: true bilan birga `*` brauzerlar tomonidan rad etiladi va xavfli.
+  const allowedOrigins = env.CLIENT_URL.split(',')
+    .map((s) => s.trim().replace(/\/$/, ''))
+    .filter(Boolean);
+  app.use(
+    cors({
+      origin: (origin, cb) => {
+        // Origin yo'q (server-to-server, curl, mobil) — ruxsat.
+        if (!origin) return cb(null, true);
+        if (allowedOrigins.includes(origin.replace(/\/$/, ''))) return cb(null, true);
+        return cb(null, false);
+      },
+      credentials: true,
+      methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      maxAge: 86400,
+    }),
+  );
+
+  // Javoblarda Express versiyasini oshkor qilmaymiz.
+  app.disable('x-powered-by');
+
+  app.use(express.json({ limit: '256kb' }));
+  app.use(express.urlencoded({ extended: false, limit: '256kb' }));
   app.use(cookieParser());
 
   initPassport();

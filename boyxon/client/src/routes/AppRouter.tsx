@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import { Layout } from '../components/layout/Layout';
 import { ProtectedRoute } from './ProtectedRoute';
 import { AdminRoute } from './AdminRoute';
+import { VerifiedRoute } from './VerifiedRoute';
 
 const HomePage = lazy(() => import('../pages/home/HomePage'));
 const DishPage = lazy(() => import('../pages/dish/DishPage'));
@@ -10,6 +11,7 @@ const CartPage = lazy(() => import('../pages/cart/CartPage'));
 const SettingsPage = lazy(() => import('../pages/settings/SettingsPage'));
 const AuthPage = lazy(() => import('../pages/auth/AuthPage'));
 const AuthCallback = lazy(() => import('../pages/auth/AuthCallback'));
+const VerifyEmailPage = lazy(() => import('../pages/auth/VerifyEmailPage'));
 const AdminLayout = lazy(() => import('../pages/admin/AdminLayout'));
 const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard'));
 const AdminDishes = lazy(() => import('../pages/admin/AdminDishes'));
@@ -31,11 +33,14 @@ export function AppRouter() {
       <Routes>
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
+        {/* Email tasdiqlash: token bilan (havoladan) yoki tokensiz (kutish ekrani). */}
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/dish/:slug" element={<DishPage />} />
-          <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
-          <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+          <Route path="/cart" element={<ProtectedRoute><VerifiedRoute><CartPage /></VerifiedRoute></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><VerifiedRoute><SettingsPage /></VerifiedRoute></ProtectedRoute>} />
         </Route>
         <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
           <Route index element={<AdminDashboard />} />

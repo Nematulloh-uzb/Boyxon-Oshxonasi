@@ -84,14 +84,14 @@ export function ChatWidget() {
 
   return (
     <>
-      {/* Yopiq holat — floating tugma */}
+      {/* Yopiq holat — floating tugma (mobil: pastki nav panelidan tepada) */}
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-5 right-5 z-40 grid h-14 w-14 place-items-center rounded-full bg-gradient-to-r from-[#E67E22] to-[#F39C12] text-white shadow-lg transition hover:scale-105 active:scale-95"
+          className="fixed bottom-20 right-5 z-40 grid h-12 w-12 place-items-center rounded-full bg-gradient-to-r from-[#E67E22] to-[#F39C12] text-white shadow-lg transition hover:scale-105 active:scale-95 sm:bottom-5"
           aria-label={t('chat.open')}
         >
-          <MessageCircle className="h-7 w-7" />
+          <MessageCircle className="h-6 w-6" />
         </button>
       )}
 

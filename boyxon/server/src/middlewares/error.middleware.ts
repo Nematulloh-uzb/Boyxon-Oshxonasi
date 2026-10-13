@@ -12,6 +12,23 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
   // Multer xatolari (fayl hajmi, formati, kutilmagan maydon)
   if (err && typeof err === 'object' && 'name' in err) {
     const name = (err as { name: string }).name;
+
+    /**
+     * Buzuq JSON / juda katta tana — body-parser xatolari.
+     *
+     * Ilgari bular 500 bo'lib chiqardi va logga to'liq stack yozilardi. Bu noto'g'ri:
+     * bu mijoz xatosi (400), va stack logini to'ldirib, haqiqiy xatolarni ko'rinmas
+     * holga keltiradi. Endi aniq 400 qaytaramiz.
+     */
+    if (name === 'SyntaxError' && (err as { type?: string }).type === 'entity.parse.failed') {
+      res.status(400).json({ success: false, message: 'So‘rov tanasi buzuq JSON', data: null });
+      return;
+    }
+    if (name === 'PayloadTooLargeError' || (err as { type?: string }).type === 'entity.too.large') {
+      res.status(413).json({ success: false, message: 'So‘rov tanasi juda katta', data: null });
+      return;
+    }
+
     if (name === 'MulterError') {
       const code = (err as { code?: string }).code;
       const msg =

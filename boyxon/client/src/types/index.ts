@@ -11,6 +11,8 @@ export interface User {
   notificationPrefs: NotificationPrefs;
   preferences: UserPrefs;
   isActive: boolean;
+  /** Email egasi tasdiqlanganmi (tasdiqlash havolasi bosilganmi). */
+  emailVerified: boolean;
   createdAt: string;
 }
 

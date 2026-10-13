@@ -61,12 +61,36 @@ const DISHES: SeedDish[] = [
 ];
 
 async function seedData(): Promise<void> {
+  /**
+   * XAVFSIZLIK TO'SIG'I.
+   *
+   * Seed quyidagi jadval(lar)ni BUTUNLAY O'CHIRADI: User, Category, Dish, Promo, Order.
+   * Production bazasida tasodifan ishga tushsa — barcha haqiqiy mijozlar va buyurtmalar
+   * yo'qoladi. Shuning uchun production'da faqat ongli tasdiq bilan ishlaydi.
+   */
+  if (env.NODE_ENV === 'production' && process.env.SEED_FORCE !== 'true') {
+    console.error('⛔ SEED TO‘XTATILDI: NODE_ENV=production.');
+    console.error('   Seed barcha foydalanuvchi, buyurtma va taomlarni O‘CHIRADI.');
+    console.error('   Agar bu ataylab qilinayotgan bo‘lsa: SEED_FORCE=true npm run seed');
+    process.exit(1);
+  }
+
   console.log('🌱 Seed boshlandi...');
+  if (env.NODE_ENV === 'production') {
+    console.warn('⚠️  PRODUCTION bazasi ustida ishlanmoqda — barcha eski ma’lumot o‘chiriladi!');
+  }
 
   await User.deleteMany({});
-  const admin = await User.create({ name: 'Admin', email: env.ADMIN_EMAIL.toLowerCase(), password: env.ADMIN_PASSWORD, role: 'admin' });
+  const admin = await User.create({
+    name: 'Admin', email: env.ADMIN_EMAIL.toLowerCase(), password: env.ADMIN_PASSWORD,
+    role: 'admin',
+    // Tizim hisobi — email tasdiqlash talab qilinmaydi.
+    emailVerified: true,
+  });
   const demo = await User.create({
-    name: 'Aziz Karimov', email: 'aziz@example.com', phone: '+998 90 123 45 67', password: 'User123!',
+    name: 'Aziz Karimov', email: 'aziz@example.com', phone: '+998 90 123 45 67',
+    password: env.DEMO_PASSWORD || 'User123!',
+    emailVerified: true,
     addresses: [{ label: 'Uy', address: 'Toshkent, Yunusobod, 12-mavze, 5-uy', isDefault: true }],
   });
 
