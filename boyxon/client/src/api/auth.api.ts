@@ -40,6 +40,12 @@ export const authApi = {
   /** Yangi parol o'rnatish (token URL'dan, 15 daqiqa amal qiladi, bir martalik). */
   resetPassword: (token: string, password: string) =>
     api.post<ApiOk<null>>(`/auth/reset-password/${encodeURIComponent(token)}`, { password }).then((r) => r.data),
+  /**
+   * Reset havolasi kimniki ekanini bilish (parolni o'zgartirmaydi).
+   * Sahifa ochilganda qaysi email uchunligi ko'rsatiladi.
+   */
+  resetPasswordInfo: (token: string) =>
+    api.get<ApiOk<{ email: string }>>(`/auth/reset-password/${encodeURIComponent(token)}/info`).then((r) => r.data),
   changePassword: (body: { oldPassword: string; newPassword: string }) =>
     api.patch<ApiOk<{ accessToken: string }>>('/auth/change-password', body).then((r) => r.data),
 };

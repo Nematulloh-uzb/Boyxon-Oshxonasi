@@ -51,7 +51,14 @@ authRouter.post('/google/exchange', sensitiveLimiter, validate({ body: googleExc
 
 // Parol bilan bog'liq amallar — qat'iy limit.
 authRouter.post('/forgot-password', sensitiveLimiter, validate({ body: forgotSchema }), c.forgotPassword);
-authRouter.post('/reset-password/:token', sensitiveLimiter, validate({ body: resetSchema }), c.resetPassword);
+// Token kimniki ekanini ko'rsatish (parolni o'zgartirmaydi) — GET, shuning uchun brauzerda ochiladi.
+authRouter.get(
+  '/reset-password/:token/info',
+  sensitiveLimiter,
+  validate({ params: resetTokenParamsSchema }),
+  c.resetPasswordInfo,
+);
+authRouter.post('/reset-password/:token', sensitiveLimiter, validate({ body: resetSchema, params: resetTokenParamsSchema }), c.resetPassword);
 authRouter.patch('/change-password', requireAuth, validate({ body: changePasswordSchema }), c.changePassword);
 
 // Email tasdiqlash. Qayta yuborish cheklangan (email bombardimoniga qarshi).
