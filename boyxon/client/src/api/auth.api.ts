@@ -34,6 +34,12 @@ export const authApi = {
   /** Tasdiqlash xatini qayta yuborish (cheklangan: soatiga 5 marta). */
   resendVerification: (email: string) =>
     api.post<ApiOk<null>>('/auth/resend-verification', { email }).then((r) => r.data),
+  /** Parolni tiklash — reset havolasini emailga yuborish (javob har doim bir xil). */
+  forgotPassword: (email: string) =>
+    api.post<ApiOk<null>>('/auth/forgot-password', { email }).then((r) => r.data),
+  /** Yangi parol o'rnatish (token URL'dan, 15 daqiqa amal qiladi, bir martalik). */
+  resetPassword: (token: string, password: string) =>
+    api.post<ApiOk<null>>(`/auth/reset-password/${encodeURIComponent(token)}`, { password }).then((r) => r.data),
   changePassword: (body: { oldPassword: string; newPassword: string }) =>
     api.patch<ApiOk<{ accessToken: string }>>('/auth/change-password', body).then((r) => r.data),
 };
