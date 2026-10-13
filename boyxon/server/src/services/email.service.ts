@@ -23,15 +23,40 @@ function getTransporter(): Transporter | null {
   return transporter;
 }
 
+/** Xat sarlavhasidagi From: "Boyxon Oshxonasi <manzil>" ko'rinishida. */
+function fromHeader(): string {
+  const addr = env.SMTP_FROM_EMAIL || env.SMTP_USER;
+  return `"${env.SMTP_FROM_NAME}" <${addr}>`;
+}
+
+/**
+ * Barcha xatlar uchun yagona brend shablon: logotip sarlavha, tugma, ogohlantirish.
+ * Foydalanuvchi "qaysi saytdan keldi" ni bir qarashda biladi.
+ */
+function brandShell(body: string): string {
+  return `
+  <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;background:#FFF8F1;border-radius:16px;overflow:hidden">
+    <div style="background:linear-gradient(135deg,#E67E22,#F39C12);padding:20px 24px;text-align:center">
+      <div style="color:#fff;font-size:22px;font-weight:bold">Boyxon Oshxonasi</div>
+      <div style="color:rgba(255,255,255,.85);font-size:13px">Milliy taomlar — tez va issiq yetkazib berish</div>
+    </div>
+    <div style="padding:24px;background:#fff">${body}</div>
+    <div style="padding:16px 24px;background:#FFF8F1;color:#906F6E;font-size:12px;text-align:center">
+      Bu xat Boyxon Oshxonasi saytidan yuborildi. Agar siz so'ramagan bo'lsangiz, e'tiborsiz qoldiring.
+    </div>
+  </div>`;
+}
 /** Buyurtma tasdiqlash xati. SMTP sozlanmagan bo'lsa logga yozadi. */
 export async function sendOrderEmail(to: string, orderNumber: string, total: number): Promise<void> {
   const t = getTransporter();
-  const html = `<h2>Boyxon Oshxonasi</h2><p>Buyurtmangiz qabul qilindi: <b>${orderNumber}</b></p><p>Jami: <b>${total.toLocaleString('uz-UZ')} so'm</b></p>`;
+  const html = brandShell(
+    `<h2 style="margin:0 0 8px">Buyurtmangiz qabul qilindi: <b>${orderNumber}</b></h2><p>Jami: <b>${total.toLocaleString('uz-UZ')} so'm</b></p>`,
+  );
   if (!t) {
     logger.info({ to, orderNumber }, 'SMTP sozlanmagan — email yuborilmadi');
     return;
   }
-  await t.sendMail({ from: env.SMTP_USER, to, subject: `Buyurtma ${orderNumber} qabul qilindi`, html });
+  await t.sendMail({ from: fromHeader(), to, subject: `Buyurtma ${orderNumber} qabul qilindi — Boyxon Oshxonasi`, html });
 }
 
 /** Email manzilni tasdiqlash xati. */
@@ -46,24 +71,25 @@ export async function sendVerifyEmail(to: string, verifyLink: string): Promise<b
     return false;
   }
   await t.sendMail({
-    from: env.SMTP_USER,
+    from: fromHeader(),
     to,
     subject: 'Emailingizni tasdiqlang — Boyxon Oshxonasi',
-    html: `
-      <div style="font-family:sans-serif;max-width:520px">
-        <h2 style="color:#E67E22">Boyxon Oshxonasi</h2>
+    html: brandShell(`
         <p>Hisobingizni faollashtirish uchun quyidagi tugmani bosing:</p>
-        <p style="margin:24px 0">
-          <a href="${verifyLink}" style="background:#E67E22;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold">Emailni tasdiqlash</a>
+        <p style="margin:24px 0;text-align:center">
+          <a href="${verifyLink}" style="background:#E67E22;color:#fff;padding:12px 24px;border-radius:999px;text-decoration:none;font-weight:bold">Emailni tasdiqlash</a>
         </p>
         <p style="color:#666;font-size:13px">Havola 24 soat amal qiladi va bir marta ishlatiladi.</p>
-        <p style="color:#666;font-size:13px">Agar siz ro'yxatdan o'tmagan bo'lsangiz, bu xatni e'tiborsiz qoldiring.</p>
-      </div>`,
+        <p style="color:#666;font-size:13px">Agar siz ro'yxatdan o'tmagan bo'lsangiz, bu xatni e'tiborsiz qoldiring.</p>`),
   });
   return true;
 }
 
-/** Parol tiklash xati. */
+/**
+ * Parol tiklash xati — qaysi hisob uchunligi xatning o'zida yoziladi.
+ * Foydalanuvchi "o'zimnikidan" kelganini emas, rasmiy "Boyxon Oshxonasi"
+ * nomidan kelganini ko'radi (From sarlavhasi + brend shablon).
+ */
 export async function sendResetEmail(to: string, resetLink: string): Promise<void> {
   const t = getTransporter();
   if (!t) {
@@ -76,9 +102,16 @@ export async function sendResetEmail(to: string, resetLink: string): Promise<voi
     return;
   }
   await t.sendMail({
-    from: env.SMTP_USER,
+    from: fromHeader(),
     to,
     subject: 'Parolni tiklash — Boyxon Oshxonasi',
-    html: `<p>Parolni tiklash uchun <a href="${resetLink}">shu havolani</a> bosing (15 daqiqa amal qiladi).</p><p>Agar bu so'rovni siz yubormagan bo'lsangiz, xatni e'tiborsiz qoldiring.</p>`,
+    html: brandShell(`
+        <p>Salom!</p>
+        <p><b>${to}</b> hisobi uchun parolni tiklash so'rovi olindi. Davom etish uchun tugmani bosing — alohida tiklash oynasi ochiladi:</p>
+        <p style="margin:24px 0;text-align:center">
+          <a href="${resetLink}" style="background:#C8102E;color:#fff;padding:12px 24px;border-radius:999px;text-decoration:none;font-weight:bold">Parolni tiklash</a>
+        </p>
+        <p style="color:#666;font-size:13px">Havola 15 daqiqa amal qiladi va bir marta ishlatiladi.</p>
+        <p style="color:#666;font-size:13px">Agar bu so'rovni siz yubormagan bo'lsangiz, xatni e'tiborsiz qoldiring — parolingiz o'zgarmaydi.</p>`),
   });
 }

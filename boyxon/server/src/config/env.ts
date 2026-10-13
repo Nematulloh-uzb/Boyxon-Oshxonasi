@@ -53,6 +53,16 @@ const envSchema = z.object({
   SMTP_PORT: z.coerce.number().default(587),
   SMTP_USER: z.string().default(''),
   SMTP_PASS: z.string().default(''),
+  /**
+   * Xatlarda ko'rinadigan "From" nomi/manzili.
+   *
+   * Muhim: Gmail orqali yuborilganda "From" manzili baribir SMTP_USER dagi
+   * hisob bo'ladi (Gmail begona from'ga ruxsat bermaydi) — shuning uchun
+   * nom (display name) orqali brend ko'rsatiladi: "Boyxon Oshxonasi <gmail>".
+   * O'z domeningiz SMTP'si bo'lganda bu yerga info@boyxon.uz yozing.
+   */
+  SMTP_FROM_NAME: z.string().default('Boyxon Oshxonasi'),
+  SMTP_FROM_EMAIL: z.string().default(''),
 
   ADMIN_EMAIL: z.string().default('admin@boyxon.uz'),
   ADMIN_PASSWORD: z.string().default(''),
