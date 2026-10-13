@@ -49,3 +49,8 @@ export const resendVerificationSchema = z.object({
 export const verifyEmailParamsSchema = z.object({
   token: z.string().min(20, 'Token noto‘g‘ri').max(500),
 });
+
+/** Reset tokeni — info va reset endpoint'lari uchun bitta sxema. */
+export const resetTokenParamsSchema = z.object({
+  token: z.string().min(20, 'Token noto‘g‘ri').max(500),
+});
