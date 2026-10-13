@@ -8,6 +8,7 @@ import {
   loginSchema,
   forgotSchema,
   resetSchema,
+  resetTokenParamsSchema,
   changePasswordSchema,
   googleExchangeSchema,
   resendVerificationSchema,
