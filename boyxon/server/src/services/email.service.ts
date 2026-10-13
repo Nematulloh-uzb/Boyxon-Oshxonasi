@@ -18,6 +18,16 @@ function getTransporter(): Transporter | null {
       port: env.SMTP_PORT,
       secure: env.SMTP_PORT === 465,
       auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
+      // Ulanishlarni qayta ishlatish (pool): Gmail har safar YANGI ulanish
+      // ochish juda sekin (har bir xat 2-10s). Pool bilan ulanish bir marta
+      // ochiladi va keyingi xatlar undan tez ketadi. Timeout'lar esa ulanish
+      // "osilib qolishining" oldini oladi — xat cheksiz kutib qolmaydi.
+      pool: true,
+      maxConnections: 5,
+      maxMessages: 100,
+      connectionTimeout: 10_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 20_000,
     });
   }
   return transporter;

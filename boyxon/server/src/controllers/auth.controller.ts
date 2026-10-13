@@ -290,7 +290,13 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response) =
   const user = await User.findOne({ email: email.toLowerCase() });
   if (user) {
     const token = signResetToken(user.id as string, user.tokenVersion ?? 0);
-    await sendResetEmail(user.email, `${env.CLIENT_URL}/reset-password/${token}`);
+    const link = `${env.CLIENT_URL}/reset-password/${token}`;
+    // Xatni KUTMAYDIM — fonda yuboramiz. Gmail SMTP sekin bo'lishi mumkin
+    // (2-10s), foydalanuvchi tugmani bosgach javobni DARHOL ko'radi. Xato
+    // bo'lsa logga yoziladi; javob baribir bir xil (enumeration himoyasi saqlanadi).
+    void sendResetEmail(user.email, link).catch((err) =>
+      logger.error({ err, email: user.email }, 'Parol tiklash xati yuborilmadi'),
+    );
   }
   // Javob har doim bir xil — email ro'yxatda bor-yo'qligini aniqlash imkoni bo'lmasin.
   res.json(ok(null, 'Agar email ro‘yxatda bo‘lsa, havola yuborildi'));
