@@ -123,6 +123,13 @@ function AuthForm({ from, onDone }: { from: string; onDone: (token: string, u: U
           <Button type="submit" className="w-full" disabled={loginForm.formState.isSubmitting}>
             {loginForm.formState.isSubmitting ? '...' : t('auth.signin')}
           </Button>
+          <button
+            type="button"
+            onClick={() => nav('/forgot-password')}
+            className="w-full pt-1 text-center text-xs font-medium text-primary-600 hover:underline"
+          >
+            {t('auth.forgot')}
+          </button>
         </form>
       ) : (
         <form onSubmit={onRegister} className="space-y-3">
