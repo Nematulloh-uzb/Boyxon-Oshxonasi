@@ -132,6 +132,10 @@ async function main(): Promise<void> {
     const resetToken = signResetToken(String(resetUser!._id), resetUser!.tokenVersion ?? 0);
     const badReset = await request(base, 'POST', '/auth/reset-password/soxta-token-xxxxxxxxxxxxxxxxxxxx', { password: 'NewPass123' });
     check('reset-password soxta token → 400/401', badReset.status === 400 || badReset.status === 401, `status ${badReset.status}`);
+    const info = await request(base, 'GET', `/auth/reset-password/${encodeURIComponent(resetToken)}/info`);
+    check('reset info → 200 + email ko‘rinadi', info.status === 200 && (info.body as { data: { email: string } }).data?.email === 'aziz@example.com', `status ${info.status} ${JSON.stringify(info.body)}`);
+    const badInfo = await request(base, 'GET', '/auth/reset-password/soxta-token-xxxxxxxxxxxxxxxxxxxx/info');
+    check('reset info soxta token → 400', badInfo.status === 400, `status ${badInfo.status}`);
     const goodReset = await request(base, 'POST', `/auth/reset-password/${encodeURIComponent(resetToken)}`, { password: 'NewPass123' });
     check('reset-password to‘g‘ri token → 200', goodReset.status === 200, `status ${goodReset.status} ${JSON.stringify(goodReset.body)}`);
     const reuseReset = await request(base, 'POST', `/auth/reset-password/${encodeURIComponent(resetToken)}`, { password: 'Other1234' });
