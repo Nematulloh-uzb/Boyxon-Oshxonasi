@@ -120,6 +120,28 @@ async function main(): Promise<void> {
     check('PATCH /admin/orders/:id/status → 200', upd.status === 200, `status ${upd.status} ${JSON.stringify(upd.body)}`);
   }
 
+  // Parolni tiklash oqimi — eng oxirida (tokenVersion oshadi, eski sessiyalar o'ladi).
+  {
+    const { signResetToken } = await import('../services/token.service');
+    const { User } = await import('../models/User.model');
+    const forgot = await request(base, 'POST', '/auth/forgot-password', { email: 'aziz@example.com' });
+    check('POST /auth/forgot-password → 200', forgot.status === 200, `status ${forgot.status}`);
+    const forgotUnknown = await request(base, 'POST', '/auth/forgot-password', { email: 'yoq-bunday@example.com' });
+    check('forgot-password nomaʼlum email ham → 200 (enumeration yo‘q)', forgotUnknown.status === 200, `status ${forgotUnknown.status}`);
+    const resetUser = await User.findOne({ email: 'aziz@example.com' });
+    const resetToken = signResetToken(String(resetUser!._id), resetUser!.tokenVersion ?? 0);
+    const badReset = await request(base, 'POST', '/auth/reset-password/soxta-token-xxxxxxxxxxxxxxxxxxxx', { password: 'NewPass123' });
+    check('reset-password soxta token → 400/401', badReset.status === 400 || badReset.status === 401, `status ${badReset.status}`);
+    const goodReset = await request(base, 'POST', `/auth/reset-password/${encodeURIComponent(resetToken)}`, { password: 'NewPass123' });
+    check('reset-password to‘g‘ri token → 200', goodReset.status === 200, `status ${goodReset.status} ${JSON.stringify(goodReset.body)}`);
+    const reuseReset = await request(base, 'POST', `/auth/reset-password/${encodeURIComponent(resetToken)}`, { password: 'Other1234' });
+    check('reset token qayta ishlatish → 400 (bir martalik)', reuseReset.status === 400, `status ${reuseReset.status}`);
+    const oldLogin = await request(base, 'POST', '/auth/login', { email: 'aziz@example.com', password: 'User123!' });
+    check('eski parol endi ishlamaydi → 401', oldLogin.status === 401, `status ${oldLogin.status}`);
+    const newLogin = await request(base, 'POST', '/auth/login', { email: 'aziz@example.com', password: 'NewPass123' });
+    check('yangi parol bilan login → 200', newLogin.status === 200, `status ${newLogin.status}`);
+  }
+
   await new Promise<void>((r) => server.close(() => r()));
   const mongoose = await import('mongoose');
   await mongoose.disconnect();
