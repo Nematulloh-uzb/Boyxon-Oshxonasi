@@ -52,9 +52,10 @@ authRouter.post('/google/exchange', sensitiveLimiter, validate({ body: googleExc
 // Parol bilan bog'liq amallar — qat'iy limit.
 authRouter.post('/forgot-password', sensitiveLimiter, validate({ body: forgotSchema }), c.forgotPassword);
 // Token kimniki ekanini ko'rsatish (parolni o'zgartirmaydi) — GET, shuning uchun brauzerda ochiladi.
+// Bu endpoint faqat email'ni ko'rsatadi (o'zgartirmaydi), shuning uchun sensitive
+// limitga kirmaydi — aks holda info+reset ketma-ketligi haqiqiy foydalanuvchini ham bloklardi.
 authRouter.get(
   '/reset-password/:token/info',
-  sensitiveLimiter,
   validate({ params: resetTokenParamsSchema }),
   c.resetPasswordInfo,
 );
