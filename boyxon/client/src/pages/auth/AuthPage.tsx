@@ -25,8 +25,9 @@ export default function AuthPage() {
   useEffect(() => {
     const err = searchParams.get('error');
     if (err === 'google') toast.error(t('auth.google_cancelled'));
-    else if (err === 'google_not_configured')
-      toast.error(t('auth.google_not_configured'));
+    else if (err === 'google_not_configured') toast.error(t('auth.google_not_configured'));
+    // Admin hisob Google orqali kira olmaydi — faqat email + parol.
+    else if (err === 'admin_password_only') toast.error(t('auth.admin_password_only'));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 

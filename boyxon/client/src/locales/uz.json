@@ -141,6 +141,7 @@
   "auth.signup_success": "Ro'yxatdan o'tdingiz!",
   "auth.google_cancelled": "Google bilan kirish bekor qilindi yoki xato berdi",
   "auth.google_not_configured": "Google kirish hozircha sozlanmagan. Email va parol bilan kiring.",
+  "auth.admin_password_only": "Admin hisob faqat email va parol bilan kiradi — Google orqali emas.",
   "auth.demo": "Demo",
   "auth.verify_title": "Emailingizni tasdiqlang",
   "auth.verify_sent_to": "{{email}} manziliga tasdiqlash havolasi yubordik. Pochtangizni ochib, havolani bosing.",

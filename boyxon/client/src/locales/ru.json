@@ -141,6 +141,7 @@
   "auth.signup_success": "Вы зарегистрировались!",
   "auth.google_cancelled": "Вход через Google отменён или произошла ошибка",
   "auth.google_not_configured": "Вход через Google пока не настроен. Войдите по Email и паролю.",
+  "auth.admin_password_only": "Админ-панель открывается только по Email и паролю — не через Google.",
   "auth.demo": "Демо",
   "auth.verify_title": "Подтвердите email",
   "auth.verify_sent_to": "Мы отправили ссылку для подтверждения на {{email}}. Откройте почту и перейдите по ссылке.",
