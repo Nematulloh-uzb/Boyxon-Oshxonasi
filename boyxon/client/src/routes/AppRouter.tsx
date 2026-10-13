@@ -12,6 +12,8 @@ const SettingsPage = lazy(() => import('../pages/settings/SettingsPage'));
 const AuthPage = lazy(() => import('../pages/auth/AuthPage'));
 const AuthCallback = lazy(() => import('../pages/auth/AuthCallback'));
 const VerifyEmailPage = lazy(() => import('../pages/auth/VerifyEmailPage'));
+const ForgotPasswordPage = lazy(() => import('../pages/auth/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('../pages/auth/ResetPasswordPage'));
 const AdminLayout = lazy(() => import('../pages/admin/AdminLayout'));
 const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard'));
 const AdminDishes = lazy(() => import('../pages/admin/AdminDishes'));
