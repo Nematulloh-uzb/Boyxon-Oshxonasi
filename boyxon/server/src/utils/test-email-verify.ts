@@ -82,4 +82,19 @@ async function main(): Promise<void> {
   const resend = await call('POST', '/auth/resend-verification', { email });
   check('resend-verification → 200', resend.status === 200, `status ${resend.status}`);
   const resendUnknown = await call('POST', '/auth/resend-verification', { email: 'yoq-bunday@example.com' });
-  check('Mavjud bo‘lmagan email ham 200 (enumeration yo‘q)', resendUnknown.status === 200, `stat
+  check('Mavjud bo‘lmagan email ham 200 (enumeration yo‘q)', resendUnknown.status === 200, `status ${resendUnknown.status}`);
+
+  // Tozalash
+  await User.deleteOne({ email });
+
+  console.log(`\n${'='.repeat(50)}`);
+  console.log(`✅ O'tdi: ${pass}  ❌ Yiqildi: ${fail}`);
+  console.log('='.repeat(50));
+  await disconnectDb();
+  process.exit(fail ? 1 : 0);
+}
+
+main().catch((e) => {
+  console.error('Xato:', e);
+  process.exit(1);
+});
