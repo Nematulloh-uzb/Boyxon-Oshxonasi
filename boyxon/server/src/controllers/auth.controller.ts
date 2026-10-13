@@ -125,7 +125,10 @@ export const resendVerification = asyncHandler(async (req: Request, res: Respons
   const { email } = req.body as { email: string };
   const user = await User.findOne({ email: email.toLowerCase() });
   if (user && !user.emailVerified && user.isActive) {
-    await issueVerificationEmail(user);
+    // Fonda yuboramiz — javob natijadan qat'i nazar bir xil (enumeration himoyasi).
+    void issueVerificationEmail(user).catch((err) =>
+      logger.error({ err, email: user.email }, 'Tasdiqlash xati qayta yuborilmadi'),
+    );
   }
   res.json(ok(null, 'Agar bu email ro‘yxatda bo‘lsa va tasdiqlanmagan bo‘lsa, havola qayta yuborildi'));
 });
