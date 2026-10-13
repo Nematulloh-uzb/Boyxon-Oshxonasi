@@ -11,6 +11,7 @@ qadamlarni** tavsiflaydi.
 
 - [Autentifikatsiya va sessiyalar](#autentifikatsiya-va-sessiyalar)
 - [Brute-force himoyasi](#brute-force-himoyasi)
+- [Email haqiqiyligini tekshirish](#email-haqiqiyligini-tekshirish)
 - [HTTP qatlami](#http-qatlami)
 - [Ma'lumotlar va maxfiylik](#malumotlar-va-maxfiylik)
 - [Fayl yuklash](#fayl-yuklash)
@@ -72,6 +73,61 @@ Bundan tashqari xato xabari har doim bir xil (`Email yoki parol noto'g'ri`) — 
 - Oq ro'yxat: JPEG, PNG, WebP, GIF, AVIF — **MIME va kengaytma birgalikda** tekshiriladi.
 - **SVG rad etiladi**: u skript saqlay oladi, ya'ni XSS vektori.
 - Hajm 5 MB, faqat 1 fayl, maydonlar soni cheklangan.
+
+## Email haqiqiyligini tekshirish
+
+**Muhim haqiqat:** email "haqiqiy yoki soxta" ekanini 100% aniqlashning yagona yo'li —
+o'sha manzilga xat yuborib, egasi havolani bosishini kutish. Boshqa barcha usullar
+faqat *domen* haqida ma'lumot beradi, hisob egasi haqida emas.
+
+Shuning uchun uch qatlamli tekshiruv qo'llaniladi:
+
+| Qatlam | Nima tekshiradi | Nimani ushlaydi | Cheklovi |
+|---|---|---|---|
+| 1. Sintaksis | RFC 5322 formati, uzunlik | `ism@@gmail`, `ism@gmail`, bo'sh joylar | `ism@soxta.com` o'tadi |
+| 2. Bir martalik domenlar | ~45 ta mashhur "tempmail" xizmati | `@mailinator.com`, `@yopmail.com` | Ro'yxatda yo'q yangi xizmat o'tadi |
+| 3. MX yozuvi (DNS) | Domen umuman xat qabul qiladimi | `@bu-domen-yoq.com` | `ism@gmail.com` o'tadi, hisob bo'lmasa ham |
+| **4. Tasdiqlash havolasi** | **Manzil haqiqatan sizniki** | **Hammasi — yagona ishonchli usul** | Foydalanuvchi pochtasini ochishi kerak |
+
+### Qanday ishlaydi
+
+1. **Ro'yxatdan o'tish** — 1, 2, 3-qatlamlar ishlaydi. Xato bo'lsa `400` va aniq xabar:
+   - `"bu-domen.com" domeni email qabul qilmaydi`
+   - `Bir martalik email manzillar qabul qilinmaydi`
+2. Xat yuboriladi: `24 soat` amal qiladigan havola (`/verify-email/<token>`).
+3. **Havola bosilganda** — `emailVerified = true`, token bir martalik bo'ladi
+   (`tokenVersion` oshadi). Qayta bosilsa xato emas — "allaqachon tasdiqlangan".
+4. **Kirish** — `ALLOW_UNVERIFIED_LOGIN=false` bo'lsa tasdiqlanmagan hisob kira olmaydi
+   (`403` + `code: "EMAIL_NOT_VERIFIED"`), frontend "qayta yuborish" tugmasini ko'rsatadi.
+
+### Muhim sozlamalar
+
+| O'zgaruvchi | Tavsiya | Izoh |
+|---|---|---|
+| `ALLOW_UNVERIFIED_LOGIN` | `false` (production) | `true` qilsangiz kirish ochiq qoladi, lekin himoya zaiflashadi |
+| `SMTP_USER` / `SMTP_PASS` | **to'ldirilishi shart** | Bo'sh bo'lsa xat yuborilmaydi va mijozlar kira olmaydi |
+
+> ⚠️ **SMTP sozlanmagan bo'lsa `ALLOW_UNVERIFIED_LOGIN=false` qilmang** — yangi mijozlar
+> ro'yxatdan o'tib, kira olmay qoladi. Dev rejimida bu avtomatik `true` qilinadi.
+
+Gmail uchun "App password" kerak (oddiy parol ishlamaydi):
+Google Account → Security → 2-Step Verification → App passwords.
+
+### Nima uchun SMTP shart
+
+Boshqa yo'l yo'q. MX tekshiruvi "domen xat qabul qiladi" deydi, xolos —
+`ism@gmail.com` ham MX dan o'tadi, hatto bunday hisob mavjud bo'lmasa ham.
+Faqat xat yuborish haqiqiy egalikni isbotlaydi.
+
+### Test
+
+```bash
+cd boyxon/server
+npx tsx src/utils/test-email-verify.ts   # 13 ta tekshiruv
+```
+
+Test token generatsiyasini o'zi bajaradi (emailga bog'lanmasdan), shuning uchun
+SMTP sozlanmagan muhitda ham to'liq oqimni tekshiradi.
 
 ## Deploy oldidan majburiy qadamlar
 
