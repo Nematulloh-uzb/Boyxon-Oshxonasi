@@ -292,6 +292,30 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response) =
 });
 
 /**
+ * GET /api/auth/reset-password/:token/info — havola yaroqliligini tekshirish
+ * va qaysi email uchunligini ko'rsatish (parolni o'zgartirmaydi).
+ *
+ * Email'ni yashirish kerakmi? Yo'q — bu havola faqat shu email egasining
+ * pochtasiga kelgan, shuning uchun emailni ko'rsatish enumeration emas.
+ * Aksincha, foydalanuvchi "qaysi hisobim uchun" ekanini ko'rib ishonch hosil qiladi.
+ */
+export const resetPasswordInfo = asyncHandler(async (req: Request, res: Response) => {
+  const { token } = req.params;
+  let payload: { id: string; ver: number };
+  try {
+    payload = verifyResetToken(token);
+  } catch {
+    throw ApiError.badRequest('Havola yaroqsiz yoki muddati o‘tgan');
+  }
+  const user = await User.findById(payload.id).select('email tokenVersion isActive');
+  if (!user || !user.isActive) throw ApiError.notFound('Foydalanuvchi topilmadi');
+  if ((user.tokenVersion ?? 0) !== payload.ver) {
+    throw ApiError.badRequest('Bu havola allaqachon ishlatilgan');
+  }
+  res.json(ok({ email: user.email }));
+});
+
+/**
  * POST /api/auth/reset-password/:token — yangi parol o'rnatish.
  *
  * Xavfsizlik: token alohida kalit bilan imzolangan, 15 daqiqa amal qiladi va
