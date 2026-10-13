@@ -65,24 +65,95 @@ export default function ResetPasswordPage() {
       );
     }
   });
-  void onSubmit;
-  void setServerError;
-  void serverError;
-  void form;
-  void t;
-  void nav;
-  void email;
-  void message;
-  void mode;
-  void setMode;
-  void setEmail;
-  void setMessage;
-  void KeyRound;
-  void Loader2;
-  void CheckCircle2;
-  void XCircle;
-  void Mail;
-  void Input;
-  void Button;
-  return null;
+
+  return (
+    <div className="grid min-h-screen place-items-center bg-bg p-6">
+      <div className="w-full max-w-md rounded-card border border-ink-line bg-surface p-8 text-center shadow-sm">
+        {mode === 'checking' && (
+          <>
+            <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary-500" />
+            <p className="mt-4 text-sm text-ink-300">{t('auth.verify_checking')}</p>
+          </>
+        )}
+        {mode === 'failed' && (
+          <>
+            <XCircle className="mx-auto h-14 w-14 text-danger" />
+            <h1 className="mt-4 font-display text-xl font-extrabold text-ink-900">
+              {t('auth.reset_failed')}
+            </h1>
+            {message && <p className="mt-2 text-sm text-ink-300">{message}</p>}
+            <Button className="mt-6 w-full" onClick={() => nav('/forgot-password', { replace: true })}>
+              {t('auth.reset_retry')}
+            </Button>
+            <button
+              type="button"
+              onClick={() => nav('/auth', { replace: true })}
+              className="mt-3 text-xs font-medium text-ink-300 underline"
+            >
+              {t('auth.reset_back')}
+            </button>
+          </>
+        )}
+        {mode === 'form' && (
+          <>
+            <KeyRound className="mx-auto h-14 w-14 text-primary-500" />
+            <h1 className="mt-4 font-display text-xl font-extrabold text-ink-900">
+              {t('auth.reset_new_title')}
+            </h1>
+            {email && (
+              <p className="mx-auto mt-3 inline-flex items-center gap-1.5 rounded-full bg-surface-raised px-3 py-1.5 text-xs font-medium text-ink-700">
+                <Mail className="h-3.5 w-3.5 text-primary-500" />
+                {email}
+              </p>
+            )}
+            <p className="mt-2 text-sm text-ink-300">{t('auth.reset_new_subtitle')}</p>
+            <form onSubmit={onSubmit} className="mt-6 space-y-3 text-left">
+              <Input
+                type="password"
+                placeholder={t('auth.reset_new_password')}
+                autoComplete="new-password"
+                {...form.register('password')}
+              />
+              <Input
+                type="password"
+                placeholder={t('auth.reset_confirm')}
+                autoComplete="new-password"
+                {...form.register('confirm')}
+              />
+              <p className="min-h-4 text-xs text-danger">
+                {form.formState.errors.password?.message ??
+                  form.formState.errors.confirm?.message ??
+                  serverError}
+              </p>
+              <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  t('auth.reset_save')
+                )}
+              </Button>
+            </form>
+          </>
+        )}
+        {mode === 'done' && (
+          <>
+            <CheckCircle2 className="mx-auto h-14 w-14 text-success" />
+            <h1 className="mt-4 font-display text-xl font-extrabold text-ink-900">
+              {t('auth.reset_done_title')}
+            </h1>
+            {email && (
+              <p className="mx-auto mt-3 inline-flex items-center gap-1.5 rounded-full bg-surface-raised px-3 py-1.5 text-xs font-medium text-ink-700">
+                <Mail className="h-3.5 w-3.5 text-success" />
+                {email}
+              </p>
+            )}
+            <p className="mt-2 text-sm text-ink-300">{t('auth.reset_success')}</p>
+            <Button className="mt-6 w-full" onClick={() => nav('/auth', { replace: true })}>
+              {t('auth.reset_go_login')}
+            </Button>
+          </>
+        )}
+      </div>
+    </div>
+  );
 }
