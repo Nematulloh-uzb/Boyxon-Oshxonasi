@@ -15,7 +15,6 @@ import { promoRouter } from './routes/promo.routes';
 import { userRouter } from './routes/user.routes';
 import { notificationRouter } from './routes/notification.routes';
 import { pushRouter } from './routes/push.routes';
-import { chatRouter } from './routes/chat.routes';
 import { adminRouter } from './routes/admin.routes';
 
 export function createApp() {
@@ -91,7 +90,6 @@ export function createApp() {
   app.use('/api/users', userRouter);
   app.use('/api/notifications', notificationRouter);
   app.use('/api/push', pushRouter);
-  app.use('/api/chat', chatRouter);
   app.use('/api/admin', adminRouter);
 
   app.use((_req, res) => {
