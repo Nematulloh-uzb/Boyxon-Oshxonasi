@@ -14,7 +14,9 @@ function currentLocale(): string {
 export function formatPrice(value: number): string {
   const n = Math.round(value);
   const formatted = new Intl.NumberFormat(currentLocale()).format(n);
-  return `${formatted} ${i18n.t('common.currency')}`;
+  // i18n hali yuklanmagan yoki kalit o'chgan bo'lsa — bo'sh joy qolmasin.
+  const currency = i18n.t('common.currency') || "so'm";
+  return `${formatted} ${currency}`;
 }
 
 /** ISO sana -> "9 okt, 14:30" (locale-aware) */
