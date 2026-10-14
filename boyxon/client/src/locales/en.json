@@ -161,6 +161,7 @@
   "auth.google_not_configured": "Google sign-in is not configured yet. Sign in with email and password.",
   "auth.admin_password_only": "The admin panel accepts email and password only — not Google sign-in.",
   "auth.demo": "Demo",
+  "auth.demo_prod_hint": "Demo sign-in is available in development mode only",
   "auth.verify_title": "Verify your email",
   "auth.verify_sent_to": "We sent a confirmation link to {{email}}. Open your inbox and click the link.",
   "auth.verify_spam_hint": "Can't find it? Check your Spam folder too.",

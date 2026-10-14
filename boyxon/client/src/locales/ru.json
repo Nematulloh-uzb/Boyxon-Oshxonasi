@@ -161,6 +161,7 @@
   "auth.google_not_configured": "Вход через Google пока не настроен. Войдите по Email и паролю.",
   "auth.admin_password_only": "Админ-панель открывается только по Email и паролю — не через Google.",
   "auth.demo": "Демо",
+  "auth.demo_prod_hint": "Демо-вход только в режиме разработки",
   "auth.verify_title": "Подтвердите email",
   "auth.verify_sent_to": "Мы отправили ссылку для подтверждения на {{email}}. Откройте почту и перейдите по ссылке.",
   "auth.verify_spam_hint": "Если письма нет — проверьте папку «Спам».",

@@ -7,14 +7,16 @@ import { useTranslation } from 'react-i18next';
 
 export default function App() {
   useSocket();
-  const { accessToken, setUser, user } = useAuthStore();
+  const { accessToken, setUser, user, logout } = useAuthStore();
   const { i18n } = useTranslation();
 
   useEffect(() => {
     if (accessToken && !user) {
-      usersApi.me().then((r) => setUser(r.data)).catch(() => undefined);
+      // Token yaroqsiz bo'lsa jim yutmaymiz — logout qilib tozalaymiz,
+      // aks holda keyingi so'rovlarda keraksiz 401 loop ketadi.
+      usersApi.me().then((r) => setUser(r.data)).catch(() => logout());
     }
-  }, [accessToken, user, setUser]);
+  }, [accessToken, user, setUser, logout]);
 
   useEffect(() => {
     const lang = user?.preferences?.language;

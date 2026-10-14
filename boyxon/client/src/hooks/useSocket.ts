@@ -16,11 +16,20 @@ function toastAllowed(type: string): boolean {
   return p.pushEnabled !== false;
 }
 
-/** Login dan keyin socket ulanish — order:status da toast + query invalidate. */
+/**
+ * Login dan keyin socket ulanish — order:status da toast + query invalidate.
+ *
+ * Token yangilanishi: access token 15 daqiqada eskiradi, shuning uchun
+ * `connect_error` da "Token yaroqsiz" bo'lsa — axios refresh qilgach yangi
+ * token bilan qayta ulanish uchun `auth.token` har safar yangilanadi.
+ * Eng ishonchli yo'l: token o'zgarganda socket'ni qayta yaratish (pastda deps).
+ */
 export function useSocket(): void {
   const token = useAuthStore((s) => s.accessToken);
   const qc = useQueryClient();
   const ref = useRef<Socket | null>(null);
+  const tokenRef = useRef<string | null>(null);
+  tokenRef.current = token;
 
   useEffect(() => {
     if (!token) {
@@ -28,7 +37,15 @@ export function useSocket(): void {
       ref.current = null;
       return;
     }
-    const socket = io(SOCKET_URL, { auth: { token } });
+    // Eski ulanishni yopib, YANGI token bilan ochamiz (token refresh holati).
+    ref.current?.disconnect();
+    const socket = io(SOCKET_URL, {
+      auth: (cb) => cb({ token: tokenRef.current ?? token }),
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 10000,
+    });
     ref.current = socket;
     socket.on('order:status', (p: { message?: string }) => {
       if (toastAllowed('order')) toast.info(p.message ?? 'Buyurtma holati yangilandi');
@@ -44,10 +61,14 @@ export function useSocket(): void {
       const type = p.type ?? '';
       if (type !== 'order' && toastAllowed(type)) toast.info(p.message ?? p.title ?? 'Yangi bildirishnoma');
     });
-    socket.on('connect_error', () => undefined);
+    socket.on('connect_error', (err: Error) => {
+      // Token eskirgan bo'lsa — axios interceptor yangilaydi va token deps
+      // orqali bu effect qayta ishlab, yangi token bilan ulanadi.
+      if (/token/i.test(err.message)) socket.disconnect();
+    });
     return () => {
       socket.disconnect();
-      ref.current = null;
+      if (ref.current === socket) ref.current = null;
     };
   }, [token, qc]);
 }

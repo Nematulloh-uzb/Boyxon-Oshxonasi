@@ -7,7 +7,16 @@ export function AdminRoute({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
   const { accessToken, user } = useAuthStore();
   if (!accessToken) return <Navigate to="/auth" replace />;
-  if (user && user.role !== 'admin') {
+  // Token bor-u user hali yuklanmagan (refresh/initial load) — kutamiz.
+  // Aks holda admin bo'lmagan odam bir zumga admin layout'ni ko'radi (flicker).
+  if (!user) {
+    return (
+      <div className="min-h-screen grid place-items-center text-ink-300">
+        {t('common.loading')}
+      </div>
+    );
+  }
+  if (user.role !== 'admin') {
     return (
       <div className="min-h-screen grid place-items-center p-6 text-center">
         <div>
