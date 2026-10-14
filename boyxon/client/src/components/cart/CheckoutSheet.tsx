@@ -52,6 +52,7 @@ export function CheckoutSheet() {
     onSuccess: (r) => {
       setCreated(r.data);
       clear();
+      void qc.invalidateQueries({ queryKey: ['orders'] });
       void qc.invalidateQueries({ queryKey: ['notifications'] });
       void qc.invalidateQueries({ queryKey: ['unread-count'] });
       toast.success(t('cart.order_placed'));

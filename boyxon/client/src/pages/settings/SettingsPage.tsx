@@ -105,7 +105,7 @@ export default function SettingsPage() {
                    <p className="font-bold text-primary-600">{formatPrice(o.total)}</p>
                    <p className="text-xs text-ink-300">{t(`status.${o.status}`)}</p>
                  </div>
-               </div>
+               </button>
              ))}
           </div>
         )}
