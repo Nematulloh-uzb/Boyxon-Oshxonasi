@@ -15,9 +15,17 @@ import type { AuthRequest } from '../types/express';
 /** GET /api/orders/:id — faqat o'z buyurtmasi (yoki admin). */
 export const getOrder = asyncHandler(async (req: Request, res: Response) => {
   const auth = (req as AuthRequest).user!;
-  const order = await Order.findById(req.params.id).populate('items.dish', 'image slug');
+  const order = await Order.findById(req.params.id)
+    .populate('user', 'name email phone')
+    .populate('items.dish', 'image slug');
   if (!order) throw ApiError.notFound('Buyurtma topilmadi');
-  if (auth.role !== 'admin' && order.user.toString() !== auth.id) throw ApiError.forbidden();
+  // user populate qilingan bo'lishi ham mumkin (obyekt) yoki ObjectId (string) —
+  // ikkala holatda ham tekshiramiz.
+  const ownerId =
+    typeof order.user === 'object' && order.user !== null && '_id' in (order.user as object)
+      ? String((order.user as unknown as { _id: unknown })._id)
+      : String(order.user);
+  if (auth.role !== 'admin' && ownerId !== auth.id) throw ApiError.forbidden();
   res.json(ok(order, 'OK'));
 });
 
