@@ -10,6 +10,7 @@ import { NotificationPrefs } from '../../components/settings/NotificationPrefs';
 import { AddressManager } from '../../components/settings/AddressManager';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/auth.store';
 import { usersApi } from '../../api/users.api';
 import { ordersApi } from '../../api/orders.api';
@@ -23,6 +24,7 @@ const LANGS: { v: 'uz' | 'ru' | 'en'; l: string }[] = [
 
 export default function SettingsPage() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const { user, setUser } = useAuthStore();
   const qc = useQueryClient();
   const [addressesOpen, setAddressesOpen] = useState(false);
@@ -88,18 +90,22 @@ export default function SettingsPage() {
         {ordersOpen && (
           <div className="space-y-2 border-t border-ink-line/60 px-4 py-3">
             {!orders?.data.length && <Card className="p-4 text-sm text-ink-300">{t('settings.no_orders')}</Card>}
-            {orders?.data.map((o) => (
-              <Card key={o._id} className="flex items-center justify-between p-3.5">
-                <div>
-                  <p className="font-semibold">{o.orderNumber}</p>
-                  <p className="text-xs text-ink-300">{formatDate(o.createdAt)} · {tVal(t('settings.dishes_count'), { count: o.items.length })}</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-primary-600">{formatPrice(o.total)}</p>
-                  <p className="text-xs text-ink-300">{t(`status.${o.status}`)}</p>
-                </div>
-              </Card>
-            ))}
+             {orders?.data.map((o) => (
+               <div
+                 key={o._id}
+                 className="rounded-card border border-ink-line/60 bg-surface shadow-sm flex items-center justify-between p-3.5 hover:cursor-pointer"
+                 onClick={() => navigate(`/orders/${o._id}`)}
+               >
+                 <div>
+                   <p className="font-semibold">{o.orderNumber}</p>
+                   <p className="text-xs text-ink-300">{formatDate(o.createdAt)} · {tVal(t('settings.dishes_count'), { count: o.items.length })}</p>
+                 </div>
+                 <div className="text-right">
+                   <p className="font-bold text-primary-600">{formatPrice(o.total)}</p>
+                   <p className="text-xs text-ink-300">{t(`status.${o.status}`)}</p>
+                 </div>
+               </div>
+             ))}
           </div>
         )}
 
@@ -179,4 +185,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-

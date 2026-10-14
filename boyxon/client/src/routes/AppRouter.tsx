@@ -23,6 +23,7 @@ const AdminCategories = lazy(() => import('../pages/admin/AdminCategories'));
 const AdminPromos = lazy(() => import('../pages/admin/AdminPromos'));
 const AdminPush = lazy(() => import('../pages/admin/AdminPush'));
 const AdminChat = lazy(() => import('../pages/admin/AdminChat'));
+const OrderDetailPage = lazy(() => import('../pages/order/OrderDetailPage'));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 
 function Fallback() {
@@ -46,6 +47,7 @@ export function AppRouter() {
           <Route path="/dish/:slug" element={<DishPage />} />
           <Route path="/cart" element={<ProtectedRoute><VerifiedRoute><CartPage /></VerifiedRoute></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><VerifiedRoute><SettingsPage /></VerifiedRoute></ProtectedRoute>} />
+          <Route path="/orders/:id" element={<ProtectedRoute><VerifiedRoute><OrderDetailPage /></VerifiedRoute></ProtectedRoute>} />
         </Route>
         <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
           <Route index element={<AdminDashboard />} />

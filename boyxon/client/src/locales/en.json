@@ -29,6 +29,7 @@
   "home.loading": "Loading...",
   "home.no_dishes": "No dishes found",
   "home.no_dishes_hint": "Try another category or search term",
+  "orders.not_found": "Order not found",
   "home.items_count": "{{count}} items",
   "home.load_error": "Failed to load data",
   "dish.no_image": "No image",

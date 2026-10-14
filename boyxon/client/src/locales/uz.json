@@ -29,6 +29,7 @@
   "home.loading": "Yuklanmoqda...",
   "home.no_dishes": "Taom topilmadi",
   "home.no_dishes_hint": "Boshqa kategoriya yoki qidiruv so'zini sinab ko'ring",
+  "orders.not_found": "Buyurtma topilmadi",
   "home.items_count": "{{count}} ta",
   "home.load_error": "Ma'lumotni yuklab bo'lmadi",
   "dish.no_image": "Rasm yo'q",
