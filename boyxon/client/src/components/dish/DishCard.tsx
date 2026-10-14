@@ -26,11 +26,12 @@ export function DishCard({ dish }: { dish: Dish }) {
   return (
     <article className="group overflow-hidden rounded-card border border-ink-line/60 bg-surface shadow-sm transition hover:shadow-md">
       <Link to={`/dish/${dish.slug || dish._id}`} className="block">
-        {dish.image ? (
+        {dish.image && !imgFailed ? (
           <img
             src={dish.image}
             alt={name}
             loading="lazy"
+            onError={() => setImgFailed(true)}
             className="aspect-[4/3] w-full rounded-t-[20px] object-cover"
           />
         ) : (
