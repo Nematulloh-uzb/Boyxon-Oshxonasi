@@ -23,6 +23,14 @@ const ReviewSchema = new Schema<ReviewDoc>(
 ReviewSchema.index({ user: 1, dish: 1 }, { unique: false });
 
 /**
+ * Bir buyurtmadagi bir taomga bir user faqat BITTA baho beradi.
+ * Controller oldindan tekshiradi, bu index esa poyga (race) holatida
+ * ikkinchi yozuvni DB darajasida rad etadi (11000 → toza 400).
+ * order maydoni bo'sh eski review'lar bu index'ga tushmaydi (sparse).
+ */
+ReviewSchema.index({ order: 1, dish: 1, user: 1 }, { unique: true, sparse: true });
+
+/**
  * Dish reyting + sharhlar sonini qayta hisoblab yozadi.
  *
  * Muhit: `insertMany` `post('save')` hook'ini ISHGA TUSHIRMAYDI, shuning uchun
