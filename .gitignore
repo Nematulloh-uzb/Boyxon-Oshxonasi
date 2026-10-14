@@ -6,6 +6,21 @@ node_modules/
 .dev-secrets.json
 dist/
 build/
+
+# Push VAPID maxfiy kalitlari — HECH QACHON git'ga qo'shilmaydi
+vapid-keys.json
+
+# Vaqtinchalik / skaner chiqindilari
+strings.json
+extract.cjs
+i18n-scan.txt
+client.log
+client-dev.log
+server.log
+server-test.log
+svr-out.log
+svr-err.log
+
 # ---------------------------------------------------------
 # Boyxon oshxonasi (full-stack web)
 # ---------------------------------------------------------

@@ -1,0 +1,73 @@
+# =============================================================================
+# Render Blueprint — Boyxon Oshxonasi
+#
+# Render Dashboard → New → Blueprint → bu reponi tanlang.
+# Barcha sozlamalar shu yerdan o'qiladi (qo'lda kiritish shart emas).
+#
+# MUHIM: Environment Variables (secretlar) Dashboard → Environment'da
+# `sync: false` bilan qo'shiladi — ular bu faylga YOZILMAYDI.
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------
+  # Backend API (Node + Express + Socket.IO)
+  # ---------------------------------------------------------
+  - type: web
+    name: boyxon-server
+    runtime: node
+    plan: free
+    region: frankfurt
+    # Repo ildizidan nisbiy yo'l — server shu papkada build/start bo'ladi
+    rootDir: boyxon/server
+    # 1) bog'liqliklar  2) TypeScript → dist/  (AYNAN SHU QADAM YETISHMAYOTGAN EDI)
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Render o'zi beradigan PORT'ni tinglaydi (env.ts da PORT o'qiladi)
+      - key: PORT
+        value: "5000"
+      # Render proksisi ortida — rate-limit to'g'ri ishlashi uchun 1
+      - key: TRUST_PROXY
+        value: "1"
+      # --- Quyidagilar Dashboard → Environment'da `sync: false` bilan qo'shiladi ---
+      # CLIENT_URL            = https://boyxon-frontend.onrender.com
+      # MONGODB_URI           = mongodb+srv://...
+      # JWT_ACCESS_SECRET     = (48 hex)
+      # JWT_REFRESH_SECRET    = (48 hex)
+      # JWT_RESET_SECRET      = (48 hex)
+      # ADMIN_EMAIL           = admin@boyxon.uz
+      # ADMIN_PASSWORD        = (kuchli, >=12)
+      # SMTP_USER / SMTP_PASS = (ixtiyoriy)
+      # VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY / VAPID_EMAIL
+      # GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET / GOOGLE_CALLBACK_URL
+      # CLOUDINARY_* (ixtiyoriy)
+
+  # ---------------------------------------------------------
+  # Frontend (Vite → statik sayt)
+  # ---------------------------------------------------------
+  - type: web
+    name: boyxon-client
+    runtime: static
+    plan: free
+    region: frankfurt
+    rootDir: boyxon/client
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    autoDeployTrigger: commit
+    # Build paytida API manzili — server domeniga ishora qilishi kerak
+    envVars:
+      - key: VITE_API_URL
+        sync: false
+      - key: VITE_SOCKET_URL
+        sync: false
+      - key: VITE_VAPID_PUBLIC_KEY
+        sync: false
+    routes:
+      # SPA: barcha yo'nalishlar index.html'ga (React Router ishlashi uchun)
+      - type: rewrite
+        source: /*
+        destination: /index.html
