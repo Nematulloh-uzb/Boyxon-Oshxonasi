@@ -4,6 +4,13 @@ import { z } from 'zod';
  * Parol siyosati: kamida 8 belgi, harf va raqam aralash.
  * 6 belgili "123456" tipidagi parollar bir necha soniyada buziladi.
  */
+const passwordSchema = z
+  .string()
+  .min(8, 'Parol kamida 8 belgi bo‘lishi kerak')
+  .max(100, 'Parol juda uzun')
+  .refine((v) => /[a-zA-Z]/.test(v), 'Parolda kamida bitta harf bo‘lishi kerak')
+  .refine((v) => /[0-9]/.test(v), 'Parolda kamida bitta raqam bo‘lishi kerak');
+
 /**
  * Telefon: O'zbekiston formati ustuvor (+998 XX XXX XX XX), xalqaro ham ruxsat.
  * Bir xil raqam ikki hisobda bo'lmasligi uchun User.phone sparse+unique
