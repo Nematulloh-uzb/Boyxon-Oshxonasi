@@ -81,10 +81,10 @@ orqali butun backend'ni tekshiradi (Atlas whitelist shart emas):
 
 ```bash
 cd boyxon/server
-npm test    # 19 ta endpoint tekshiruvi: auth, dishes, orders, admin, 403 himoyasi
+npm test    # 37 ta tekshiruv: auth, dishes, orders, admin, 403, injection, poyga
 ```
 
-Natija: `✅ O'tdi: 19  ❌ Yiqildi: 0`
+Natija: `✅ O'tdi: 37  ❌ Yiqildi: 0`
 
 ## Muhit o'zgaruvchilari
 
