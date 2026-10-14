@@ -447,21 +447,5 @@
   "pages.404.desc": "Kechirasiz, siz izlagan sahifa mavjud emas",
   "pages.404.go_home": "Bosh sahifaga qaytish",
   "pages.403.title": "Ruxsat yo'q",
-  "pages.403.desc": "Bu sahifaga kirish huquqingiz yo'q",
-  "admin.chat": "Chat",
-  "chat.open": "Chatni ochish",
-  "chat.title": "Boyxon qo'llab-quvvatlash",
-  "chat.subtitle": "Odatda bir necha daqiqada javob beramiz",
-  "chat.support": "Qo'llab-quvvatlash",
-  "chat.online": "Onlayn",
-  "chat.welcome": "Savolingiz bormi? Bizga yozing — tez orada javob beramiz.",
-  "chat.placeholder": "Xabar yozing...",
-  "chat.send": "Yuborish",
-  "chat.search": "Ism yoki xabar bo'yicha qidirish",
-  "chat.no_conversations": "Hozircha suhbat yo'q",
-  "chat.select_conversation": "Suhbatni tanlang",
-  "chat.back_to_site": "Saytga qaytish",
-  "chat.you": "Siz",
-  "chat.unknown_user": "Foydalanuvchi",
-  "chat.send_error": "Xabar yuborilmadi"
+  "pages.403.desc": "Bu sahifaga kirish huquqingiz yo'q"
 }

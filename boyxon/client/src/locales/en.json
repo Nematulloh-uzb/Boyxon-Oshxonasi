@@ -447,21 +447,5 @@
   "pages.404.desc": "Sorry, the page you were looking for does not exist",
   "pages.404.go_home": "Go back home",
   "pages.403.title": "Access denied",
-  "pages.403.desc": "You do not have access to this page",
-  "admin.chat": "Chat",
-  "chat.open": "Open chat",
-  "chat.title": "Boyxon Support",
-  "chat.subtitle": "We usually reply within a few minutes",
-  "chat.support": "Support",
-  "chat.online": "Online",
-  "chat.welcome": "Have a question? Message us — we'll reply soon.",
-  "chat.placeholder": "Type a message...",
-  "chat.send": "Send",
-  "chat.search": "Search by name or message",
-  "chat.no_conversations": "No conversations yet",
-  "chat.select_conversation": "Select a conversation",
-  "chat.back_to_site": "Back to site",
-  "chat.you": "You",
-  "chat.unknown_user": "User",
-  "chat.send_error": "Message not sent"
+  "pages.403.desc": "You do not have access to this page"
 }
