@@ -92,6 +92,7 @@ export interface Order {
   paymentMethod: 'payme' | 'click' | 'uzum' | 'cash';
   paymentStatus: string;
   status: OrderStatus;
+  notes?: string;
   statusHistory: { status: string; timestamp: string; note?: string }[];
   taxi?: { driver?: string; carNumber?: string; service?: string; note?: string };
   estimatedDeliveryAt?: string;
