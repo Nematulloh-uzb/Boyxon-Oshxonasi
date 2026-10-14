@@ -55,7 +55,8 @@ export default function CartPage() {
         </aside>
       </div>
 
-      <div className="fixed inset-x-0 bottom-16 z-20 border-t border-ink-line bg-surface p-3 md:hidden">
+      {/* Mobil checkout paneli — BottomNav (64px + safe-area) ustida turadi, kontentni yopmaydi (pb-44). */}
+      <div className="fixed inset-x-0 bottom-[calc(4rem_+_env(safe-area-inset-bottom,0px))] z-20 border-t border-ink-line bg-surface p-3 md:hidden">
         <div className="mx-auto flex max-w-lg items-center justify-between gap-3">
           <div>
             <p className="text-xs font-semibold text-primary-700">
