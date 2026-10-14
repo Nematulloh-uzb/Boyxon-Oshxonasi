@@ -80,9 +80,9 @@ export default function OrderDetailPage() {
   return (
     <div className="min-h-screen bg-bg p-6">
       <div className="max-w-xl mx-auto bg-surface rounded-card shadow-sm p-6">
-        <div className="flex justify-between items-start mb-4">
+        <div className="flex justify-between items-start gap-3 mb-4">
           <h1 className="font-display text-xl font-extrabold">{t('orders.detail_title')}</h1>
-          <Button variant="outline" onClick={() => nav(-1)}>{t('common.back')}</Button>
+          <Button variant="outline" onClick={goBack}>{t('common.back')}</Button>
         </div>
 
         <div className="space-y-4">
