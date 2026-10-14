@@ -91,8 +91,8 @@ export function CheckoutSheet() {
           <p className="mt-4 font-display text-xl font-bold">{created.orderNumber}</p>
           <p className="mt-1 text-sm text-ink-300">{t('cart.track_realtime')}</p>
           <div className="mt-6 flex gap-3">
-            <Button variant="outline" className="flex-1" onClick={close}>{t('cart.go_home')}</Button>
-            <Button className="flex-1" onClick={close}>{t('nav.orders')}</Button>
+            <Button variant="outline" className="flex-1" onClick={goHome}>{t('cart.go_home')}</Button>
+            <Button className="flex-1" onClick={goOrders}>{t('nav.orders')}</Button>
           </div>
         </div>
       </Sheet>
