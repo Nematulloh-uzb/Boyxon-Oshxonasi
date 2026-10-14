@@ -4,9 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { ordersApi } from '../../api/orders.api';
 import { formatPrice, formatDate } from '../../lib/format';
 import { Button } from '../../components/ui/Button';
-import { Card } from '../../components/ui/Card';
 import { Loader2 } from 'lucide-react';
-import { useAuthStore } from '../../store/auth.store';
+import type { Order } from '../../types';
 
 export default function OrderDetailPage() {
   const { t } = useTranslation();
