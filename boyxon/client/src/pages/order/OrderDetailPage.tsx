@@ -100,8 +100,8 @@ export default function OrderDetailPage() {
           <div className="border-t border-ink-line/60 pt-4">
             <p className="font-semibold text-ink-900 mb-2">{t('orders.customer_info')}</p>
             <div className="space-y-1 text-sm">
-              <p><strong>{t('common.name')}:</strong> {typeof order.user === 'object' ? order.user.name : '—'}</p>
-              <p><strong>{t('common.phone')}:</strong> {typeof order.user === 'object' ? order.user.phone : '—'}</p>
+              <p><strong>{t('common.name')}:</strong> {customer?.name ?? '—'}</p>
+              <p><strong>{t('common.phone')}:</strong> {customer?.phone ?? '—'}</p>
             </div>
           </div>
 
