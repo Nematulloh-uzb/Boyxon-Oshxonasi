@@ -139,7 +139,7 @@ export default function OrderDetailPage() {
           {/* Status */}
           <div className="border-t border-ink-line/60 pt-4">
             <p className="font-semibold text-ink-900 mb-2">{t('orders.status')}</p>
-            <p className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusClass(order.status)}`}>
+            <p className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${getStatusClass(order.status)}`}>
               {t(`status.${order.status}`)}
             </p>
           </div>
@@ -149,8 +149,8 @@ export default function OrderDetailPage() {
             <div className="border-t border-ink-line/60 pt-4">
               <p className="font-semibold text-ink-900 mb-2">{t('orders.address')}</p>
               <div className="space-y-1 text-sm">
-                <p><strong>{t('common.label')}:</strong> {order.address.label}</p>
-                <p><strong>{t('common.address')}:</strong> {order.address.address}</p>
+                <p><strong>{t('common.label')}:</strong> {order.address.label ?? '—'}</p>
+                <p><strong>{t('common.address')}:</strong> {order.address.address ?? '—'}</p>
               </div>
             </div>
           )}
@@ -158,7 +158,7 @@ export default function OrderDetailPage() {
           {/* Payment method */}
           <div className="border-t border-ink-line/60 pt-4">
             <p className="font-semibold text-ink-900 mb-2">{t('orders.payment_method')}</p>
-            <p className="text-sm">{formatPaymentMethod(order.paymentMethod)}</p>
+            <p className="text-sm">{t(`payment.${order.paymentMethod}`)}</p>
           </div>
 
           {/* Notes */}
