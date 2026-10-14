@@ -109,10 +109,10 @@ export default function OrderDetailPage() {
           <div className="border-t border-ink-line/60 pt-4">
             <p className="font-semibold text-ink-900 mb-2">{t('orders.items')}</p>
             <div className="space-y-2">
-              {order.items.map((item: any) => (
-                <div key={item._id} className="flex justify-between text-sm">
+              {order.items.map((item, idx) => (
+                <div key={`${item.dish}-${idx}`} className="flex justify-between gap-3 text-sm">
                   <span>{item.name}</span>
-                  <span>{item.quantity} × {formatPrice(item.price)} = {formatPrice(item.price * item.quantity)}</span>
+                  <span className="whitespace-nowrap">{item.quantity} × {formatPrice(item.price)} = {formatPrice(item.price * item.quantity)}</span>
                 </div>
               ))}
             </div>
