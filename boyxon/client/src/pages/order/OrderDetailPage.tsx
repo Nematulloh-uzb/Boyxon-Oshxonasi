@@ -185,13 +185,3 @@ function getStatusClass(status: string): string {
     default: return 'bg-surface text-ink-700';
   }
 }
-
-function formatPaymentMethod(method: string): string {
-  switch (method) {
-    case 'payme': return 'Payme';
-    case 'click': return 'Click';
-    case 'uzum': return 'Uzum';
-    case 'cash': return 'Naqd';
-    default: return method;
-  }
-}
