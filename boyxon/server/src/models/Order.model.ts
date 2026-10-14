@@ -97,15 +97,21 @@ const OrderSchema = new Schema<OrderDoc>(
 
 OrderSchema.pre('save', async function (next) {
   if (!this.orderNumber) {
-    for (let i = 0; i < 5; i++) {
-      const candidate = 'BYX-' + Math.floor(1000 + Math.random() * 9000);
+    // Format: BYX-YYYYMMDD-XXXX (kunlik, o'qilishi oson, kolliziya ehtimoli past).
+    // Bir kunda 10k+ buyurtma bo'lsa ham random 4 xonali + retry himoya qiladi.
+    const day = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    for (let i = 0; i < 10; i++) {
+      const candidate = `BYX-${day}-${Math.floor(1000 + Math.random() * 9000)}`;
       const exists = await (this.constructor as typeof Order).findOne({ orderNumber: candidate });
       if (!exists) {
         this.orderNumber = candidate;
         break;
       }
     }
-    if (!this.orderNumber) this.orderNumber = 'BYX-' + Date.now().toString().slice(-6);
+    // Juda kam holatda (bir kunda bir xil raqam 10 marta tushsa) — millis + random.
+    if (!this.orderNumber) {
+      this.orderNumber = `BYX-${day}-${Date.now().toString().slice(-4)}${Math.floor(Math.random() * 10)}`;
+    }
   }
   if (this.isNew && this.statusHistory.length === 0) {
     this.statusHistory.push({ status: 'pending', timestamp: new Date() });
