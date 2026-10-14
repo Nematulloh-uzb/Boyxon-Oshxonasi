@@ -41,6 +41,14 @@ export const cancelOrder = asyncHandler(async (req: Request, res: Response) => {
   order.cancelReason = (req.body as { reason?: string }).reason;
   order.statusHistory.push({ status: 'cancelled', timestamp: new Date(), note: order.cancelReason });
   await order.save();
+  // Bekor qilindi — promo kvotani qaytaramiz (mijoz huquqi yo'qolmaydi).
+  // Cheksiz promo (usageLimit=null) da kamaytirish shart emas, lekin zararsiz.
+  if (order.promoCode) {
+    await Promo.findOneAndUpdate(
+      { code: order.promoCode, usedCount: { $gt: 0 } },
+      { $inc: { usedCount: -1 } },
+    );
+  }
   getIo()?.to('admin').emit('order:updated', { orderId: order.id, status: 'cancelled' });
   res.json(ok(order, 'Buyurtma bekor qilindi'));
 });
@@ -59,9 +67,25 @@ export const reviewOrder = asyncHandler(async (req: Request, res: Response) => {
   const invalid = reviews.filter((r) => !orderDishIds.has(r.dish));
   if (invalid.length) throw ApiError.badRequest('Bu taom buyurtmada yo‘q');
 
-  const created = await Review.insertMany(
-    reviews.map((r) => ({ user: userId, dish: r.dish, order: order._id, rating: r.rating, comment: r.comment })),
-  );
+  // Duplicate himoya: shu buyurtma + shu taomga allaqachon baho yozilganmi.
+  // (order, dish, user) unique index ham bor — poyga holatida DB rad etadi.
+  const existing = await Review.find({ order: order._id, user: userId }).select('dish');
+  const doneDishes = new Set(existing.map((r) => r.dish.toString()));
+  const dupes = reviews.filter((r) => doneDishes.has(r.dish));
+  if (dupes.length) throw ApiError.badRequest('Bu taomga allaqachon baho bergansiz');
+
+  let created;
+  try {
+    created = await Review.insertMany(
+      reviews.map((r) => ({ user: userId, dish: r.dish, order: order._id, rating: r.rating, comment: r.comment })),
+    );
+  } catch (e: unknown) {
+    // Poyga holatida ikkinchi so'rov unique index'ga uriladi.
+    if (e && typeof e === 'object' && 'code' in e && (e as { code: number }).code === 11000) {
+      throw ApiError.badRequest('Bu taomga allaqachon baho bergansiz');
+    }
+    throw e;
+  }
 
   // insertMany post('save') hook'ini ishga tushirmaydi — reytingni qo'lda yangilaymiz.
   const dishIds = [...new Set(reviews.map((r) => r.dish))];
