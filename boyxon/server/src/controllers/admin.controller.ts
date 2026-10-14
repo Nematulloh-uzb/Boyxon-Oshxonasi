@@ -117,13 +117,23 @@ export const restoreCategory = asyncHandler(async (req: Request, res: Response) 
   res.json(ok(category, 'Kategoriya tiklandi'));
 });
 
+/**
+ * Qidiruv uchun regex meta-belgilarini escape qilish.
+ * Zod allaqachon string kafolatlaydi (obyekt injectsiya qilinmaydi), lekin
+ * `.` `*` kabi belgilar noto'g'ri match yoki ReDoS xavfini oldini oladi.
+ */
+function escapeRegex(raw: string): string {
+  return raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 /** GET /api/admin/users — barcha userlar. */
 export const adminUsers = asyncHandler(async (req: Request, res: Response) => {
   const page = Math.max(1, Number(req.query.page) || 1);
   const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
   const filter: Record<string, unknown> = {};
   if (req.query.search) {
-    filter.$or = [{ name: { $regex: req.query.search, $options: 'i' } }, { email: { $regex: req.query.search, $options: 'i' } }];
+    const term = escapeRegex(String(req.query.search));
+    filter.$or = [{ name: { $regex: term, $options: 'i' } }, { email: { $regex: term, $options: 'i' } }];
   }
   const [items, total] = await Promise.all([
     User.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit),
