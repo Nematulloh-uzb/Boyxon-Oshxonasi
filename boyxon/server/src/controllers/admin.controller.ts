@@ -51,6 +51,7 @@ export const updateOrderStatus = asyncHandler(async (req: Request, res: Response
   if (!ALLOWED.includes(status)) throw ApiError.badRequest('Noto‘g‘ri status');
   const order = await Order.findById(req.params.id);
   if (!order) throw ApiError.notFound('Buyurtma topilmadi');
+  const wasCancelled = order.status === 'cancelled';
   order.status = status as typeof order.status;
   order.statusHistory.push({ status, timestamp: new Date(), note });
   if (taxi) order.taxi = { ...(order.taxi ?? {}), ...taxi };
@@ -59,6 +60,14 @@ export const updateOrderStatus = asyncHandler(async (req: Request, res: Response
   }
   if (status === 'delivered') order.deliveredAt = new Date();
   await order.save();
+  // Admin ham bekor qilsa — promo kvotani qaytaramiz (mijoz huquqi tiklansin).
+  // Faqat birinchi marta "cancelled" ga o'tganda (takroriy status o'zgarishda emas).
+  if (status === 'cancelled' && !wasCancelled && order.promoCode) {
+    await Promo.findOneAndUpdate(
+      { code: order.promoCode, usedCount: { $gt: 0 } },
+      { $inc: { usedCount: -1 } },
+    );
+  }
   const labels: Record<string, string> = {
     pending: 'Kutilmoqda', confirmed: 'Tasdiqlandi', packing: 'Qadoqlanmoqda',
     handed_to_taxi: 'Taksiga topshirildi', delivered: 'Yetkazildi', cancelled: 'Bekor qilindi',
