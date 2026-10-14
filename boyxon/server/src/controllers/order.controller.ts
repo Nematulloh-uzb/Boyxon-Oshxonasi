@@ -4,7 +4,7 @@ import { ok } from '../utils/ApiResponse';
 import { ApiError } from '../utils/ApiError';
 import { Order } from '../models/Order.model';
 import { Dish } from '../models/Dish.model';
-import { Promo } from '../models/Promo.model';
+import { Promo, type PromoDoc } from '../models/Promo.model';
 import { User } from '../models/User.model';
 import { sendOrderEmail } from '../services/email.service';
 import { notifyUser } from '../services/notify.service';
@@ -140,7 +140,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
   const deliveryFee = deliveryType === 'pickup' ? 0 : subtotal >= FREE_DELIVERY_FROM ? 0 : DELIVERY_FEE;
 
   let discount = 0;
-  let promoDoc: Awaited<ReturnType<typeof Promo.findOne>> = null;
+  let promoDoc: PromoDoc | null = null;
   if (promoCode) {
     const code = promoCode.toUpperCase().trim();
     promoDoc = await Promo.findOne({ code });

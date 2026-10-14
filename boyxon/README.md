@@ -4,11 +4,6 @@ O'zbek milliy taomlarini yetkazib berish platformasi: React 18 + Vite + TypeScri
 frontend, Express + MongoDB backend, Socket.IO real-time, Web Push, Google OAuth,
 Cloudinary rasmlar, to'liq admin panel.
 
-> Stitch dizayn ekranlari hali `Generating` holatida (ID 14247541550251930152).
-> API ularni hozircha qaytarmayapti (`invalid argument`). Tayyor bo'lishi bilan
-> `curl -L <url>` orqali yuklab olinadi. Hozircha dizayn DESIGN.md + quyidagi
-> dizayn tizimiga tayanib qurildi.
-
 ## Dizayn tizimi
 
 - Fon: `#FFF8F0` (cream) · Matn: `#2C2C2C` · Chiziq: `#ECE5DC`

@@ -120,6 +120,60 @@ async function main(): Promise<void> {
     check('PATCH /admin/orders/:id/status → 200', upd.status === 200, `status ${upd.status} ${JSON.stringify(upd.body)}`);
   }
 
+  // ── Xavfsizlik / poyga / validatsiya testlari ──
+  {
+    // 1) Noto'g'ri ObjectId param — CastError emas, zod toza 400 qaytaradi.
+    const badOrder = await request(base, 'GET', '/orders/xyz-not-an-id', undefined, cookie ?? undefined, accessToken);
+    check('GET /orders/:id noto‘g‘ri ID → 400', badOrder.status === 400, `status ${badOrder.status}`);
+    const badReviews = await request(base, 'GET', '/dishes/xyz-not-an-id/reviews');
+    check('GET /dishes/:id/reviews noto‘g‘ri ID → 400', badReviews.status === 400, `status ${badReviews.status}`);
+
+    // 2) NoSQL injection: ?search[$ne]=x OBYEKT holda keladi — zod string rad etadi.
+    const inject = await request(base, 'GET', '/admin/users?search%5B%24ne%5D=x', undefined, adminCookie ?? undefined, adminToken);
+    check('NoSQL injection (search[$ne]) → 400', inject.status === 400, `status ${inject.status}`);
+
+    // 3) Sort injection: ?sort[$ne]=x — zod enum whitelist.
+    const sortInj = await request(base, 'GET', '/dishes?sort%5B%24ne%5D=x');
+    check('Sort injection (sort[$ne]) → 400', sortInj.status === 400, `status ${sortInj.status}`);
+
+    // 4) Kategoriya o'chirish himoyasi: faol taomlar bo'lsa 400 (soft-delete, race yo'q).
+    const cat0 = (catList as unknown as { _id?: string }[] | undefined)?.[0];
+    if (cat0?._id) {
+      const delCat = await request(base, 'DELETE', `/admin/categories/${cat0._id}`, undefined, adminCookie ?? undefined, adminToken);
+      check('DELETE kategoriya (faol taomlar bilan) → 400', delCat.status === 400, `status ${delCat.status}`);
+    }
+
+    // 5) Promo poyga: usageLimit=1, ikkita PARALLEL buyurtma → atomik faqat bittasi o'tadi.
+    const mkPromo = await request(base, 'POST', '/admin/promos',
+      { code: 'RACETEST', type: 'fixed', value: 5000, minOrderAmount: 0, perUserLimit: 10, usageLimit: 1, isActive: true },
+      adminCookie ?? undefined, adminToken);
+    check('POST /admin/promos (usageLimit=1) → 201', mkPromo.status === 201, `status ${mkPromo.status} ${JSON.stringify(mkPromo.body)}`);
+    if (firstDish?._id) {
+      const raceBody = { items: [{ dish: firstDish._id, quantity: 1 }], deliveryType: 'pickup', paymentMethod: 'cash', promoCode: 'RACETEST' };
+      const [race1, race2] = await Promise.all([
+        request(base, 'POST', '/orders', raceBody, cookie ?? undefined, accessToken),
+        request(base, 'POST', '/orders', raceBody, cookie ?? undefined, accessToken),
+      ]);
+      const winners = [race1, race2].filter((r) => r.status === 201).length;
+      check('Promo poyga (parallel x2) → faqat bittasi o‘tadi', winners === 1, `statuses ${race1.status}/${race2.status}`);
+    }
+
+    // 6) Duplicate review: yetkazilgan buyurtmaga bir xil taomga ikki baho → 400.
+    const { Order } = await import('../models/Order.model');
+    const delivered = await Order.findOne({ status: 'delivered' }).sort({ createdAt: -1 });
+    if (delivered) {
+      const dishId = delivered.items[0].dish.toString();
+      const rev1 = await request(base, 'POST', `/orders/${String(delivered._id)}/review`,
+        { reviews: [{ dish: dishId, rating: 5 }] }, cookie ?? undefined, accessToken);
+      check('POST /orders/:id/review → 201', rev1.status === 201, `status ${rev1.status} ${JSON.stringify(rev1.body)}`);
+      const rev2 = await request(base, 'POST', `/orders/${String(delivered._id)}/review`,
+        { reviews: [{ dish: dishId, rating: 3 }] }, cookie ?? undefined, accessToken);
+      check('Duplicate review → 400', rev2.status === 400, `status ${rev2.status}`);
+    } else {
+      check('Duplicate review (seed delivered order topilmadi)', false);
+    }
+  }
+
   // Parolni tiklash oqimi — eng oxirida (tokenVersion oshadi, eski sessiyalar o'ladi).
   {
     const { signResetToken } = await import('../services/token.service');
