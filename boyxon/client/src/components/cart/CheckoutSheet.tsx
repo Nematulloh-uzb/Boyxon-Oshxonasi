@@ -35,6 +35,10 @@ export function CheckoutSheet() {
 
   const addresses = user?.addresses ?? [];
 
+  /** Manzil uchun barqaror React key: yangi manzil hali _id olmaganda ham ishlaydi. */
+  const addrKey = (a: { _id?: string; label: string; address: string }): string =>
+    a._id ?? `${a.label}|${a.address}`;
+
   // Checkout ochiq turganda profil/manzillar yangilansa (yoki login kechiksa),
   // tanlangan manzilni yangilab boramiz — bo'sh addressId bilan bekor bo'lmaydi.
   useEffect(() => {
