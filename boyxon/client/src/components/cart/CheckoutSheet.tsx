@@ -34,6 +34,15 @@ export function CheckoutSheet() {
   const [created, setCreated] = useState<Order | null>(null);
 
   const addresses = user?.addresses ?? [];
+
+  // Checkout ochiq turganda profil/manzillar yangilansa (yoki login kechiksa),
+  // tanlangan manzilni yangilab boramiz — bo'sh addressId bilan bekor bo'lmaydi.
+  useEffect(() => {
+    if (!checkoutOpen) return;
+    if (addressId) return;
+    const fallback = addresses.find((a) => a.isDefault)?._id ?? addresses[0]?._id;
+    if (fallback) setAddressId(fallback);
+  }, [checkoutOpen, addresses, addressId]);
   const deliveryFee = deliveryType === 'pickup' || subtotal >= FREE_DELIVERY_FROM ? 0 : DELIVERY_FEE;
   const total = Math.max(0, subtotal + deliveryFee - discount);
 
