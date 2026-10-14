@@ -110,22 +110,33 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
   const deliveryFee = deliveryType === 'pickup' ? 0 : subtotal >= FREE_DELIVERY_FROM ? 0 : DELIVERY_FEE;
 
   let discount = 0;
-  let promoDoc = null;
+  let promoDoc: Awaited<ReturnType<typeof Promo.findOne>> = null;
   if (promoCode) {
-    promoDoc = await Promo.findOne({ code: promoCode.toUpperCase().trim() });
+    const code = promoCode.toUpperCase().trim();
+    promoDoc = await Promo.findOne({ code });
     if (!promoDoc || !promoDoc.isActive) throw ApiError.badRequest('Promo kod noto‘g‘ri');
     const now = new Date();
     if (promoDoc.validFrom && promoDoc.validFrom > now) throw ApiError.badRequest('Promo hali boshlanmagan');
     if (promoDoc.validUntil && promoDoc.validUntil < now) throw ApiError.badRequest('Promo muddati o‘tgan');
     if (subtotal < promoDoc.minOrderAmount) throw ApiError.badRequest('Minimal summa yetmadi');
-    if (promoDoc.usageLimit != null && promoDoc.usedCount >= promoDoc.usageLimit) {
-      throw ApiError.badRequest('Promo limiti tugagan');
-    }
     const myCount = await Order.countDocuments({ user: userId, promoCode: promoDoc.code });
     if (myCount >= promoDoc.perUserLimit) throw ApiError.badRequest('Bu promodan foydalangansiz');
+    // ATOMAR limit: usedCount++ va limit tekshiruvi BITTA operatsiyada.
+    // Ikki mijoz bir vaqtda olsa ham usageLimit oshib ketmaydi —
+    // Mongo faqat usedCount < usageLimit bo'lsa yangilaydi.
+    if (promoDoc.usageLimit != null) {
+      const claimed = await Promo.findOneAndUpdate(
+        { _id: promoDoc._id, $or: [{ usageLimit: null }, { $expr: { $lt: ['$usedCount', '$usageLimit'] } }] },
+        { $inc: { usedCount: 1 } },
+        { new: true },
+      );
+      if (!claimed) throw ApiError.badRequest('Promo limiti tugagan');
+      promoDoc = claimed;
+    } else {
+      promoDoc.usedCount += 1;
+      await promoDoc.save();
+    }
     discount = calcDiscount(promoDoc.type, promoDoc.value, subtotal, promoDoc.maxDiscount);
-    promoDoc.usedCount += 1;
-    await promoDoc.save();
   }
 
   const total = subtotal + deliveryFee - discount;
