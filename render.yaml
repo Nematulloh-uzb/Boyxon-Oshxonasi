@@ -49,9 +49,8 @@ services:
   # ---------------------------------------------------------
   # Frontend (Vite → statik sayt)
   # ---------------------------------------------------------
-  - type: web
+  - type: static_site
     name: boyxon-client
-    runtime: static
     plan: free
     rootDir: boyxon/client
     buildCommand: npm install && npm run build
