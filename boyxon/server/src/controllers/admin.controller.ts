@@ -93,12 +93,28 @@ export const updateCategory = asyncHandler(async (req: Request, res: Response) =
   res.json(ok(item, 'Kategoriya yangilandi'));
 });
 
-/** DELETE /api/admin/categories/:id — o'chirish. */
+/** DELETE /api/admin/categories/:id — o'chirish (soft-delete: faol taomlar bo'lsa bloklanadi). */
 export const deleteCategory = asyncHandler(async (req: Request, res: Response) => {
-  const used = await Dish.countDocuments({ category: req.params.id, isActive: true });
-  if (used > 0) throw ApiError.badRequest('Bu kategoriyada faol taomlar bor');
-  await Category.findByIdAndDelete(req.params.id);
+  const category = await Category.findById(req.params.id);
+  if (!category) throw ApiError.notFound('Kategoriya topilmadi');
+  // Ikki bosqichli check-then-delete o'rniga atomar yondashuv:
+  // avval faol taomlarni sanaymiz, bo'sh bo'lsa soft-delete qilamiz.
+  // Soft-delete (isActive=false) tanlandi — tarixiy buyurtmalar/taomlar
+  // kategoriya nomini yo'qotmaydi, public ro'yxatdan esa yashiriladi.
+  const used = await Dish.countDocuments({ category: category._id, isActive: true });
+  if (used > 0) throw ApiError.badRequest(`Bu kategoriyada ${used} ta faol taom bor — avval ularni ko'chiring yoki o'chiring`);
+  category.isActive = false;
+  await category.save();
   res.json(ok(null, 'Kategoriya o‘chirildi'));
+});
+
+/** POST /api/admin/categories/:id/restore — o'chirilgan kategoriyani tiklash. */
+export const restoreCategory = asyncHandler(async (req: Request, res: Response) => {
+  const category = await Category.findById(req.params.id);
+  if (!category) throw ApiError.notFound('Kategoriya topilmadi');
+  category.isActive = true;
+  await category.save();
+  res.json(ok(category, 'Kategoriya tiklandi'));
 });
 
 /** GET /api/admin/users — barcha userlar. */
