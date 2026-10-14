@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Plus, Star, Timer } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
@@ -11,6 +12,8 @@ import { Badge } from '../ui/Badge';
 export function DishCard({ dish }: { dish: Dish }) {
   const { t, i18n } = useTranslation();
   const { add } = useCart();
+  // URL ishlayotgan-deya xatolik (404/CORS) — singan rasm o'rniga placeholder.
+  const [imgFailed, setImgFailed] = useState(false);
   const lang = i18n.language;
   const name = localizedDishName(dish, lang);
   const desc = localizedDishDescription(dish, lang);
