@@ -41,6 +41,9 @@ export const useAuthStore = create<AuthState>()(
       // (fetch + credentials:include) — chunki axios'ning o'zi 401 refresh logikasi
       // bilan poygaga kirishib "authda ushlab turadi" effektini beradi.
       logoutServer: async () => {
+        // 0) Tokenni avval ushlaymiz — push/unsubscribe uchun Bearer kerak
+        //    (server requireAuth talab qiladi).
+        const token = useAuthStore.getState().accessToken;
         // 1) Avval local tozalaymiz — 401 interceptor refresh loop qilmasligi uchun
         set({ user: null, accessToken: null });
         try {
@@ -52,11 +55,13 @@ export const useAuthStore = create<AuthState>()(
               const base =
                 (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') ??
                 'http://localhost:5000/api';
-              // Token tozalangan bo'lsa ham cookie (refresh) bilan unsubscribe ishlaydi.
               await fetch(`${base}/push/unsubscribe`, {
                 method: 'POST',
                 credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                  'Content-Type': 'application/json',
+                  ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                },
                 body: JSON.stringify({ endpoint: sub.endpoint }),
               }).catch(() => undefined);
               await sub.unsubscribe().catch(() => undefined);
