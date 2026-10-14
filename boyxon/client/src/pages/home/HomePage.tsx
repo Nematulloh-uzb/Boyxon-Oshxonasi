@@ -47,6 +47,8 @@ export default function HomePage() {
   const { data, isLoading, isFetching, isError, refetch } = useQuery({
     queryKey: [QUERY_KEYS.dishes, params],
     queryFn: () => dishesApi.list(params),
+    // Katalog tez-tez o'zgarishi mumkin (admin narx/taom) — global 60s yetarli.
+    // refetchOnWindowFocus global true bo'lgani uchun alohida sozlama shart emas.
   });
 
   const { data: featured, isLoading: featLoading } = useQuery({

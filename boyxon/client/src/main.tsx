@@ -11,13 +11,13 @@ const qc = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
-      // Hech qanday AVTOMATIK qayta yuklash yo'q — ma'lumotlar "muzlatilgan".
-      // Faqat qo'lda (invalidateQueries/refetch) yoki real-time socket hodisasi
-      // bilan yangilanadi. Foydalanuvchi ma'lumoti (auth store) o'zidan o'zgarmaydi.
-      refetchOnWindowFocus: false,
-      refetchOnMount: false, // sahifa/komponent qayta mount bo'lganda
-      refetchOnReconnect: false, // internet qayta ulanganda
-      staleTime: Infinity, // hech qachon "eskirigan" deb hisoblanmaydi
+      // Ma'lumotlar oqilona yangilanadi: katalog sekin eskiradi,
+      // buyurtma/bildirishnoma socket + invalidate bilan, deraza fokuslanganda
+      // ham yangilanadi (admin narxi darhol ko'rinadi).
+      refetchOnWindowFocus: true,
+      refetchOnMount: true,
+      refetchOnReconnect: true,
+      staleTime: 60_000, // 1 daqiqa — keyin "eskirgan" hisoblanadi
     },
   },
 });
