@@ -161,6 +161,7 @@
   "auth.google_not_configured": "Google kirish hozircha sozlanmagan. Email va parol bilan kiring.",
   "auth.admin_password_only": "Admin hisob faqat email va parol bilan kiradi — Google orqali emas.",
   "auth.demo": "Demo",
+  "auth.demo_prod_hint": "Demo kirish faqat ishlab chiqish rejimida",
   "auth.verify_title": "Emailingizni tasdiqlang",
   "auth.verify_sent_to": "{{email}} manziliga tasdiqlash havolasi yubordik. Pochtangizni ochib, havolani bosing.",
   "auth.verify_spam_hint": "Xat ko'rinmasa — \"Spam\" papkasini ham tekshiring.",
