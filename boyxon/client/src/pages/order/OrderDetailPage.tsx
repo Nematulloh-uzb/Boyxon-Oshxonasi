@@ -59,21 +59,23 @@ export default function OrderDetailPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-bg p-6 text-center">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-bg p-6 text-center">
         <p className="text-danger">{error}</p>
-        <Button variant="outline" onClick={() => nav(-1)}>{t('common.back')}</Button>
+        <Button variant="outline" onClick={goBack}>{t('common.back')}</Button>
       </div>
     );
   }
 
   if (!order) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-bg p-6 text-center">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-bg p-6 text-center">
         <p className="text-danger">{t('orders.not_found')}</p>
-        <Button variant="outline" onClick={() => nav(-1)}>{t('common.back')}</Button>
+        <Button variant="outline" onClick={goBack}>{t('common.back')}</Button>
       </div>
     );
   }
+
+  const customer = typeof order.user === 'object' && order.user !== null ? order.user : null;
 
   return (
     <div className="min-h-screen bg-bg p-6">
