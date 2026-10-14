@@ -30,6 +30,8 @@ export default function DishPage() {
   const { slug = '' } = useParams<{ slug: string }>();
   const { t, i18n } = useTranslation();
   const { add } = useCart();
+  // Buzilgan rasm URL'i uchun placeholder fallback.
+  const [imgFailed, setImgFailed] = useState(false);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: [QUERY_KEYS.dishes, 'detail', slug],
