@@ -38,6 +38,7 @@ adminRouter.patch(
   c.updateCategory,
 );
 adminRouter.delete('/categories/:id', validate({ params: objectIdParamSchema }), c.deleteCategory);
+adminRouter.post('/categories/:id/restore', validate({ params: objectIdParamSchema }), c.restoreCategory);
 
 adminRouter.get('/orders', validate({ query: adminOrdersQuerySchema }), c.adminOrders);
 adminRouter.get('/orders/:id', validate({ params: objectIdParamSchema }), c.adminOrderDetail);
