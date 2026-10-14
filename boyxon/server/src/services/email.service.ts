@@ -63,7 +63,7 @@ export async function sendOrderEmail(to: string, orderNumber: string, total: num
     `<h2 style="margin:0 0 8px">Buyurtmangiz qabul qilindi: <b>${orderNumber}</b></h2><p>Jami: <b>${total.toLocaleString('uz-UZ')} so'm</b></p>`,
   );
   if (!t) {
-    logger.info({ to, orderNumber }, 'SMTP sozlanmagan — email yuborilmadi');
+    logger.info({ to: maskEmail(to), orderNumber }, 'SMTP sozlanmagan — email yuborilmadi');
     return;
   }
   await t.sendMail({ from: fromHeader(), to, subject: `Buyurtma ${orderNumber} qabul qilindi — Boyxon Oshxonasi`, html });
