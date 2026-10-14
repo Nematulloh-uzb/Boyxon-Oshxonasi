@@ -11,35 +11,43 @@ export default function OrderDetailPage() {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const nav = useNavigate();
-  const { user } = useAuthStore();
-  const [order, setOrder] = useState<any>(null);
+  const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let alive = true;
     if (!id) {
-      setError('Invalid order ID');
+      setError(t('orders.invalid_id'));
       setLoading(false);
       return;
     }
-     ordersApi.detail(id)
+    setLoading(true);
+    setError(null);
+    // Egalik tekshiruvi SERVERDA (getOrder: 403) — bu yerda ortiqcha
+    // client-side check yo'q: user store hali yuklanmagan bo'lsa ham
+    // noto'g'ri "Unauthorized" chiqmasligi kerak.
+    ordersApi
+      .detail(id)
       .then((res) => {
-        // Ensure the order belongs to the current user (or admin)
-        const orderUser = res.data.user;
-        const isSameUser = (typeof orderUser === 'object' && orderUser !== null && orderUser._id === user?._id) || (typeof orderUser === 'string' && orderUser === user?._id);
-        if (isSameUser || user?.role === 'admin') {
-          setOrder(res.data);
-        } else {
-          setError('Unauthorized');
-        }
-        setLoading(false);
+        if (alive) setOrder(res.data);
       })
       .catch((err) => {
-        setError('Failed to load order');
-        setLoading(false);
-        console.error(err);
+        const status = (err as { response?: { status?: number } })?.response?.status;
+        if (alive) setError(status === 403 ? t('orders.unauthorized') : t('orders.load_error'));
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
       });
-  }, [id, user]);
+    return () => {
+      alive = false;
+    };
+  }, [id, t]);
+
+  const goBack = (): void => {
+    if (window.history.length > 1) nav(-1);
+    else nav('/settings');
+  };
 
   if (loading) {
     return (
