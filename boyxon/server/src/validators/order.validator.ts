@@ -15,7 +15,13 @@ export const createOrderSchema = z.object({
       }),
     )
     .min(1, 'Savatcha bo‘sh')
-    .max(50, 'Bitta buyurtmada ko‘pi bilan 50 qator'),
+    .max(50, 'Bitta buyurtmada ko‘pi bilan 50 qator')
+    // Bir xil taom ikki marta kelsa — ularni birlashtirish o'rniga rad etamiz
+    // (client xatosi yashirin qolmasligi uchun aniq xabar).
+    .refine(
+      (items) => new Set(items.map((i) => i.dish)).size === items.length,
+      'Bir xil taom takrorlangan — miqdorni bittada ko‘rsating',
+    ),
   deliveryType: z.enum(['delivery', 'pickup']),
   address: z
     .object({
