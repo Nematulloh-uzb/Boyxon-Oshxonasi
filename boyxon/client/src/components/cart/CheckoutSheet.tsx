@@ -66,7 +66,21 @@ export function CheckoutSheet() {
   const close = (): void => {
     setCreated(null);
     set({ checkoutOpen: false });
-    if (mutation.isSuccess) nav('/');
+  };
+
+  const goHome = (): void => {
+    const wasSuccess = mutation.isSuccess;
+    setCreated(null);
+    set({ checkoutOpen: false });
+    if (wasSuccess) nav('/');
+  };
+
+  const goOrders = (): void => {
+    const wasSuccess = mutation.isSuccess;
+    const target = created ? `/orders/${created._id}` : '/settings';
+    setCreated(null);
+    set({ checkoutOpen: false });
+    if (wasSuccess) nav(target);
   };
 
   if (created) {
