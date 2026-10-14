@@ -68,7 +68,9 @@ const UserSchema = new Schema<UserDoc>(
   {
     name: { type: String, required: true, trim: true, maxlength: 80 },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true, index: true },
-    phone: { type: String, sparse: true, trim: true },
+    // sparse+unique: bo'sh telefonlar cheklanmaydi, lekin bir xil raqam
+    // ikki hisobda bo'lmaydi (SMS/OTP kelajakda muammo chiqarmaydi).
+    phone: { type: String, sparse: true, unique: true, trim: true },
     password: { type: String, select: false },
     googleId: { type: String, unique: true, sparse: true },
     avatar: { type: String, default: null },

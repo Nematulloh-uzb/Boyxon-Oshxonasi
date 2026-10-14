@@ -28,11 +28,7 @@ const phoneSchema = z
 export const registerSchema = z.object({
   name: z.string().trim().min(2, 'Ism kamida 2 harf').max(80),
   email: z.string().trim().toLowerCase().email('Email noto‘g‘ri').max(160),
-  phone: z
-    .string()
-    .trim()
-    .regex(/^\+?[0-9\s()-]{7,20}$/, 'Telefon raqam formati noto‘g‘ri')
-    .optional(),
+  phone: phoneSchema,
   password: passwordSchema,
 });
 
