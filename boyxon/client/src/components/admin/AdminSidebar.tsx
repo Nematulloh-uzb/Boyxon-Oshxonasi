@@ -1,13 +1,12 @@
 import { NavLink } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { ChefHat, Home, Gift, Megaphone, MessageCircle, Package, ShoppingCart, Users } from 'lucide-react';
+import { ChefHat, Home, Gift, Megaphone, Package, ShoppingCart, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/auth.store';
 import { cn } from '../../lib/utils';
 
 const links = [
   { to: '/admin', icon: Home, k: 'admin.dashboard', end: true },
-  { to: '/admin/chat', icon: MessageCircle, k: 'admin.chat' },
   { to: '/admin/orders', icon: ShoppingCart, k: 'admin.orders' },
   { to: '/admin/dishes', icon: ChefHat, k: 'admin.dishes' },
   { to: '/admin/categories', icon: Package, k: 'admin.categories' },
