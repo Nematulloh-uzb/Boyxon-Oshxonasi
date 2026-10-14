@@ -1,16 +1,19 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TicketPercent } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { promosApi } from '../../api/promos.api';
 import { useCart } from '../../hooks/useCart';
+import { useCartStore } from '../../store/cart.store';
 import { tVal } from '../../lib/format';
 
 export function PromoInput() {
   const { t } = useTranslation();
   const { promoCode, subtotal, setPromo } = useCart();
+  const discount = useCartStore((s) => s.discount);
   const [code, setCode] = useState(promoCode ?? '');
   const [loading, setLoading] = useState(false);
+  const [serverDiscount, setServerDiscount] = useState<number | null>(null);
 
   const apply = async (): Promise<void> => {
     if (!code.trim()) return;
@@ -18,15 +21,21 @@ export function PromoInput() {
     try {
       const r = await promosApi.validate(code.trim(), subtotal);
       setPromo(r.data.code, r.data.discount);
+      setServerDiscount(r.data.discount);
       toast.success(r.message);
     } catch (e) {
       const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('cart.promo_invalid');
       toast.error(msg);
       setPromo(undefined, 0);
+      setServerDiscount(null);
     } finally {
       setLoading(false);
     }
   };
+
+  // Savat summasi o'zgarsa — server hisobi eskiradi. Foydalanuvchiga aniq
+  // ogohlantiramiz (server baribir o'z hisobini qo'llaydi).
+  const stale = promoCode != null && serverDiscount != null && serverDiscount !== discount;
 
   return (
     <div>
