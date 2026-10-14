@@ -447,5 +447,21 @@
   "pages.404.desc": "Извините, страница, которую вы искали, не существует",
   "pages.404.go_home": "Вернуться на главную",
   "pages.403.title": "Доступ запрещён",
-  "pages.403.desc": "У вас нет доступа к этой странице"
+  "pages.403.desc": "У вас нет доступа к этой странице",
+  "admin.chat": "Чат",
+  "chat.open": "Открыть чат",
+  "chat.title": "Поддержка Boyxon",
+  "chat.subtitle": "Обычно отвечаем за несколько минут",
+  "chat.support": "Поддержка",
+  "chat.online": "Онлайн",
+  "chat.welcome": "Есть вопрос? Напишите нам — скоро ответим.",
+  "chat.placeholder": "Напишите сообщение...",
+  "chat.send": "Отправить",
+  "chat.search": "Поиск по имени или сообщению",
+  "chat.no_conversations": "Пока нет диалогов",
+  "chat.select_conversation": "Выберите диалог",
+  "chat.back_to_site": "Вернуться на сайт",
+  "chat.you": "Вы",
+  "chat.unknown_user": "Пользователь",
+  "chat.send_error": "Сообщение не отправлено"
 }

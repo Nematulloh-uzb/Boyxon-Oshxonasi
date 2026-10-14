@@ -18,7 +18,7 @@ async function main(): Promise<void> {
   setIo(io);
 
   // Socket ham xuddi HTTP kabi qat'iy tekshiriladi: token imzosi + hisob holati +
-  // tokenVersion. Aks holda bloklangan foydalanuvchi real-time bilan ish olib borardi.
+  // tokenVersion. Aks holda bloklangan foydalanuvchi real-time chatni davom ettirardi.
   io.use((socket, next) => {
     const token = socket.handshake.auth?.token as string | undefined;
     if (!token) return next(new Error('Token kerak'));
@@ -46,6 +46,15 @@ async function main(): Promise<void> {
     const role = socket.data.role as 'user' | 'admin';
     socket.join(`user:${userId}`);
     if (role === 'admin') socket.join('admin');
+
+    // "Yozmoqda" indikatori — raqibga uzatamiz (DB siz, faqat signal).
+    socket.on('chat:typing', (payload: { to?: string }) => {
+      if (role === 'user') {
+        socket.to('admin').emit('chat:typing', { from: userId, role });
+      } else if (payload?.to) {
+        socket.to(`user:${payload.to}`).emit('chat:typing', { role: 'admin' });
+      }
+    });
 
     socket.on('disconnect', () => undefined);
   });

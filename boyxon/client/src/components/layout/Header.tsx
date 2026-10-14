@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Bell, Menu, Moon, ShoppingBag, Sun, User } from 'lucide-react';
+import { Bell, Menu, MessageCircle, Moon, ShoppingBag, Sun, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCartStore } from '../../store/cart.store';
 import { useAuthStore } from '../../store/auth.store';
@@ -70,6 +70,14 @@ export function Header() {
                 <Bell className="h-5 w-5" />
                 {(data ?? 0) > 0 && (
                   <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-danger px-1 text-[10px] font-bold text-white">
+                    {(data ?? 0) > 99 ? '99+' : data}
+                  </span>
+                )}
+              </button>
+              <button className="relative rounded-full p-2.5 hover:bg-surface-raised cursor-pointer" onClick={() => set({ chatOpen: true })} aria-label={t('chat.title')}>
+                <MessageCircle className="h-5 w-5" />
+                {(data ?? 0) > 0 && (
+                  <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-primary-500 px-1 text-[10px] font-bold text-white">
                     {(data ?? 0) > 99 ? '99+' : data}
                   </span>
                 )}
