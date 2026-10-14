@@ -80,8 +80,13 @@ export default function DishPage() {
       </Link>
 
       <div className="overflow-hidden rounded-card border border-ink-line/60 bg-surface shadow-sm">
-        {dish.image ? (
-          <img src={dish.image} alt={localizedDishName(dish, lang)} className="aspect-[16/9] w-full object-cover" />
+        {dish.image && !imgFailed ? (
+          <img
+            src={dish.image}
+            alt={localizedDishName(dish, lang)}
+            onError={() => setImgFailed(true)}
+            className="aspect-[16/9] w-full object-cover"
+          />
         ) : (
           <DishPlaceholder className="rounded-none" />
         )}
