@@ -90,12 +90,13 @@ export default function SettingsPage() {
         {ordersOpen && (
           <div className="space-y-2 border-t border-ink-line/60 px-4 py-3">
             {!orders?.data.length && <Card className="p-4 text-sm text-ink-300">{t('settings.no_orders')}</Card>}
-             {orders?.data.map((o) => (
-               <div
-                 key={o._id}
-                 className="rounded-card border border-ink-line/60 bg-surface shadow-sm flex items-center justify-between p-3.5 hover:cursor-pointer"
-                 onClick={() => navigate(`/orders/${o._id}`)}
-               >
+            {orders?.data.map((o) => (
+              <button
+                key={o._id}
+                type="button"
+                className="rounded-card border border-ink-line/60 bg-surface shadow-sm flex w-full items-center justify-between p-3.5 text-left"
+                onClick={() => navigate(`/orders/${o._id}`)}
+              >
                  <div>
                    <p className="font-semibold">{o.orderNumber}</p>
                    <p className="text-xs text-ink-300">{formatDate(o.createdAt)} · {tVal(t('settings.dishes_count'), { count: o.items.length })}</p>
