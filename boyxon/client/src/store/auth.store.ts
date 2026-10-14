@@ -37,12 +37,34 @@ export const useAuthStore = create<AuthState>()(
       setUser: (user) => set({ user: normalizeUser(user) }),
       setToken: (accessToken) => set({ accessToken }),
       logout: () => set({ user: null, accessToken: null }),
-      // Full logout: local + server cookie. Server chaqiruvini AXIOS SIZ bajaramiz
+      // Full logout: local + server cookie + push obuna. Server chaqiruvini AXIOS SIZ bajaramiz
       // (fetch + credentials:include) — chunki axios'ning o'zi 401 refresh logikasi
       // bilan poygaga kirishib "authda ushlab turadi" effektini beradi.
       logoutServer: async () => {
         // 1) Avval local tozalaymiz — 401 interceptor refresh loop qilmasligi uchun
         set({ user: null, accessToken: null });
+        try {
+          // Push obunani ham bekor qilamiz — keyingi user eski obunaga push olmasligi uchun.
+          if ('serviceWorker' in navigator) {
+            const reg = await navigator.serviceWorker.ready.catch(() => null);
+            const sub = await reg?.pushManager.getSubscription().catch(() => null);
+            if (sub?.endpoint) {
+              const base =
+                (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') ??
+                'http://localhost:5000/api';
+              // Token tozalangan bo'lsa ham cookie (refresh) bilan unsubscribe ishlaydi.
+              await fetch(`${base}/push/unsubscribe`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ endpoint: sub.endpoint }),
+              }).catch(() => undefined);
+              await sub.unsubscribe().catch(() => undefined);
+            }
+          }
+        } catch {
+          // Push tozalash ixtiyoriy — xato logout'ni to'xtatmaydi.
+        }
         try {
           const base =
             (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') ??
