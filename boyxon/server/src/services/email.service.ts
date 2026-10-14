@@ -77,7 +77,7 @@ export async function sendVerifyEmail(to: string, verifyLink: string): Promise<b
      * SMTP sozlanmagan. Xavfsizlik: havola (ichida token bor) logga yozilmaydi.
      * `false` qaytaramiz — chaqiruvchi shunga qarab foydalanuvchiga aniq xabar beradi.
      */
-    logger.warn({ to }, 'SMTP sozlanmagan — tasdiqlash xati yuborilmadi');
+    logger.warn({ to: maskEmail(to) }, 'SMTP sozlanmagan — tasdiqlash xati yuborilmadi');
     return false;
   }
   await t.sendMail({
