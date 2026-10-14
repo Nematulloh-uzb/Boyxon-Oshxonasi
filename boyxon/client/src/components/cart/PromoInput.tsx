@@ -33,9 +33,31 @@ export function PromoInput() {
     }
   };
 
-  // Savat summasi o'zgarsa — server hisobi eskiradi. Foydalanuvchiga aniq
-  // ogohlantiramiz (server baribir o'z hisobini qo'llaydi).
-  const stale = promoCode != null && serverDiscount != null && serverDiscount !== discount;
+  // Savat o'zgarganda server chegirmasini avtomatik qayta tekshiramiz
+  // (foydalanuvchi "Qo'llash" ni qayta bosmasligi uchun).
+  useEffect(() => {
+    if (!promoCode) return;
+    let alive = true;
+    promosApi
+      .validate(promoCode, subtotal)
+      .then((r) => {
+        if (alive) {
+          setPromo(r.data.code, r.data.discount);
+          setServerDiscount(r.data.discount);
+        }
+      })
+      .catch(() => {
+        if (alive) {
+          setPromo(undefined, 0);
+          setServerDiscount(null);
+          toast.error(t('cart.promo_invalid'));
+        }
+      });
+    return () => {
+      alive = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subtotal]);
 
   return (
     <div>
