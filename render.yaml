@@ -33,6 +33,10 @@ services:
       # Render proksisi ortida — rate-limit to'g'ri ishlashi uchun 1
       - key: TRUST_PROXY
         value: "1"
+      # Free instance (512MB) — Node GC heap limitini cheklaymiz, aks holda
+      # tsc build yoki socket runtime "heap out of memory" bilan qulaydi.
+      - key: NODE_OPTIONS
+        value: "--max-old-space-size=460"
       # --- Quyidagilar Dashboard → Environment'da `sync: false` bilan qo'shiladi ---
       # CLIENT_URL            = https://boyxon-frontend.onrender.com
       # MONGODB_URI           = mongodb+srv://...
