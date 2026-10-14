@@ -22,7 +22,6 @@ const AdminUsers = lazy(() => import('../pages/admin/AdminUsers'));
 const AdminCategories = lazy(() => import('../pages/admin/AdminCategories'));
 const AdminPromos = lazy(() => import('../pages/admin/AdminPromos'));
 const AdminPush = lazy(() => import('../pages/admin/AdminPush'));
-const AdminChat = lazy(() => import('../pages/admin/AdminChat'));
 const OrderDetailPage = lazy(() => import('../pages/order/OrderDetailPage'));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 
@@ -57,7 +56,6 @@ export function AppRouter() {
           <Route path="categories" element={<AdminCategories />} />
           <Route path="promos" element={<AdminPromos />} />
           <Route path="push" element={<AdminPush />} />
-          <Route path="chat" element={<AdminChat />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
