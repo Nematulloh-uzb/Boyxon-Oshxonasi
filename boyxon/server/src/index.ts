@@ -47,15 +47,6 @@ async function main(): Promise<void> {
     socket.join(`user:${userId}`);
     if (role === 'admin') socket.join('admin');
 
-    // "Yozmoqda" indikatori — raqibga uzatamiz (DB siz, faqat signal).
-    socket.on('chat:typing', (payload: { to?: string }) => {
-      if (role === 'user') {
-        socket.to('admin').emit('chat:typing', { from: userId, role });
-      } else if (payload?.to) {
-        socket.to(`user:${payload.to}`).emit('chat:typing', { role: 'admin' });
-      }
-    });
-
     socket.on('disconnect', () => undefined);
   });
 
