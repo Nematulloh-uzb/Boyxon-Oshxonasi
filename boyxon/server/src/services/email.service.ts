@@ -108,7 +108,7 @@ export async function sendResetEmail(to: string, resetLink: string): Promise<voi
      * Ilgari to'liq havola logga tushardi — logni ko'rgan har qanday odam
      * 15 daqiqa ichida hisobni egallab olishi mumkin edi.
      */
-    logger.warn({ to }, 'SMTP sozlanmagan — parol tiklash xati yuborilmadi (havola logga yozilmadi)');
+    logger.warn({ to: maskEmail(to) }, 'SMTP sozlanmagan — parol tiklash xati yuborilmadi (havola logga yozilmadi)');
     return;
   }
   await t.sendMail({
