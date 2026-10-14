@@ -18,7 +18,7 @@ async function main(): Promise<void> {
   setIo(io);
 
   // Socket ham xuddi HTTP kabi qat'iy tekshiriladi: token imzosi + hisob holati +
-  // tokenVersion. Aks holda bloklangan foydalanuvchi real-time chatni davom ettirardi.
+  // tokenVersion. Aks holda bloklangan foydalanuvchi real-time bilan ish olib borardi.
   io.use((socket, next) => {
     const token = socket.handshake.auth?.token as string | undefined;
     if (!token) return next(new Error('Token kerak'));
