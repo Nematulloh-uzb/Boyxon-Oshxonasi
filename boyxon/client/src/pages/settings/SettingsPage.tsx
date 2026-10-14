@@ -34,6 +34,8 @@ export default function SettingsPage() {
   const { data: orders } = useQuery({
     queryKey: ['orders'],
     queryFn: () => ordersApi.myOrders(1, 5),
+    enabled: !!user,
+    staleTime: 30_000,
   });
 
   if (!user) return <div className="grid min-h-[50vh] place-items-center text-ink-300">{t('common.loading')}</div>;
