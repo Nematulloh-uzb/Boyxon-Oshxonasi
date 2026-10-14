@@ -32,17 +32,23 @@ export const getOrder = asyncHandler(async (req: Request, res: Response) => {
 /** PATCH /api/orders/:id/cancel — mijoz o'zi bekor qiladi (pending/confirmed). */
 export const cancelOrder = asyncHandler(async (req: Request, res: Response) => {
   const userId = (req as AuthRequest).user!.id;
-  const order = await Order.findOne({ _id: req.params.id, user: userId });
-  if (!order) throw ApiError.notFound('Buyurtma topilmadi');
-  if (!['pending', 'confirmed'].includes(order.status)) {
+  const reason = (req.body as { reason?: string }).reason;
+  // ATOMAR o'tish: faqat pending/confirmed holatidan cancelled ga o'tish bitta
+  // operatsiyada — ikki marta bosilsa ham promo bir marta qaytarilmaydi.
+  const order = await Order.findOneAndUpdate(
+    { _id: req.params.id, user: userId, status: { $in: ['pending', 'confirmed'] } },
+    {
+      $set: { status: 'cancelled', cancelReason: reason },
+      $push: { statusHistory: { status: 'cancelled', timestamp: new Date(), note: reason } },
+    },
+    { new: true },
+  );
+  if (!order) {
+    const exists = await Order.exists({ _id: req.params.id, user: userId });
+    if (!exists) throw ApiError.notFound('Buyurtma topilmadi');
     throw ApiError.badRequest('Bu bosqichda bekor qilib bo‘lmaydi');
   }
-  order.status = 'cancelled';
-  order.cancelReason = (req.body as { reason?: string }).reason;
-  order.statusHistory.push({ status: 'cancelled', timestamp: new Date(), note: order.cancelReason });
-  await order.save();
   // Bekor qilindi — promo kvotani qaytaramiz (mijoz huquqi yo'qolmaydi).
-  // Cheksiz promo (usageLimit=null) da kamaytirish shart emas, lekin zararsiz.
   if (order.promoCode) {
     await Promo.findOneAndUpdate(
       { code: order.promoCode, usedCount: { $gt: 0 } },
