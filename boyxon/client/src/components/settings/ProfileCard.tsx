@@ -1,4 +1,4 @@
-   import { useRef } from 'react';
+import { useRef } from 'react';
 import { Camera, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
