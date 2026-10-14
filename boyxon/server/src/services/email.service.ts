@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import { env } from '../config/env';
-import { logger } from '../utils/logger';
+import { logger, maskEmail } from '../utils/logger';
 
 /**
  * Transporter tipi nodemailer'ning o'zidan olinadi.
