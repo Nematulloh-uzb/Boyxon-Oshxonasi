@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Bell, Menu, MessageCircle, Moon, ShoppingBag, Sun, User } from 'lucide-react';
+import { Bell, Menu, Moon, ShoppingBag, Sun, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCartStore } from '../../store/cart.store';
 import { useAuthStore } from '../../store/auth.store';
