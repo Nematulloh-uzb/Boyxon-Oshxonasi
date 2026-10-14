@@ -86,7 +86,7 @@ export function AddressManager() {
       )}
 
       {addresses.map((a) => (
-        <Card key={a._id} className="flex items-center gap-3 p-3.5">
+        <Card key={a._id ?? `${a.label}|${a.address}`} className="flex items-center gap-3 p-3.5">
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary-50 text-primary-600">
             <Home className="h-5 w-5" />
           </span>
