@@ -5,7 +5,14 @@ import { useAuthStore } from '../store/auth.store';
 
 export function AdminRoute({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
-  const { accessToken, user } = useAuthStore();
+  const { accessToken, user, sessionReady } = useAuthStore();
+  if (!sessionReady) {
+    return (
+      <div className="min-h-screen grid place-items-center text-ink-300">
+        {t('common.loading')}
+      </div>
+    );
+  }
   if (!accessToken) return <Navigate to="/auth" replace />;
   // Token bor-u user hali yuklanmagan (refresh/initial load) — kutamiz.
   // Aks holda admin bo'lmagan odam bir zumga admin layout'ni ko'radi (flicker).

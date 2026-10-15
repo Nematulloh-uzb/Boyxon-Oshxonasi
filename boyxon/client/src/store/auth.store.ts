@@ -5,8 +5,11 @@ import type { User } from '../types';
 interface AuthState {
   user: User | null;
   accessToken: string | null;
+  /** Refresh cookie orqali sessiya tiklash tugaguncha false — ProtectedRoute /auth ga sakramasligi uchun. */
+  sessionReady: boolean;
   setUser: (u: User | null) => void;
   setToken: (t: string | null) => void;
+  setSessionReady: (ready: boolean) => void;
   logout: () => void;
   logoutServer: () => Promise<void>;
 }
@@ -34,8 +37,10 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       accessToken: null,
+      sessionReady: false,
       setUser: (user) => set({ user: normalizeUser(user) }),
       setToken: (accessToken) => set({ accessToken }),
+      setSessionReady: (sessionReady) => set({ sessionReady }),
       logout: () => set({ user: null, accessToken: null }),
       // Full logout: local + server cookie + push obuna. Server chaqiruvini AXIOS SIZ bajaramiz
       // (fetch + credentials:include) — chunki axios'ning o'zi 401 refresh logikasi
@@ -113,10 +118,15 @@ export const useAuthStore = create<AuthState>()(
       // Persist'dan qaytgan eski user'ni ham normalize qilish (migratsiya)
       merge: (persisted, current) => {
         const p = persisted as Partial<AuthState> | undefined;
+        const user = normalizeUser((p?.user as User | null) ?? null);
+        const accessToken = (p?.accessToken as string | null | undefined) ?? null;
         return {
           ...current,
           ...p,
-          user: normalizeUser((p?.user as User | null) ?? null),
+          user,
+          accessToken,
+          // Token bor bo'lsa darhol tayyor; yo'q bo'lsa App refresh cookie ni sinaydi.
+          sessionReady: Boolean(accessToken),
         };
       },
     },

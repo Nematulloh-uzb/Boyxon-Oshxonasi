@@ -3,12 +3,37 @@ import { AppRouter } from './routes/AppRouter';
 import { useSocket } from './hooks/useSocket';
 import { useAuthStore } from './store/auth.store';
 import { usersApi } from './api/users.api';
+import { authApi } from './api/auth.api';
 import { useTranslation } from 'react-i18next';
 
 export default function App() {
   useSocket();
-  const { accessToken, setUser, user, logout } = useAuthStore();
+  const { accessToken, setUser, setToken, user, logout, sessionReady, setSessionReady } = useAuthStore();
   const { i18n } = useTranslation();
+
+  useEffect(() => {
+    let cancelled = false;
+    async function restoreSession(): Promise<void> {
+      if (useAuthStore.getState().accessToken) {
+        if (!useAuthStore.getState().sessionReady) setSessionReady(true);
+        return;
+      }
+      try {
+        const r = await authApi.refresh();
+        if (cancelled) return;
+        setToken(r.data.accessToken);
+        if (r.data.user) setUser(r.data.user);
+      } catch {
+        // Cookie yo'q yoki eskirgan — mehmon holati.
+      } finally {
+        if (!cancelled) setSessionReady(true);
+      }
+    }
+    void restoreSession();
+    return () => {
+      cancelled = true;
+    };
+  }, [setSessionReady, setToken, setUser]);
 
   useEffect(() => {
     if (accessToken && !user) {

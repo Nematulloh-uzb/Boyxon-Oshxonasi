@@ -21,6 +21,9 @@ export const authApi = {
   /** Barcha qurilmalardan chiqish — barcha tokenlar bekor qilinadi. */
   logoutAll: () => api.post('/auth/logout-all').then((r) => r.data),
   me: () => api.get<ApiOk<User>>('/auth/me').then((r) => r.data),
+  /** httpOnly refresh cookie orqali yangi access token (yangi tab / qayta ochish). */
+  refresh: () =>
+    api.post<ApiOk<{ accessToken: string; user: User }>>('/auth/refresh', {}).then((r) => r.data),
   googleUrl: () => `${api.defaults.baseURL?.replace(/\/api$/, '')}/api/auth/google`,
   /**
    * Google OAuth'dan qaytgan bir martalik kodni tokenga almashtiradi.

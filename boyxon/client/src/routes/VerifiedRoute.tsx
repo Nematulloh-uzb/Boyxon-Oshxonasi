@@ -12,9 +12,10 @@ import { useAuthStore } from '../store/auth.store';
  * Admin hisoblari bundan mustasno — ular seed orqali tasdiqlangan yaratiladi.
  */
 export function VerifiedRoute({ children }: { children: ReactNode }) {
-  const { accessToken, user } = useAuthStore();
+  const { accessToken, user, sessionReady } = useAuthStore();
   const loc = useLocation();
 
+  if (!sessionReady) return <>{children}</>;
   if (!accessToken) return <Navigate to="/auth" replace state={{ from: loc.pathname }} />;
   // User hali yuklanmagan bo'lsa (refresh jarayoni) — kutamiz, sakrab ketmaymiz.
   if (user && user.emailVerified === false) {
