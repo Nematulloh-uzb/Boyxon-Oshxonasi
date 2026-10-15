@@ -11,11 +11,12 @@ export function UsersTable({ users, loading }: { users: User[]; loading?: boolea
   const roleM = useMutation({
     mutationFn: ({ id, role }: { id: string; role: string }) => adminApi.changeRole(id, role),
     onSuccess: () => { void qc.invalidateQueries({ queryKey: ['admin-users'] }); toast.success(t('admin.role_updated')); },
-    onError: () => toast.error(t('admin.role_error')),
+    onError: (e) => toast.error((e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('admin.role_error')),
   });
   const blockM = useMutation({
     mutationFn: ({ id, block }: { id: string; block: boolean }) => adminApi.toggleBlock(id, block),
     onSuccess: () => { void qc.invalidateQueries({ queryKey: ['admin-users'] }); toast.success(t('admin.status_updated')); },
+    onError: (e) => toast.error((e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('common.error')),
   });
 
   if (loading) return <div className="rounded-card bg-surface p-6 text-center text-ink-300">{t('common.loading')}</div>;

@@ -149,7 +149,11 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
     if (promoDoc.validFrom && promoDoc.validFrom > now) throw ApiError.badRequest('Promo hali boshlanmagan');
     if (promoDoc.validUntil && promoDoc.validUntil < now) throw ApiError.badRequest('Promo muddati o‘tgan');
     if (subtotal < promoDoc.minOrderAmount) throw ApiError.badRequest('Minimal summa yetmadi');
-    const myCount = await Order.countDocuments({ user: userId, promoCode: promoDoc.code });
+    const myCount = await Order.countDocuments({
+      user: userId,
+      promoCode: promoDoc.code,
+      status: { $ne: 'cancelled' },
+    });
     if (myCount >= promoDoc.perUserLimit) throw ApiError.badRequest('Bu promodan foydalangansiz');
     // ATOMAR limit: usedCount++ va limit tekshiruvi BITTA operatsiyada.
     // Ikki mijoz bir vaqtda olsa ham usageLimit oshib ketmaydi —
@@ -163,27 +167,37 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
       if (!claimed) throw ApiError.badRequest('Promo limiti tugagan');
       promoDoc = claimed;
     } else {
-      promoDoc.usedCount += 1;
-      await promoDoc.save();
+      await Promo.findByIdAndUpdate(promoDoc._id, { $inc: { usedCount: 1 } });
     }
     discount = calcDiscount(promoDoc.type, promoDoc.value, subtotal, promoDoc.maxDiscount);
   }
 
   const total = subtotal + deliveryFee - discount;
-  const order = await Order.create({
-    user: userId,
-    items: orderItems,
-    subtotal,
-    deliveryFee,
-    discount,
-    total,
-    promoCode: promoDoc?.code,
-    deliveryType,
-    address: deliveryType === 'delivery' ? address : undefined,
-    paymentMethod,
-    notes,
-    estimatedDeliveryAt: new Date(Date.now() + 45 * 60 * 1000),
-  });
+  let order;
+  try {
+    order = await Order.create({
+      user: userId,
+      items: orderItems,
+      subtotal,
+      deliveryFee,
+      discount,
+      total,
+      promoCode: promoDoc?.code,
+      deliveryType,
+      address: deliveryType === 'delivery' ? address : undefined,
+      paymentMethod,
+      notes,
+      estimatedDeliveryAt: new Date(Date.now() + 45 * 60 * 1000),
+    });
+  } catch (err) {
+    if (promoDoc) {
+      await Promo.findOneAndUpdate(
+        { _id: promoDoc._id, usedCount: { $gt: 0 } },
+        { $inc: { usedCount: -1 } },
+      );
+    }
+    throw err;
+  }
 
   await Dish.updateMany({ _id: { $in: dishIds } }, { $inc: { orderCount: 1 } });
   const user = await User.findById(userId);

@@ -51,17 +51,37 @@ export const sendUserMessage = asyncHandler(async (req: Request, res: Response) 
   res.status(201).json(ok(msg, 'Xabar yuborildi'));
 });
 
+function escapeRegex(raw: string): string {
+  return raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 /**
  * ADMIN — barcha suhbatlar ro'yxati (foydalanuvchi bilan). Qidiruv + sahifalash.
  */
 export const adminListConversations = asyncHandler(async (req: Request, res: Response) => {
   const page = Math.max(1, Number(req.query.page) || 1);
   const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 30));
-  const search = String(req.query.search ?? '').trim();
+  const rawSearch = String(req.query.search ?? '').trim();
+  const search = escapeRegex(rawSearch);
 
-  const match = search
-    ? { $or: [{ lastMessage: { $regex: search, $options: 'i' } }] }
-    : {};
+  let match: Record<string, unknown> = {};
+  if (search) {
+    const matchedUsers = await User.find({
+      $or: [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+      ],
+    })
+      .select('_id')
+      .limit(50)
+      .lean();
+    match = {
+      $or: [
+        { lastMessage: { $regex: search, $options: 'i' } },
+        { user: { $in: matchedUsers.map((u) => u._id) } },
+      ],
+    };
+  }
 
   const [items, total] = await Promise.all([
     Conversation.find(match)
@@ -72,17 +92,7 @@ export const adminListConversations = asyncHandler(async (req: Request, res: Res
     Conversation.countDocuments(match),
   ]);
 
-  // Foydalanuvchi nomi bo'yicha qidiruv — populate'dan keyin filtr
-  let data = items;
-  if (search) {
-    const s = search.toLowerCase();
-    data = items.filter((c) => {
-      const u = c.user as unknown as { name?: string; email?: string } | undefined;
-      return (u?.name ?? '').toLowerCase().includes(s) || (u?.email ?? '').toLowerCase().includes(s);
-    });
-  }
-
-  res.json(paginated(data, page, limit, total, 'OK'));
+  res.json(paginated(items, page, limit, total, 'OK'));
 });
 
 /**

@@ -28,7 +28,7 @@ export function signAccessToken(payload: { id: string; role: string; ver?: numbe
   return jwt.sign(
     { id: payload.id, role: payload.role, ver: payload.ver ?? 0, jti: randomUUID() },
     env.JWT_ACCESS_SECRET,
-    { expiresIn: env.JWT_ACCESS_EXPIRES as jwt.SignOptions['expiresIn'] },
+    { algorithm: 'HS256', expiresIn: env.JWT_ACCESS_EXPIRES as jwt.SignOptions['expiresIn'] },
   );
 }
 
@@ -36,18 +36,18 @@ export function signRefreshToken(payload: { id: string; ver?: number }): string 
   return jwt.sign(
     { id: payload.id, ver: payload.ver ?? 0, jti: randomUUID() },
     env.JWT_REFRESH_SECRET,
-    { expiresIn: env.JWT_REFRESH_EXPIRES as jwt.SignOptions['expiresIn'] },
+    { algorithm: 'HS256', expiresIn: env.JWT_REFRESH_EXPIRES as jwt.SignOptions['expiresIn'] },
   );
 }
 
 export function verifyRefreshToken(token: string): RefreshPayload {
-  const decoded = jwt.verify(token, env.JWT_REFRESH_SECRET) as Partial<RefreshPayload>;
+  const decoded = jwt.verify(token, env.JWT_REFRESH_SECRET, { algorithms: ['HS256'] }) as Partial<RefreshPayload>;
   // Eski tokenlarda `ver` bo'lmasligi mumkin — 0 deb qabul qilamiz (migratsiya).
   return { id: String(decoded.id), ver: Number(decoded.ver ?? 0), jti: String(decoded.jti ?? '') };
 }
 
 export function verifyAccessToken(token: string): AccessPayload {
-  const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as Partial<AccessPayload>;
+  const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET, { algorithms: ['HS256'] }) as Partial<AccessPayload>;
   return {
     id: String(decoded.id),
     role: String(decoded.role),
@@ -59,12 +59,13 @@ export function verifyAccessToken(token: string): AccessPayload {
 /** Parolni tiklash tokeni — alohida kalit, 15 daqiqa, bir marta ishlatiladi (ver orqali). */
 export function signResetToken(userId: string, tokenVersion: number): string {
   return jwt.sign({ id: userId, ver: tokenVersion, purpose: 'reset' }, env.JWT_RESET_SECRET, {
+    algorithm: 'HS256',
     expiresIn: '15m',
   });
 }
 
 export function verifyResetToken(token: string): { id: string; ver: number } {
-  const decoded = jwt.verify(token, env.JWT_RESET_SECRET) as {
+  const decoded = jwt.verify(token, env.JWT_RESET_SECRET, { algorithms: ['HS256'] }) as {
     id?: string;
     ver?: number;
     purpose?: string;
@@ -81,12 +82,13 @@ export function verifyResetToken(token: string): { id: string; ver: number } {
  */
 export function signEmailVerifyToken(userId: string, tokenVersion: number): string {
   return jwt.sign({ id: userId, ver: tokenVersion, purpose: 'verify-email' }, env.JWT_RESET_SECRET, {
+    algorithm: 'HS256',
     expiresIn: '24h',
   });
 }
 
 export function verifyEmailVerifyToken(token: string): { id: string; ver: number } {
-  const decoded = jwt.verify(token, env.JWT_RESET_SECRET) as {
+  const decoded = jwt.verify(token, env.JWT_RESET_SECRET, { algorithms: ['HS256'] }) as {
     id?: string;
     ver?: number;
     purpose?: string;

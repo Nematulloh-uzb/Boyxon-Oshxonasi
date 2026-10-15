@@ -14,7 +14,7 @@ import {
   resendVerificationSchema,
   verifyEmailParamsSchema,
 } from '../validators/auth.validator';
-import { env } from '../config/env';
+import { env, primaryClientUrl } from '../config/env';
 import * as c from '../controllers/auth.controller';
 
 export const authRouter = Router();
@@ -31,7 +31,7 @@ authRouter.get('/me', requireAuth, c.me);
 // Google sozlanmagan bo'lsa — "Unknown strategy" xatosidan saqlab, frontendga xabar bilan qaytaramiz.
 authRouter.get('/google', (req, res, next) => {
   if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) {
-    return res.redirect(`${env.CLIENT_URL}/auth?error=google_not_configured`);
+    return res.redirect(`${primaryClientUrl()}/auth?error=google_not_configured`);
   }
   return passport.authenticate('google', { scope: ['profile', 'email'], session: false })(req, res, next);
 });
@@ -41,7 +41,7 @@ authRouter.get(
   // Muvaffaqiyatsizlikda FRONTEND sahifasiga qaytish (backend'ning o'ziga emas).
   passport.authenticate('google', {
     session: false,
-    failureRedirect: `${env.CLIENT_URL}/auth?error=google`,
+    failureRedirect: `${primaryClientUrl()}/auth?error=google`,
   }),
   c.googleCallback,
 );

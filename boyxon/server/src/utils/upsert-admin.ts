@@ -1,8 +1,8 @@
 /**
  * Yagona admin hisobni ta'minlash — bitta martalik skript.
  *
- * TALAB: Admin panelga faqat `admin@gmail.com` + `Admin123!` kiradi.
- * - admin@gmail.com → role=admin, parol Admin123!
+ * TALAB: Admin panelga faqat `ADMIN_EMAIL` + `ADMIN_PASSWORD` (env) kiradi.
+ * - Shu email → role=admin, parol env dan
  * - Boshqa barcha adminlar → role=user (eski sessiyalar tokenVersion oshgani
  *   uchun ham bekor bo'ladi), shuning uchun ular admin panelni ko'rolmaydi.
  *

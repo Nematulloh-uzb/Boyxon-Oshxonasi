@@ -5,6 +5,7 @@ import { ApiError } from '../utils/ApiError';
 import { User } from '../models/User.model';
 import { Order } from '../models/Order.model';
 import { Notification } from '../models/Notification.model';
+import { refreshCookieOptions } from '../services/token.service';
 import type { AuthRequest } from '../types/express';
 
 const uid = (req: Request): string => (req as AuthRequest).user!.id;
@@ -18,7 +19,7 @@ export const getMe = asyncHandler(async (req: Request, res: Response) => {
 
 /** PATCH /api/users/me — ism, telefon, avatar. */
 export const updateMe = asyncHandler(async (req: Request, res: Response) => {
-  const { name, phone, avatar } = req.body as { name?: string; phone?: string; avatar?: string };
+  const { name, phone, avatar } = req.body as { name?: string; phone?: string; avatar?: string | null };
   const user = await User.findByIdAndUpdate(
     uid(req),
     {
@@ -59,10 +60,12 @@ export const updateNotifPrefs = asyncHandler(async (req: Request, res: Response)
 export const addAddress = asyncHandler(async (req: Request, res: Response) => {
   const user = await User.findById(uid(req));
   if (!user) throw ApiError.notFound('Foydalanuvchi topilmadi');
-  if ((req.body as { isDefault?: boolean }).isDefault) {
+  if (user.addresses.length >= 20) throw ApiError.badRequest('Ko‘pi bilan 20 ta manzil saqlash mumkin');
+  const body = req.body as { label: string; address: string; isDefault?: boolean };
+  if (body.isDefault) {
     user.addresses.forEach((a) => { a.isDefault = false; });
   }
-  user.addresses.push(req.body);
+  user.addresses.push({ label: body.label, address: body.address, isDefault: Boolean(body.isDefault) });
   await user.save();
   res.status(201).json(ok(user.addresses, 'Manzil qo‘shildi'));
 });
@@ -73,7 +76,10 @@ export const updateAddress = asyncHandler(async (req: Request, res: Response) =>
   if (!user) throw ApiError.notFound('Foydalanuvchi topilmadi');
   const addr = user.addresses.find((a) => a._id?.toString() === req.params.id);
   if (!addr) throw ApiError.notFound('Manzil topilmadi');
-  Object.assign(addr, req.body);
+  const body = req.body as { label?: string; address?: string; isDefault?: boolean };
+  if (body.label !== undefined) addr.label = body.label;
+  if (body.address !== undefined) addr.address = body.address;
+  if (body.isDefault !== undefined) addr.isDefault = body.isDefault;
   if ((req.body as { isDefault?: boolean }).isDefault) {
     user.addresses.forEach((a) => { if (a._id?.toString() !== req.params.id) a.isDefault = false; });
   }
@@ -138,7 +144,11 @@ export const markOneRead = asyncHandler(async (req: Request, res: Response) => {
 
 /** DELETE /api/users/me — hisobni o'chirish (soft). */
 export const deleteAccount = asyncHandler(async (req: Request, res: Response) => {
-  await User.findByIdAndUpdate(uid(req), { isActive: false });
-  res.clearCookie('refreshToken', { path: '/api/auth' });
+  const user = await User.findById(uid(req));
+  if (user) {
+    user.isActive = false;
+    await user.bumpTokenVersion();
+  }
+  res.clearCookie('refreshToken', { ...refreshCookieOptions(), maxAge: undefined });
   res.json(ok(null, 'Hisob o‘chirildi'));
 });

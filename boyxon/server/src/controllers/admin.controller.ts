@@ -13,6 +13,7 @@ import { Notification } from '../models/Notification.model';
 import { sendPushToUsers } from '../services/push.service';
 import { notifyUser, emitNotification } from '../services/notify.service';
 import { getIo } from '../socket';
+import type { AuthRequest } from '../types/express';
 
 /** GET /api/admin/orders — barcha buyurtmalar (status/date filtri). */
 export const adminOrders = asyncHandler(async (req: Request, res: Response) => {
@@ -51,7 +52,19 @@ export const updateOrderStatus = asyncHandler(async (req: Request, res: Response
   if (!ALLOWED.includes(status)) throw ApiError.badRequest('Noto‘g‘ri status');
   const order = await Order.findById(req.params.id);
   if (!order) throw ApiError.notFound('Buyurtma topilmadi');
+  const NEXT: Record<string, string[]> = {
+    pending: ['confirmed', 'cancelled'],
+    confirmed: ['packing', 'cancelled'],
+    packing: ['handed_to_taxi', 'cancelled'],
+    handed_to_taxi: ['delivered', 'cancelled'],
+    delivered: [],
+    cancelled: [],
+  };
+  if (status !== order.status && !(NEXT[order.status] ?? []).includes(status)) {
+    throw ApiError.badRequest('Bu holatga o‘tish mumkin emas');
+  }
   const wasCancelled = order.status === 'cancelled';
+  const statusChanged = status !== order.status;
   order.status = status as typeof order.status;
   order.statusHistory.push({ status, timestamp: new Date(), note });
   if (taxi) order.taxi = { ...(order.taxi ?? {}), ...taxi };
@@ -62,11 +75,15 @@ export const updateOrderStatus = asyncHandler(async (req: Request, res: Response
   await order.save();
   // Admin ham bekor qilsa — promo kvotani qaytaramiz (mijoz huquqi tiklansin).
   // Faqat birinchi marta "cancelled" ga o'tganda (takroriy status o'zgarishda emas).
-  if (status === 'cancelled' && !wasCancelled && order.promoCode) {
+  if (statusChanged && status === 'cancelled' && !wasCancelled && order.promoCode) {
     await Promo.findOneAndUpdate(
       { code: order.promoCode, usedCount: { $gt: 0 } },
       { $inc: { usedCount: -1 } },
     );
+  }
+  if (!statusChanged) {
+    res.json(ok(order, 'Yangilandi'));
+    return;
   }
   const labels: Record<string, string> = {
     pending: 'Kutilmoqda', confirmed: 'Tasdiqlandi', packing: 'Qadoqlanmoqda',
@@ -153,16 +170,38 @@ export const adminUsers = asyncHandler(async (req: Request, res: Response) => {
 
 /** PATCH /api/admin/users/:id/role — rol o'zgartirish. */
 export const changeRole = asyncHandler(async (req: Request, res: Response) => {
-  const user = await User.findByIdAndUpdate(req.params.id, { role: (req.body as { role: string }).role }, { new: true });
+  const currentAdminId = (req as AuthRequest).user!.id;
+  if (req.params.id === currentAdminId) {
+    throw ApiError.badRequest('O‘z rolingizni o‘zgartira olmaysiz');
+  }
+  const targetRole = (req.body as { role: string }).role;
+  const user = await User.findById(req.params.id);
   if (!user) throw ApiError.notFound('Foydalanuvchi topilmadi');
+  if (user.role === 'admin' && targetRole !== 'admin') {
+    const adminCount = await User.countDocuments({ role: 'admin', isActive: true });
+    if (adminCount <= 1) {
+      throw ApiError.badRequest('Tizimda kamida bitta faol admin bo‘lishi shart');
+    }
+  }
+  user.role = targetRole as 'user' | 'admin';
+  await user.bumpTokenVersion();
+  await user.save();
   res.json(ok(user, 'Rol yangilandi'));
 });
 
 /** PATCH /api/admin/users/:id/block — bloklash/ochish. */
 export const toggleBlock = asyncHandler(async (req: Request, res: Response) => {
+  const currentAdminId = (req as AuthRequest).user!.id;
+  if (req.params.id === currentAdminId) {
+    throw ApiError.badRequest('O‘zingizni bloklay olmaysiz');
+  }
   const user = await User.findById(req.params.id);
   if (!user) throw ApiError.notFound('Foydalanuvchi topilmadi');
-  user.isActive = !(req.body as { block?: boolean }).block;
+  const shouldBlock = !(req.body as { block?: boolean }).block;
+  user.isActive = shouldBlock;
+  if (!shouldBlock) {
+    await user.bumpTokenVersion();
+  }
   await user.save();
   res.json(ok(user, user.isActive ? 'Blokdan chiqarildi' : 'Bloklandi'));
 });
@@ -275,12 +314,14 @@ export const adminDishes = asyncHandler(async (req: Request, res: Response) => {
 /** POST /api/admin/dishes — taom yaratish (multipart, rasm ixtiyoriy). */
 export const createDish = asyncHandler(async (req: Request, res: Response) => {
   const body = req.body as Record<string, string>;
-  // Kategoriya mavjudligini erta tekshiramiz — CastError (500) o'rniga tushunarli 400 qaytadi.
+  // Kategoriya mavjudligini erta tekshiramiz va ObjectId ga o'giramiz — CastError (500) o'rniga tushunarli 400 qaytadi.
+  let categoryId = body.category;
   if (body.category) {
     const cat = isValidObjectId(body.category)
       ? await Category.findById(body.category).lean()
       : await Category.findOne({ $or: [{ slug: body.category }, { name: body.category }] }).lean();
     if (!cat) throw ApiError.badRequest('Kategoriya topilmadi. Iltimos, ro‘yxatdan tanlang.');
+    categoryId = String(cat._id);
   }
   let image: string | null = null;
   let imagePublicId: string | undefined;
@@ -307,7 +348,7 @@ export const createDish = asyncHandler(async (req: Request, res: Response) => {
     descriptionEn: body.descriptionEn,
     price: Number(body.price),
     oldPrice: body.oldPrice ? Number(body.oldPrice) : undefined,
-    category: body.category,
+    category: categoryId,
     deliveryTime: body.deliveryTime ? Number(body.deliveryTime) : 30,
     calories: body.calories ? Number(body.calories) : undefined,
     tags: parseTags(body.tags),
@@ -324,12 +365,13 @@ export const updateDish = asyncHandler(async (req: Request, res: Response) => {
   const dish = await Dish.findById(req.params.id);
   if (!dish) throw ApiError.notFound('Taom topilmadi');
   const body = req.body as Record<string, string>;
-  // Kategoriya o'zgartirilayotgan bo'lsa — mavjudligini tekshiramiz.
+  // Kategoriya o'zgartirilayotgan bo'lsa — mavjudligini tekshiramiz va ObjectId saqlaymiz.
   if (body.category !== undefined) {
     const cat = isValidObjectId(body.category)
       ? await Category.findById(body.category).lean()
       : await Category.findOne({ $or: [{ slug: body.category }, { name: body.category }] }).lean();
     if (!cat) throw ApiError.badRequest('Kategoriya topilmadi. Iltimos, ro‘yxatdan tanlang.');
+    dish.category = cat._id as unknown as typeof dish.category;
   }
   if (req.file) {
     if (dish.imagePublicId) await deleteFromCloudinary(dish.imagePublicId);
@@ -342,7 +384,7 @@ export const updateDish = asyncHandler(async (req: Request, res: Response) => {
       // Cloudinary yo'q bo'lsa — rasmni o'zgarishsiz qoldiramiz, lekin taomni yangilaymiz.
     }
   }
-  const fields = ['name', 'nameRu', 'nameEn', 'description', 'descriptionRu', 'descriptionEn', 'category'];
+  const fields = ['name', 'nameRu', 'nameEn', 'description', 'descriptionRu', 'descriptionEn'];
   for (const f of fields) if (body[f] !== undefined) (dish as unknown as Record<string, unknown>)[f] = body[f];
   if (body.price !== undefined) dish.price = Number(body.price);
   if (body.oldPrice !== undefined) dish.oldPrice = body.oldPrice ? Number(body.oldPrice) : undefined;

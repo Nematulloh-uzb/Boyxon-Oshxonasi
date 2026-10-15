@@ -49,10 +49,22 @@ export function initPassport(): void {
               emailVerified: true,
             });
           } else {
-            if (!user.googleId) user.googleId = profile.id;
+            if (!user.googleId) {
+              user.googleId = profile.id;
+              /**
+               * Tasdiqlanmagan email bilan oldindan ochilgan hisob — Google
+               * egalikni isbotladi. Squatting oldini olish: parolni o'chiramiz
+               * va sessiyalarni bekor qilamiz, aks holda hujumchi o'z paroli
+               * bilan haqiqiy egasining hisobiga kira olardi.
+               */
+              if (!user.emailVerified) {
+                user.password = undefined;
+                user.name = profile.displayName || user.name;
+                user.tokenVersion = (user.tokenVersion ?? 0) + 1;
+              }
+            }
             if (!user.avatar) user.avatar = profile.photos?.[0]?.value ?? null;
-            // Google orqali kirgan bo'lsa, email egaligi tasdiqlangan hisoblanadi.
-            if (!user.emailVerified) user.emailVerified = true;
+            user.emailVerified = true;
             await user.save();
           }
           return done(null, user as unknown as Express.User);

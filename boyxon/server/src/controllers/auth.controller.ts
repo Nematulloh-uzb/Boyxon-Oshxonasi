@@ -16,7 +16,7 @@ import {
   refreshCookieOptions,
 } from '../services/token.service';
 import { sendResetEmail, sendVerifyEmail } from '../services/email.service';
-import { env } from '../config/env';
+import { env, primaryClientUrl } from '../config/env';
 import { logger } from '../utils/logger';
 import type { AuthRequest } from '../types/express';
 
@@ -77,7 +77,7 @@ async function issueVerificationEmail(user: {
 }): Promise<boolean> {
   const userId = String(user.id ?? user._id);
   const token = signEmailVerifyToken(userId, user.tokenVersion ?? 0);
-  return sendVerifyEmail(user.email, `${env.CLIENT_URL}/verify-email/${token}`);
+  return sendVerifyEmail(user.email, `${primaryClientUrl()}/verify-email/${token}`);
 }
 
 /**
@@ -245,12 +245,12 @@ export const googleCallback = asyncHandler(async (req: Request, res: Response) =
   const userDoc = user?._id ? user : await User.findOne({ email: user?.email });
   if (!userDoc) throw ApiError.unauthorized('Google login xatosi');
   if (!userDoc.isActive) {
-    return res.redirect(`${env.CLIENT_URL}/auth?error=blocked`);
+    return res.redirect(`${primaryClientUrl()}/auth?error=blocked`);
   }
   // TALAB: admin panel faqat admin@gmail.com + parol bilan kiradi — Google orqali emas.
   // Aks holda Google hisobi egasi parolisiz kira olardi.
   if (userDoc.role === 'admin') {
-    return res.redirect(`${env.CLIENT_URL}/auth?error=admin_password_only`);
+    return res.redirect(`${primaryClientUrl()}/auth?error=admin_password_only`);
   }
   userDoc.lastLoginAt = new Date();
   await userDoc.save();
@@ -262,8 +262,7 @@ export const googleCallback = asyncHandler(async (req: Request, res: Response) =
     for (const [k, v] of googleCodes) if (v.expiresAt < Date.now()) googleCodes.delete(k);
   }
 
-  const next = userDoc.role === 'admin' ? '&next=/admin' : '';
-  res.redirect(`${env.CLIENT_URL}/auth/callback?code=${code}${next}`);
+  res.redirect(`${primaryClientUrl()}/auth/callback?code=${code}`);
 });
 
 /**
@@ -293,7 +292,7 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response) =
   const user = await User.findOne({ email: email.toLowerCase() });
   if (user) {
     const token = signResetToken(user.id as string, user.tokenVersion ?? 0);
-    const link = `${env.CLIENT_URL}/reset-password/${token}`;
+    const link = `${primaryClientUrl()}/reset-password/${token}`;
     // Xatni KUTMAYDIM — fonda yuboramiz. Gmail SMTP sekin bo'lishi mumkin
     // (2-10s), foydalanuvchi tugmani bosgach javobni DARHOL ko'radi. Xato
     // bo'lsa logga yoziladi; javob baribir bir xil (enumeration himoyasi saqlanadi).

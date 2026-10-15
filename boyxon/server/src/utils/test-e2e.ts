@@ -172,6 +172,41 @@ async function main(): Promise<void> {
     } else {
       check('Duplicate review (seed delivered order topilmadi)', false);
     }
+
+    // 7) Yetkazib berish (delivery) manzilsiz qabul qilinmaydi → 400
+    if (firstDish?._id) {
+      const noAddrOrder = await request(base, 'POST', '/orders',
+        { items: [{ dish: firstDish._id, quantity: 1 }], deliveryType: 'delivery', paymentMethod: 'cash' },
+        cookie ?? undefined, accessToken);
+      check('Yetkazib berish manzilsiz buyurtma → 400', noAddrOrder.status === 400, `status ${noAddrOrder.status}`);
+    }
+
+    // 8) Admin o'zini o'zi bloklay olmaydi va o'z rolini tushira olmaydi → 400
+    const adminUser = (adminLogin.body as { data: { user: { _id?: string; id?: string } } }).data?.user;
+    const adminId = String(adminUser?._id ?? adminUser?.id);
+    if (adminId && adminToken) {
+      const selfBlock = await request(base, 'PATCH', `/admin/users/${adminId}/block`, { block: true }, adminCookie ?? undefined, adminToken);
+      check('Admin o‘zini bloklash → 400', selfBlock.status === 400, `status ${selfBlock.status}`);
+      const selfDemote = await request(base, 'PATCH', `/admin/users/${adminId}/role`, { role: 'user' }, adminCookie ?? undefined, adminToken);
+      check('Admin o‘z rolini tushirish → 400', selfDemote.status === 400, `status ${selfDemote.status}`);
+    }
+
+    // 9) Admin taom yaratishda kategoriya slug yoki nom ko'rsatilsa ham muvaffaqiyatli saqlaydi
+    if (adminToken) {
+      const dishWithSlug = await request(base, 'POST', '/admin/dishes', {
+        name: 'Slug Test Taom',
+        description: 'Mazali test taomi tavsifi',
+        price: 35000,
+        category: 'palovlar',
+      }, adminCookie ?? undefined, adminToken);
+      check('Taom yaratish kategoriya slug bilan → 201', dishWithSlug.status === 201, `status ${dishWithSlug.status} ${JSON.stringify(dishWithSlug.body)}`);
+    }
+
+    // 10) Chat qidiruvida maxsus regex belgilari (? * [ ) bilan qidirish qulamasdan ishlaydi → 200
+    if (adminToken) {
+      const regexSearch = await request(base, 'GET', '/chat/conversations?search=%28%3F%5B', undefined, adminCookie ?? undefined, adminToken);
+      check('Chat maxsus regex qidiruv (? * [) → 200', regexSearch.status === 200, `status ${regexSearch.status}`);
+    }
   }
 
   // Parolni tiklash oqimi — eng oxirida (tokenVersion oshadi, eski sessiyalar o'ladi).

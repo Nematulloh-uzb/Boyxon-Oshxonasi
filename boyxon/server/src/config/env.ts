@@ -228,3 +228,9 @@ function loadEnv(): Env {
 
 export const env = loadEnv();
 export const isProd = env.NODE_ENV === 'production';
+
+/** Redirect/email havolalari uchun birinchi CLIENT_URL (vergul bilan ajratilgan ro'yxatdan). */
+export function primaryClientUrl(): string {
+  const first = env.CLIENT_URL.split(',')[0]?.trim().replace(/\/$/, '') ?? '';
+  return first || 'http://localhost:5173';
+}

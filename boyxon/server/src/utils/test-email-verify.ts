@@ -4,11 +4,11 @@
  *
  * Ishlatish: npx tsx src/utils/test-email-verify.ts
  */
-import { connectDb, disconnectDb } from '../config/db';
-import { User } from '../models/User.model';
-import { signEmailVerifyToken } from '../services/token.service';
+import { MongoMemoryServer } from 'mongodb-memory-server-core';
+import http from 'http';
+import type { AddressInfo } from 'net';
 
-const BASE = 'http://localhost:5000/api';
+let BASE = '';
 let pass = 0;
 let fail = 0;
 
@@ -29,8 +29,24 @@ async function call(method: string, path: string, body?: unknown): Promise<{ sta
 }
 
 async function main(): Promise<void> {
+  const mem = await MongoMemoryServer.create();
+  process.env.MONGODB_URI = mem.getUri('boyxon_verify_test');
+  process.env.JWT_ACCESS_SECRET = 'test-access-secret-0123456789abcdef';
+  process.env.JWT_REFRESH_SECRET = 'test-refresh-secret-0123456789abcdef';
+  process.env.JWT_RESET_SECRET = 'test-reset-secret-0123456789abcdef';
+  process.env.NODE_ENV = 'test';
+
+  const { connectDb } = await import('../config/db');
   await connectDb();
-  console.log('🧪 Email tasdiqlash oqimi tekshirilmoqda...\n');
+  const { User } = await import('../models/User.model');
+  const { signEmailVerifyToken } = await import('../services/token.service');
+  console.log('🧪 Email tasdiqlash oqimi tekshirilmoqda (xotiradagi MongoDB)...\n');
+
+  const { createApp } = await import('../app');
+  const server = http.createServer(createApp());
+  await new Promise<void>((r) => server.listen(0, r));
+  const { port } = server.address() as AddressInfo;
+  BASE = `http://127.0.0.1:${port}/api`;
 
   const email = `verifytest${Date.now()}@example.com`;
   const reg = await call('POST', '/auth/register', {
@@ -87,10 +103,14 @@ async function main(): Promise<void> {
   // Tozalash
   await User.deleteOne({ email });
 
+  await new Promise<void>((r) => server.close(() => r()));
+  const mongoose = await import('mongoose');
+  await mongoose.disconnect();
+  await mem.stop();
+
   console.log(`\n${'='.repeat(50)}`);
   console.log(`✅ O'tdi: ${pass}  ❌ Yiqildi: ${fail}`);
   console.log('='.repeat(50));
-  await disconnectDb();
   process.exit(fail ? 1 : 0);
 }
 

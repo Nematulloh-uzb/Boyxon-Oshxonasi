@@ -12,8 +12,11 @@ async function main(): Promise<void> {
   const app = createApp();
   const server = http.createServer(app);
 
+  const allowedOrigins = env.CLIENT_URL.split(',')
+    .map((s) => s.trim().replace(/\/$/, ''))
+    .filter(Boolean);
   const io = new Server(server, {
-    cors: { origin: env.CLIENT_URL.split(','), credentials: true },
+    cors: { origin: allowedOrigins, credentials: true },
   });
   setIo(io);
 
@@ -51,7 +54,7 @@ async function main(): Promise<void> {
     socket.on('chat:typing', (payload: { to?: string }) => {
       if (role === 'user') {
         socket.to('admin').emit('chat:typing', { from: userId, role });
-      } else if (payload?.to) {
+      } else if (typeof payload?.to === 'string' && /^[0-9a-fA-F]{24}$/.test(payload.to)) {
         socket.to(`user:${payload.to}`).emit('chat:typing', { role: 'admin' });
       }
     });

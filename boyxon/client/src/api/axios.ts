@@ -18,7 +18,15 @@ api.interceptors.response.use(
   (res) => res,
   async (error) => {
     const original = error.config as (typeof error.config & { _retry?: boolean });
-    if (error.response?.status === 401 && original && !original._retry) {
+    const isAuthEndpoint =
+      original?.url?.includes('/auth/login') ||
+      original?.url?.includes('/auth/register') ||
+      original?.url?.includes('/auth/refresh') ||
+      original?.url?.includes('/auth/google') ||
+      original?.url?.includes('/auth/forgot-password') ||
+      original?.url?.includes('/auth/reset-password');
+
+    if (error.response?.status === 401 && original && !original._retry && !isAuthEndpoint) {
       original._retry = true;
       if (refreshing) {
         return new Promise((resolve, reject) => {
@@ -43,13 +51,7 @@ api.interceptors.response.use(
         queue.forEach((fn) => fn(null));
         queue = [];
         useAuthStore.getState().logout();
-        // SPA ichida qolamiz — full reload (/auth ga href) eski persist state bilan
-        // "authda ushlab turadi" effektini beradi. Router o'zi ProtectedRoute orqali
-        // /auth ga yo'naltiradi; allaqachon /auth da bo'lsak hech narsa qilmaymiz.
-        if (!window.location.pathname.startsWith('/auth')) {
-          window.location.href = '/auth';
-        }
-        return Promise.reject(e);
+        return Promise.reject(error);
       } finally {
         refreshing = false;
       }
