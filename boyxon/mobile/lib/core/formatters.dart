@@ -1,15 +1,18 @@
 /// Formatlash yordamchilari (web'dagi formatPrice/formatDate bilan bir xil uslub).
 library;
 
-/// 45000 → "45 000 UZS"
-String formatPrice(num value) {
+/// 45000 → "45 000" (valyutasiz, masalan, bonus ballari uchun)
+String formatNumber(num value) {
   final digits = value.round().abs().toString();
   final grouped = digits.replaceAllMapped(
     RegExp(r'\B(?=(\d{3})+(?!\d))'),
     (m) => ' ',
   );
-  return '${value < 0 ? '-' : ''}$grouped UZS';
+  return '${value < 0 ? '-' : ''}$grouped';
 }
+
+/// 45000 → "45 000 UZS"
+String formatPrice(num value) => '${formatNumber(value)} UZS';
 
 /// "16.10.2026, 14:30"
 String formatDateTime(DateTime dt) {

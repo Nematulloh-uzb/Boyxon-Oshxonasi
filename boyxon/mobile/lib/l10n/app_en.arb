@@ -28,6 +28,7 @@
   "auth_has_account": "Already have an account?",
   "auth_logged_out": "You have signed out",
   "auth_logout": "Sign out",
+  "auth_logout_all": "Sign out on all devices",
   "auth_logout_confirm": "Sign out of your account?",
   "auth_verify_resend": "Resend verification email",
   "auth_verify_sent": "Verification email sent. Check your inbox.",
@@ -110,6 +111,7 @@
   "status_cancelled": "Cancelled",
 
   "profile_name": "Name",
+  "profile_edit": "Edit profile",
   "profile_phone": "Phone",
   "profile_email": "Email",
   "profile_saved": "Saved",

@@ -28,6 +28,7 @@
   "auth_has_account": "Уже есть аккаунт?",
   "auth_logged_out": "Вы вышли из аккаунта",
   "auth_logout": "Выйти",
+  "auth_logout_all": "Выйти на всех устройствах",
   "auth_logout_confirm": "Выйти из аккаунта?",
   "auth_verify_resend": "Отправить письмо повторно",
   "auth_verify_sent": "Письмо отправлено. Проверьте почту.",
@@ -110,6 +111,7 @@
   "status_cancelled": "Отменён",
 
   "profile_name": "Имя",
+  "profile_edit": "Редактировать профиль",
   "profile_phone": "Телефон",
   "profile_email": "Email",
   "profile_saved": "Сохранено",

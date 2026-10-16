@@ -28,6 +28,7 @@
   "auth_has_account": "Hisobingiz bormi?",
   "auth_logged_out": "Hisobdan chiqdingiz",
   "auth_logout": "Chiqish",
+  "auth_logout_all": "Barcha qurilmalardan chiqish",
   "auth_logout_confirm": "Hisobdan chiqishni tasdiqlaysizmi?",
   "auth_verify_resend": "Tasdiqlash xatini qayta yuborish",
   "auth_verify_sent": "Tasdiqlash xati yuborildi. Pochtangizni tekshiring.",
@@ -117,6 +118,7 @@
   "status_cancelled": "Bekor qilindi",
 
   "profile_name": "Ism",
+  "profile_edit": "Profilni tahrirlash",
   "profile_phone": "Telefon",
   "profile_email": "Email",
   "profile_saved": "Saqlandi",

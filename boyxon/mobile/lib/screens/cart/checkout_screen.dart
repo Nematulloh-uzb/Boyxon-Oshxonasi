@@ -117,7 +117,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       for (final a in list) {
         if (a.label == address.label && a.address == address.address) created = a;
       }
-      setState(() => _addressId = created?.id ?? list.lastOrNull?.id);
+      setState(() => _addressId = created?.id ?? (list.isNotEmpty ? list.last.id : null));
       await context.read<AuthService>().reloadMe();
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(errorText(e, l))));
