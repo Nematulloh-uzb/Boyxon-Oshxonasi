@@ -10,8 +10,13 @@ import '../../models/models.dart';
 import '../../services/auth_service.dart';
 import '../../services/cart_service.dart';
 import '../../widgets/address_form_sheet.dart';
+import '../../widgets/cart_summary.dart';
+import '../../widgets/ui_kit.dart';
 import '../orders/order_detail_screen.dart';
 
+/// Buyurtmani rasmiylashtirish — web `CheckoutSheet` bilan 1:1:
+/// yetkazish turi → manzil → to'lov usuli → izoh → hisob-kitob → tasdiqlash.
+/// Muvaffaqiyatda — web'dagi success ko'rinishi (check + buyurtma raqami).
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key, this.promo});
 
@@ -31,6 +36,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   PaymentMethod _payment = PaymentMethod.cash;
   bool _placing = false;
   bool _addingAddress = false;
+  Order? _placed;
 
   @override
   void initState() {
@@ -58,45 +64,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     return null;
   }
 
-  Future<void> _pickAddress() async {
-    final l = AppLocalizations.of(context);
-    final result = await showModalBottomSheet<Object>(
-      context: context,
-      builder: (context) => SafeArea(
-        child: ListView(
-          shrinkWrap: true,
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          children: [
-            for (final a in _addresses)
-              ListTile(
-                leading: Icon(
-                  a.id == _addressId
-                      ? Icons.radio_button_checked_rounded
-                      : Icons.radio_button_off_rounded,
-                  color: context.c.primary,
-                ),
-                title: Text(a.label),
-                subtitle: Text(a.address),
-                onTap: () => Navigator.of(context).pop(a),
-              ),
-            ListTile(
-              leading: Icon(Icons.add_location_alt_outlined, color: context.c.primary),
-              title: Text(l.checkout_add_address),
-              onTap: () => Navigator.of(context).pop('new'),
-            ),
-          ],
-        ),
-      ),
-    );
-
-    if (!mounted || result == null) return;
-    if (result is Address) {
-      setState(() => _addressId = result.id);
-    } else if (result == 'new') {
-      await _addAddress();
-    }
-  }
-
   Future<void> _addAddress() async {
     if (_addingAddress) return;
     final l = AppLocalizations.of(context);
@@ -112,7 +79,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           .map((e) => Address.fromJson(e as Map<String, dynamic>))
           .toList();
       if (!mounted) return;
-      // Yangi manzilни tanlash (label+address bo'yicha topamiz).
+      // Yangi manzilni tanlash (label+address bo'yicha topamiz).
       Address? created;
       for (final a in list) {
         if (a.label == address.label && a.address == address.address) created = a;
@@ -129,7 +96,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Future<void> _placeOrder() async {
     final l = AppLocalizations.of(context);
     final cart = context.read<CartService>();
-    final navigator = Navigator.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final address = _selectedAddress;
 
@@ -156,48 +122,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       cart.clear();
 
       if (!mounted) return;
-      await showDialog<void>(
-        context: context,
-        barrierDismissible: false,
-        builder: (dialogContext) => AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: context.c.success.withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.check_rounded, size: 36, color: context.c.success),
-              ),
-              const SizedBox(height: 14),
-              Text(
-                l.checkout_done_title,
-                textAlign: TextAlign.center,
-                style: Theme.of(dialogContext).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 6),
-              Text(
-                l.checkout_done_sub(order.orderNumber),
-                textAlign: TextAlign.center,
-                style: Theme.of(dialogContext).textTheme.bodySmall,
-              ),
-            ],
-          ),
-          actions: [
-            FilledButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(l.checkout_to_orders),
-            ),
-          ],
-        ),
-      );
-
-      if (!mounted) return;
-      navigator.pushReplacement(
-        MaterialPageRoute(builder: (_) => OrderDetailScreen(orderId: order.id)),
-      );
+      setState(() => _placed = order);
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(errorText(e, l))));
     } finally {
@@ -209,208 +134,366 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final c = context.c;
+    final placed = _placed;
+
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Sheet sarlavhasi: title + yopish (web Sheet bilan bir xil).
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 12, 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      placed != null ? l.checkout_done_title : l.checkout_title,
+                      style: TextStyle(
+                        fontFamily: 'Epilogue',
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: c.fg,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.of(context).maybePop(),
+                    icon: Icon(Icons.close_rounded, size: 22, color: c.subtle),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: placed != null ? _successView(l, c, placed) : _formView(l, c),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _successView(AppLocalizations l, BoyxonColors c, Order order) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+      children: [
+        Icon(Icons.check_circle_rounded, size: 64, color: c.success),
+        const SizedBox(height: 16),
+        Text(
+          order.orderNumber,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: 'Epilogue',
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: c.fg,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          l.checkout_track,
+          textAlign: TextAlign.center,
+          style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: c.subtle),
+        ),
+        const SizedBox(height: 24),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinePill(
+                label: l.cart_go_home,
+                onPressed: () => Navigator.of(context).maybePop(),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: GradientButton(
+                label: l.checkout_to_orders,
+                onPressed: () => Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (_) => OrderDetailScreen(orderId: order.id)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _formView(AppLocalizations l, BoyxonColors c) {
     final cart = context.watch<CartService>();
     final discount = widget.promo?.discount ?? 0;
     final fee = _deliveryType == 'pickup' || cart.subtotal >= freeDeliveryFrom ? 0 : deliveryFee;
-    final total = cart.subtotal + fee - discount;
-    final address = _selectedAddress;
+    final total = (cart.subtotal + fee - discount).clamp(0, 1 << 31);
+    final canPlace = !_placing &&
+        cart.lines.isNotEmpty &&
+        (_deliveryType != 'delivery' || _addressId != null);
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l.checkout_title)),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 140),
-          children: [
-            _sectionTitle(l.checkout_delivery_type),
-            SizedBox(
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+      children: [
+        _deliveryToggle(c, l),
+        const SizedBox(height: 20),
+
+        if (_deliveryType == 'delivery') ...[
+          _label(l.checkout_address, c),
+          if (_addresses.isEmpty)
+            Container(
               width: double.infinity,
-              child: SegmentedButton<String>(
-                segments: [
-                  ButtonSegment(
-                    value: 'delivery',
-                    label: Text(l.checkout_delivery),
-                    icon: const Icon(Icons.delivery_dining_rounded, size: 18),
-                  ),
-                  ButtonSegment(
-                    value: 'pickup',
-                    label: Text(l.checkout_pickup),
-                    icon: const Icon(Icons.storefront_rounded, size: 18),
-                  ),
-                ],
-                selected: {_deliveryType},
-                onSelectionChanged: (s) => setState(() => _deliveryType = s.first),
-                showSelectedIcon: false,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              decoration: BoxDecoration(
+                color: BoyxonPalette.primary50,
+                borderRadius: BorderRadius.circular(16),
               ),
-            ),
-
-            if (_deliveryType == 'delivery') ...[
-              _sectionTitle(l.checkout_address),
-              Container(
-                decoration: BoxDecoration(
-                  color: c.surface,
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: c.line.withValues(alpha: 0.6)),
-                ),
-                child: ListTile(
-                  leading: Icon(Icons.location_on_outlined, color: c.primary),
-                  title: Text(
-                    address?.label ?? l.checkout_no_address,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: c.fg,
-                    ),
-                  ),
-                  subtitle: address == null
-                      ? null
-                      : Text(
-                          address.address,
-                          style: TextStyle(fontFamily: 'Inter', fontSize: 12, color: c.subtle),
-                        ),
-                  trailing: _addingAddress
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2.2),
-                        )
-                      : Icon(Icons.chevron_right_rounded, color: c.subtle),
-                  onTap: _addingAddress ? null : _pickAddress,
-                ),
+              child: Text(
+                l.checkout_no_address,
+                style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: c.subtle),
               ),
+            )
+          else
+            for (final a in _addresses) ...[
+              _addressCard(a, c),
+              const SizedBox(height: 8),
             ],
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: _addingAddress ? null : _addAddress,
+              icon: _addingAddress
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.add_location_alt_outlined, size: 18),
+              label: Text(l.checkout_add_address),
+            ),
+          ),
+          const SizedBox(height: 4),
+        ],
 
-            _sectionTitle(l.checkout_payment),
-            Wrap(
+        _label(l.checkout_payment, c),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final w = (constraints.maxWidth - 8) / 2;
+            return Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
                 for (final method in PaymentMethod.values)
-                  ChoiceChip(
-                    label: Text(_paymentLabel(l, method)),
-                    selected: _payment == method,
-                    showCheckmark: false,
-                    selectedColor: c.primary,
-                    labelStyle: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: _payment == method ? Colors.white : c.fg,
-                    ),
-                    onSelected: (_) => setState(() => _payment = method),
+                  SizedBox(width: w, child: _paymentCard(method, c, l)),
+              ],
+            );
+          },
+        ),
+        const SizedBox(height: 20),
+
+        if (widget.promo != null) ...[
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: c.success.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Text(
+              l.cart_promo_ok(widget.promo!.code, formatPrice(widget.promo!.discount)),
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: c.success,
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+
+        _label(l.checkout_notes, c),
+        TextField(
+          controller: _notesCtrl,
+          maxLines: 2,
+          style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: c.fg),
+          decoration: InputDecoration(
+            hintText: l.checkout_notes_hint,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(color: c.line),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(color: c.line),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(color: c.primary),
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        CartSummary(
+          subtotal: cart.subtotal,
+          deliveryFee: fee,
+          discount: discount,
+          total: total,
+        ),
+        const SizedBox(height: 20),
+
+        GradientButton(
+          label: _placing ? l.cart_processing : l.checkout_place,
+          size: GradientButtonSize.lg,
+          onPressed: canPlace ? _placeOrder : null,
+        ),
+      ],
+    );
+  }
+
+  Widget _deliveryToggle(BoyxonColors c, AppLocalizations l) {
+    Widget segment(String value, IconData icon, String label) {
+      final active = _deliveryType == value;
+      return Expanded(
+        child: GestureDetector(
+          onTap: () => setState(() => _deliveryType = value),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            decoration: BoxDecoration(
+              color: active ? c.surface : Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: active
+                  ? [
+                      BoxShadow(
+                        color: const Color(0xFF5D4037).withValues(alpha: 0.08),
+                        blurRadius: 4,
+                        offset: const Offset(0, 1),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 16, color: active ? BoyxonPalette.primary700 : c.subtle),
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: active ? BoyxonPalette.primary700 : c.subtle,
                   ),
+                ),
               ],
             ),
+          ),
+        ),
+      );
+    }
 
-            _sectionTitle(l.checkout_notes),
-            TextField(
-              controller: _notesCtrl,
-              maxLines: 2,
-              decoration: InputDecoration(hintText: l.checkout_notes_hint),
-            ),
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: c.placeholderBg,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          segment('delivery', Icons.delivery_dining_rounded, l.checkout_delivery),
+          const SizedBox(width: 8),
+          segment('pickup', Icons.storefront_rounded, l.checkout_pickup),
+        ],
+      ),
+    );
+  }
 
-            const SizedBox(height: 18),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: c.surface,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: c.line.withValues(alpha: 0.6)),
+  Widget _addressCard(Address a, BoyxonColors c) {
+    final active = a.id == _addressId;
+    return GestureDetector(
+      onTap: () => setState(() => _addressId = a.id),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        decoration: BoxDecoration(
+          color: active ? BoyxonPalette.primary50 : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: active ? c.primary : c.line),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              a.label,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: c.fg,
               ),
-              child: Column(
-                children: [
-                  _row(l, c, l.cart_subtotal, formatPrice(cart.subtotal)),
-                  _row(l, c, l.cart_delivery,
-                      fee == 0 ? l.cart_free : formatPrice(fee),
-                      valueColor: fee == 0 ? c.success : null),
-                  if (discount > 0)
-                    _row(l, c, l.cart_discount, '-${formatPrice(discount)}', valueColor: c.success),
-                  Divider(color: c.line),
-                  const SizedBox(height: 8),
-                  _row(l, c, l.cart_total, formatPrice(total), bold: true),
-                ],
+            ),
+            const SizedBox(height: 2),
+            Text(
+              a.address,
+              style: TextStyle(fontFamily: 'Inter', fontSize: 12, color: c.subtle),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _paymentCard(PaymentMethod method, BoyxonColors c, AppLocalizations l) {
+    final active = _payment == method;
+    final (icon, label) = switch (method) {
+      PaymentMethod.payme => (Icons.smartphone_rounded, 'Payme'),
+      PaymentMethod.click => (Icons.touch_app_rounded, 'Click'),
+      PaymentMethod.uzum => (Icons.account_balance_wallet_rounded, 'Uzum Bank'),
+      PaymentMethod.cash => (Icons.payments_rounded, l.checkout_cash),
+    };
+    final fg = active ? BoyxonPalette.primary700 : c.fg;
+
+    return GestureDetector(
+      onTap: () => setState(() => _payment = method),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        decoration: BoxDecoration(
+          color: active ? BoyxonPalette.primary50 : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: active ? c.primary : c.line),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 16, color: fg),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: fg,
+                ),
               ),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-          decoration: BoxDecoration(
-            color: c.surface,
-            border: Border(top: BorderSide(color: c.line)),
-          ),
-          child: Row(
-            children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(l.cart_total, style: TextStyle(fontFamily: 'Inter', fontSize: 12, color: c.subtle)),
-                  Text(
-                    formatPrice(total),
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      color: c.fg,
-                    ),
-                  ),
-                ],
-              ),
-              const Spacer(),
-              SizedBox(
-                width: 190,
-                child: FilledButton(
-                  onPressed: _placing ? null : _placeOrder,
-                  child: _placing
-                      ? const SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white),
-                        )
-                      : Text(l.checkout_place),
-                ),
-              ),
-            ],
+    );
+  }
+
+  Widget _label(String text, BoyxonColors c) => Padding(
+        padding: const EdgeInsets.only(bottom: 6),
+        child: Text(
+          text,
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: c.fgMuted,
           ),
         ),
-      ),
-    );
-  }
-
-  String _paymentLabel(AppLocalizations l, PaymentMethod method) => switch (method) {
-        PaymentMethod.cash => l.checkout_cash,
-        PaymentMethod.payme => 'Payme',
-        PaymentMethod.click => 'Click',
-        PaymentMethod.uzum => 'Uzum Bank',
-      };
-
-  Widget _sectionTitle(String title) => Padding(
-        padding: const EdgeInsets.only(top: 18, bottom: 10),
-        child: Text(title, style: Theme.of(context).textTheme.titleMedium),
       );
-
-  Widget _row(AppLocalizations l, BoyxonColors c, String label, String value,
-      {Color? valueColor, bool bold = false}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: [
-          Text(label, style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: c.subtle)),
-          const Spacer(),
-          Text(
-            value,
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: bold ? 16 : 14,
-              fontWeight: bold ? FontWeight.w800 : FontWeight.w600,
-              color: valueColor ?? c.fg,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
