@@ -18,12 +18,16 @@ const phoneSchema = z
  */
 const AVATAR_DATA_URL = /^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/;
 
+/** Faqat http(s) havolalar — `javascript:`, `data:` va boshqa sxemalar rad etiladi
+ *  (zod'ning `string().url()` i har qanday sxemani qabul qilardi). */
+const HTTP_URL = /^https?:\/\/\S+$/i;
+
 export const updateMeSchema = z.object({
   name: z.string().trim().min(2, 'Ism kamida 2 harf').max(80).optional(),
   phone: phoneSchema.optional(),
   avatar: z
     .union([
-      z.string().url().max(500),
+      z.string().regex(HTTP_URL, 'Faqat http(s) havola').max(500),
       z.string().regex(AVATAR_DATA_URL, 'Rasm formati noto‘g‘ri').max(150_000, 'Rasm juda katta'),
       z.literal(''),
       z.null(),
