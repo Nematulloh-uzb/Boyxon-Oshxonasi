@@ -8,7 +8,7 @@ Cloudinary rasmlar, to'liq admin panel.
 
 - Fon: `#FFF8F0` (cream) · Matn: `#2C2C2C` · Chiziq: `#ECE5DC`
 - Primary: `#E67E22` → hover `#D35400` · Success `#27AE60` · Danger `#E74C3C`
-- Shrfitlar: Poppins (sarlavha) + Inter (matn) — Google Fonts
+- Shriftlar: Epilogue (sarlavha) + Inter (matn) — Google Fonts
 - Radius: karta 20px, tugma full · Mobile-first: 375 / 768 / 1024 / 1440
 - Rasm yo'q bo'lsa → `DishPlaceholder` (hech qachon avto-generatsiya qilinmaydi)
 
@@ -81,10 +81,11 @@ orqali butun backend'ni tekshiradi (Atlas whitelist shart emas):
 
 ```bash
 cd boyxon/server
-npm test    # 37 ta tekshiruv: auth, dishes, orders, admin, 403, injection, poyga
+npm test    # 59 ta tekshiruv: auth, ko'p qurilma sessiyalari, avatar, dishes,
+            # orders, admin, 403, injection, poyga, parol tiklash
 ```
 
-Natija: `✅ O'tdi: 37  ❌ Yiqildi: 0`
+Natija: `✅ O'tdi: 59  ❌ Yiqildi: 0`
 
 ## Muhit o'zgaruvchilari
 
