@@ -46,7 +46,10 @@ export function issueTokens(id: string, role: string, tokenVersion: number, sid:
  * Diqqat: bu uchtasi ham "bu manzil haqiqatan sizniki" degan kafolat bermaydi.
  * Faqat emailga yuborilgan havola buni isbotlaydi (`verifyEmail`).
  */
-export async function registerUser(input: { name: string; email: string; phone?: string; password: string }) {
+export async function registerUser(
+  input: { name: string; email: string; phone?: string; password: string },
+  userAgent?: string,
+) {
   const email = input.email.toLowerCase();
 
   const problem = await checkEmailDeliverable(email);
@@ -66,7 +69,8 @@ export async function registerUser(input: { name: string; email: string; phone?:
   });
   user.lastLoginAt = new Date();
   await user.save();
-  return { user, ...issueTokens(user.id as string, user.role, user.tokenVersion ?? 0) };
+  const sid = await createRefreshSession(user.id as string, userAgent);
+  return { user, ...issueTokens(user.id as string, user.role, user.tokenVersion ?? 0, sid) };
 }
 
 /**
