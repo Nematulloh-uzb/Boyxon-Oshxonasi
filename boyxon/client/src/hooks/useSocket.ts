@@ -3,6 +3,7 @@ import { io, type Socket } from 'socket.io-client';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '../store/auth.store';
+import { authApi } from '../api/auth.api';
 
 const SOCKET_URL = (import.meta.env.VITE_SOCKET_URL as string | undefined) ?? 'http://localhost:5000';
 
@@ -29,6 +30,7 @@ export function useSocket(): void {
   const qc = useQueryClient();
   const ref = useRef<Socket | null>(null);
   const tokenRef = useRef<string | null>(null);
+  const lastRefreshAtRef = useRef(0);
   tokenRef.current = token;
 
   useEffect(() => {
@@ -62,9 +64,26 @@ export function useSocket(): void {
       if (type !== 'order' && toastAllowed(type)) toast.info(p.message ?? p.title ?? 'Yangi bildirishnoma');
     });
     socket.on('connect_error', (err: Error) => {
-      // Token eskirgan bo'lsa — axios interceptor yangilaydi va token deps
-      // orqali bu effect qayta ishlab, yangi token bilan ulanadi.
-      if (/token/i.test(err.message)) socket.disconnect();
+      // Access token eskirgan bo'lsa — axios kabi refresh qilib, yangi token bilan
+      // qayta ulanamiz. Avval bu yerda `socket.disconnect()` chaqirilardi: u
+      // socket.io ning avtomatik reconnect'ini ham o'chirib qo'yardi va token
+      // boshqa so'rovda yangilanmaguncha socket o'lik qolardi (order/bildirishnoma
+      // yangilanishlari kelmay qolardi).
+      if (!/token/i.test(err.message)) return;
+      const now = Date.now();
+      if (now - lastRefreshAtRef.current < 30_000) return; // spam oldini olish
+      lastRefreshAtRef.current = now;
+      void authApi
+        .refresh()
+        .then((r) => {
+          // setToken → token deps o'zgaradi → bu effect yangi socket ochadi.
+          useAuthStore.getState().setToken(r.data.accessToken);
+          if (r.data.user) useAuthStore.getState().setUser(r.data.user);
+        })
+        .catch(() => {
+          // Refresh cookie ham yaroqsiz — keyingi REST so'rovlar axios
+          // interceptor orqali logout qiladi, bu yerda takror urinmaymiz.
+        });
     });
     return () => {
       socket.disconnect();

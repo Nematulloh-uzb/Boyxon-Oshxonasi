@@ -209,6 +209,54 @@ async function main(): Promise<void> {
     }
   }
 
+  // ── Ko'p qurilma sessiyalari (multi-device) — C2 regressiya testi ──
+  // Ilgari har refresh global tokenVersion ni oshirardi va BOSHQA qurilmalar
+  // majburan chiqarilardi. Endi har qurilma o'z sessiyasiga (sid) ega.
+  {
+    const dev1 = await request(base, 'POST', '/auth/login', { email: 'aziz@example.com', password: 'User123!' });
+    const dev2 = await request(base, 'POST', '/auth/login', { email: 'aziz@example.com', password: 'User123!' });
+    check('Ikki qurilmada login → ikkalasi cookie oladi', dev1.status === 200 && dev2.status === 200 && Boolean(dev1.cookie) && Boolean(dev2.cookie), `statuses ${dev1.status}/${dev2.status}`);
+
+    const r1 = await request(base, 'POST', '/auth/refresh', {}, dev1.cookie ?? undefined);
+    const t1 = (r1.body as { data: { accessToken: string } }).data?.accessToken;
+    check('1-qurilma refresh → 200', r1.status === 200, `status ${r1.status}`);
+    check('1-qurilma yangi token bilan ishlaydi → 200', Boolean(t1) && (await request(base, 'GET', '/auth/me', undefined, dev1.cookie ?? undefined, t1)).status === 200);
+
+    const r2 = await request(base, 'POST', '/auth/refresh', {}, dev2.cookie ?? undefined);
+    check('2-qurilma 1-refreshdan keyin ham 200 (cross-device logout yo‘q)', r2.status === 200, `status ${r2.status} ${JSON.stringify(r2.body)}`);
+
+    const out1 = await request(base, 'POST', '/auth/logout', {}, dev1.cookie ?? undefined);
+    check('1-qurilma logout → 200', out1.status === 200, `status ${out1.status}`);
+    const r1b = await request(base, 'POST', '/auth/refresh', {}, dev1.cookie ?? undefined);
+    check('logoutdan keyin 1-qurilma refresh → 401 (sessiya o‘chdi)', r1b.status === 401, `status ${r1b.status}`);
+    const r2b = await request(base, 'POST', '/auth/refresh', {}, dev2.cookie ?? undefined);
+    check('2-qurilma logoutdan ta’sirlanmadi → 200', r2b.status === 200, `status ${r2b.status}`);
+
+    const fake = await request(base, 'POST', '/auth/refresh', {}, 'refreshToken=soxta-token');
+    check('Soxta refresh cookie → 401', fake.status === 401, `status ${fake.status}`);
+  }
+
+  // ── Bloklash effekti: isActive + sessiyalar (ilgari hech tekshirilmagan edi) ──
+  {
+    const { User } = await import('../models/User.model');
+    const { RefreshSession } = await import('../models/RefreshSession.model');
+    const victim = await request(base, 'POST', '/auth/login', { email: 'aziz@example.com', password: 'User123!' });
+    const vTok = (victim.body as { data: { accessToken: string } }).data?.accessToken;
+    const target = await User.findOne({ email: 'aziz@example.com' });
+
+    const blk = await request(base, 'PATCH', `/admin/users/${String(target!._id)}/block`, { block: true }, adminCookie ?? undefined, adminToken);
+    const after = await User.findById(target!._id);
+    check('Admin bloklaydi → isActive=false', blk.status === 200 && after?.isActive === false, `status ${blk.status} isActive=${after?.isActive}`);
+    const vMe = await request(base, 'GET', '/auth/me', undefined, victim.cookie ?? undefined, vTok);
+    check('Bloklangan userni eski access tokeni o‘ladi → 401/403', vMe.status === 401 || vMe.status === 403, `status ${vMe.status}`);
+    check('Bloklangan user refresh qila olmaydi → 401', (await request(base, 'POST', '/auth/refresh', {}, victim.cookie ?? undefined)).status === 401);
+    check('Bloklashda barcha refresh sessiyalari o‘chirildi', (await RefreshSession.countDocuments({ user: target!._id })) === 0);
+
+    const unblk = await request(base, 'PATCH', `/admin/users/${String(target!._id)}/block`, { block: false }, adminCookie ?? undefined, adminToken);
+    const after2 = await User.findById(target!._id);
+    check('Admin blokdan chiqaradi → isActive=true', unblk.status === 200 && after2?.isActive === true, `status ${unblk.status} isActive=${after2?.isActive}`);
+  }
+
   // Parolni tiklash oqimi — eng oxirida (tokenVersion oshadi, eski sessiyalar o'ladi).
   {
     const { signResetToken } = await import('../services/token.service');

@@ -10,11 +10,24 @@ const phoneSchema = z
     'Telefon +998 XX XXX XX XX formatda bo‘lsin',
   );
 
+/**
+ * Avatar: tashqi URL (Cloudinary va h.k.) YOKI kichraytirilgan data-URL.
+ * Client rasmni canvas orqali ~512px JPEG ga siqib yuboradi (~30-60 KB) —
+ * 150 000 belgi limiti oddiy rasm uchun mo'ljallangan (body limiti 256 KB).
+ * Faqat jpeg/png/webp — SVG rad etiladi (u skript saqlay oladi, XSS vektori).
+ */
+const AVATAR_DATA_URL = /^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/;
+
 export const updateMeSchema = z.object({
   name: z.string().trim().min(2, 'Ism kamida 2 harf').max(80).optional(),
   phone: phoneSchema.optional(),
   avatar: z
-    .union([z.string().url().max(500), z.literal(''), z.null()])
+    .union([
+      z.string().url().max(500),
+      z.string().regex(AVATAR_DATA_URL, 'Rasm formati noto‘g‘ri').max(150_000, 'Rasm juda katta'),
+      z.literal(''),
+      z.null(),
+    ])
     .optional(),
 });
 

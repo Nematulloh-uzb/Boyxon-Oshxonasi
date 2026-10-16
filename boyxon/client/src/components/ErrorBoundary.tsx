@@ -1,0 +1,64 @@
+import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { AlertTriangle } from 'lucide-react';
+import i18n from '../locales/i18n';
+
+interface Props {
+  children: ReactNode;
+}
+
+interface State {
+  hasError: boolean;
+}
+
+/**
+ * Butun ilova uchun xavfsizlik to'ri (Error Boundary).
+ *
+ * Nega kerak: React'da render paytida kutilmagan xato yuz bersa (masalan, yangi
+ * deploydan keyin eski chunk topilmasa yoki biror komponent buzilsa), butun SPA
+ * oq ekranga aylanib qolardi. Endi foydalanuvchi tushunarli xabar va
+ * "Sahifani yangilash" tugmasini ko'radi.
+ *
+ * Class komponent — React'da error boundary faqat class orqali aniqlanadi.
+ * i18n to'g'ridan-to'g'ri import qilinadi (hook ishlatib bo'lmaydi).
+ */
+export class ErrorBoundary extends Component<Props, State> {
+  state: State = { hasError: false };
+
+  static getDerivedStateFromError(): State {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo): void {
+    // Keyinchalik Sentry va h.k. ulanadigan joy. Hozircha konsolga yozamiz.
+    console.error('UI ErrorBoundary:', error, info.componentStack);
+  }
+
+  render(): ReactNode {
+    if (!this.state.hasError) return this.props.children;
+
+    const t = i18n.t.bind(i18n);
+    return (
+      <div className="grid min-h-screen place-items-center bg-bg px-4">
+        <div className="w-full max-w-sm rounded-card border border-ink-line/60 bg-surface p-6 text-center shadow-sm">
+          <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-danger/10 text-danger">
+            <AlertTriangle className="h-7 w-7" />
+          </div>
+          <h1 className="mt-4 font-display text-xl font-bold text-ink-900">{t('common.error')}</h1>
+          <p className="mt-2 text-sm text-ink-300">{t('errors.boundary_desc')}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-5 h-12 w-full rounded-full bg-gradient-to-r from-primary-500 to-[#F39C12] text-[15px] font-semibold text-white transition-opacity hover:opacity-90"
+          >
+            {t('errors.boundary_reload')}
+          </button>
+          <a
+            href="/"
+            className="mt-3 inline-block text-sm font-medium text-primary-600 hover:underline"
+          >
+            {t('nav.home')}
+          </a>
+        </div>
+      </div>
+    );
+  }
+}

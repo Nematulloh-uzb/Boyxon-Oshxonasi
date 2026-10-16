@@ -4,6 +4,7 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { ok, paginated } from '../utils/ApiResponse';
 import { ApiError } from '../utils/ApiError';
 import { User } from '../models/User.model';
+import { RefreshSession } from '../models/RefreshSession.model';
 import { Dish } from '../models/Dish.model';
 import { Order } from '../models/Order.model';
 import { uploadBufferToCloudinary, deleteFromCloudinary } from '../services/cloudinary.service';
@@ -189,7 +190,12 @@ export const changeRole = asyncHandler(async (req: Request, res: Response) => {
   res.json(ok(user, 'Rol yangilandi'));
 });
 
-/** PATCH /api/admin/users/:id/block — bloklash/ochish. */
+/** PATCH /api/admin/users/:id/block — bloklash/ochish.
+ *
+ * Semantika: `block: true` = foydalanuvchini bloklash; `block: false` = blokdan chiqarish.
+ * Bloklashda tokenVersion oshiriladi VA barcha refresh sessiyalari o'chiriladi —
+ * bloklangan qurilmalar mavjud cookie bilan qayta kira olmaydi.
+ */
 export const toggleBlock = asyncHandler(async (req: Request, res: Response) => {
   const currentAdminId = (req as AuthRequest).user!.id;
   if (req.params.id === currentAdminId) {
@@ -197,12 +203,15 @@ export const toggleBlock = asyncHandler(async (req: Request, res: Response) => {
   }
   const user = await User.findById(req.params.id);
   if (!user) throw ApiError.notFound('Foydalanuvchi topilmadi');
-  const shouldBlock = !(req.body as { block?: boolean }).block;
-  user.isActive = shouldBlock;
-  if (!shouldBlock) {
+  const shouldBlock = (req.body as { block?: boolean }).block === true;
+  user.isActive = !shouldBlock;
+  if (shouldBlock) {
     await user.bumpTokenVersion();
   }
   await user.save();
+  if (shouldBlock) {
+    await RefreshSession.deleteMany({ user: user._id });
+  }
   res.json(ok(user, user.isActive ? 'Blokdan chiqarildi' : 'Bloklandi'));
 });
 

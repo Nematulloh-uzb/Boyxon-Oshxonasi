@@ -7,8 +7,6 @@ import { User } from '../models/User.model';
 import { RefreshSession } from '../models/RefreshSession.model';
 import { registerUser, loginUser, issueTokens, createRefreshSession } from '../services/auth.service';
 import {
-  signAccessToken,
-  signRefreshToken,
   verifyRefreshToken,
   signResetToken,
   verifyResetToken,
@@ -177,36 +175,52 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   }
 });
 
-/** POST /api/auth/logout — refresh cookie ni tozalash. */
-export const logout = asyncHandler(async (_req: Request, res: Response) => {
+/** POST /api/auth/logout — faqat shu qurilma sessiyasini yopish (cookie ni ham tozalash). */
+export const logout = asyncHandler(async (req: Request, res: Response) => {
+  const token = req.cookies?.refreshToken as string | undefined;
+  if (token) {
+    // Cookie buzilgan/imzosi noto'g'ri bo'lsa ham xato bermaymiz — baribir tozalanadi.
+    try {
+      const payload = verifyRefreshToken(token);
+      if (payload.sid) await RefreshSession.deleteOne({ user: payload.id, sid: payload.sid });
+    } catch {
+      /* jim */
+    }
+  }
   // clearCookie aynan o'rnatilgan option'lar bilan bo'lishi kerak (path + sameSite + secure),
   // aks holda brauzer cookie'ni o'chirmaydi va refresh qayta login qilib qo'yadi.
-  res.clearCookie('refreshToken', { ...refreshCookieOptions(), maxAge: undefined });
+  clearRefreshCookie(res);
   res.json(ok(null, 'Chiqish muvaffaqiyatli'));
 });
 
 /**
  * POST /api/auth/logout-all — barcha qurilmalardan chiqish.
- * tokenVersion oshiriladi: barcha access va refresh tokenlar darhol o'ladi.
+ * tokenVersion oshiriladi + barcha refresh sessiyalari o'chiriladi — hamma token darhol o'ladi.
  */
 export const logoutAll = asyncHandler(async (req: Request, res: Response) => {
   const userId = (req as AuthRequest).user!.id;
   const user = await User.findById(userId);
   if (user) await user.bumpTokenVersion();
-  res.clearCookie('refreshToken', { ...refreshCookieOptions(), maxAge: undefined });
+  await RefreshSession.deleteMany({ user: userId });
+  clearRefreshCookie(res);
   res.json(ok(null, 'Barcha qurilmalardan chiqdingiz'));
 });
 
 /**
  * POST /api/auth/refresh — cookie dagi refresh token orqali yangi access token.
  *
- * Refresh token rotatsiyasi: har yangilanishda tokenVersion oshiriladi va yangi juftlik
- * beriladi. Shu tufayli o'g'irlangan refresh token keyingi yangilanishdan keyin ishlamaydi.
+ * Har qurilma O'Z sessiyasiga ega (`sid`): bu so'rov faqat shu sessiyani tekshiradi
+ * va muddatini cho'zadi — boshqa qurilmalarning sessiyalari TEGILMAYDI
+ * (ilgari global tokenVersion oshirilardi va telefon + noutbuk bir-birini
+ * chiqarib yuborardi — regressiya testi: test-e2e.ts "ko'p qurilma" bloki).
+ *
+ * Sessiya o'chirilgan bo'lsa (logout qilingan qurilma, bloklangan hisob,
+ * parol almashgan) — 401. `ver` mos kelsa ham sessiya majburiy.
  */
 export const refresh = asyncHandler(async (req: Request, res: Response) => {
   const token = req.cookies?.refreshToken as string | undefined;
   if (!token) throw ApiError.unauthorized('Refresh token topilmadi');
-  let payload: { id: string; ver: number };
+  let payload: { id: string; ver: number; sid: string };
   try {
     payload = verifyRefreshToken(token);
   } catch {
@@ -214,14 +228,26 @@ export const refresh = asyncHandler(async (req: Request, res: Response) => {
   }
   const user = await User.findById(payload.id);
   if (!user || !user.isActive) throw ApiError.unauthorized('Foydalanuvchi topilmadi');
+  // Global bekor qilish: parol almashgan / hammasidan chiqilgan / bloklangan holatlar.
   if ((user.tokenVersion ?? 0) !== payload.ver) {
     throw ApiError.unauthorized('Sessiya bekor qilingan — qaytadan kiring');
   }
+  const session = payload.sid
+    ? await RefreshSession.findOne({ user: user._id, sid: payload.sid })
+    : null;
+  if (!session) {
+    // Sessiya topilmadi: logout qilingan, muddati o'tgan yoki eski (deploy oldidan)
+    // token. Qaytadan kirish talab qilinadi — boshqa qurilmalar zarar ko'rmaydi.
+    throw ApiError.unauthorized('Sessiya topilmadi — qaytadan kiring');
+  }
 
-  user.tokenVersion = (user.tokenVersion ?? 0) + 1;
-  await user.save();
+  // Sliding expiry: faol qurilma har yangilanishda yana 7 kun oladi.
+  session.expiresAt = new Date(Date.now() + REFRESH_TTL_MS);
+  session.lastUsedAt = new Date();
+  await session.save();
 
-  const tokens = issueTokens(user.id as string, user.role, user.tokenVersion);
+  // tokenVersion OSHIRILMAYDI — aks holda boshqa qurilmalar o'lardi.
+  const tokens = issueTokens(user.id as string, user.role, user.tokenVersion ?? 0, payload.sid);
   setRefreshCookie(res, tokens.refreshToken);
   res.json(ok({ accessToken: tokens.accessToken, user }, 'Token yangilandi'));
 });
@@ -288,7 +314,8 @@ export const googleExchange = asyncHandler(async (req: Request, res: Response) =
   if (!userId) throw ApiError.unauthorized('Kod yaroqsiz yoki muddati o‘tgan');
   const user = await User.findById(userId);
   if (!user || !user.isActive) throw ApiError.unauthorized('Foydalanuvchi topilmadi');
-  const tokens = issueTokens(user.id as string, user.role, user.tokenVersion ?? 0);
+  const sid = await createRefreshSession(user.id as string, userAgentOf(req));
+  const tokens = issueTokens(user.id as string, user.role, user.tokenVersion ?? 0, sid);
   setRefreshCookie(res, tokens.refreshToken);
   res.json(ok({ accessToken: tokens.accessToken, user }, 'Kirdingiz'));
 });
@@ -367,6 +394,8 @@ export const resetPassword = asyncHandler(async (req: Request, res: Response) =>
   user.failedLoginAttempts = 0;
   user.lockedUntil = null;
   await user.save();
+  // Parol almashdi — barcha qurilmalar sessiyalari o'chadi (o'g'irlangan sessiyalar o'ladi).
+  await RefreshSession.deleteMany({ user: user._id });
   logger.info({ userId: user.id }, 'Parol tiklandi — barcha eski sessiyalar bekor qilindi');
   res.json(ok(null, 'Parol yangilandi. Endi qaytadan kiring.'));
 });
@@ -383,10 +412,13 @@ export const changePassword = asyncHandler(async (req: Request, res: Response) =
     throw ApiError.badRequest('Yangi parol eskisidan farq qilishi kerak');
   }
   user.password = newPassword;
-  // Parol almashdi — barcha eski tokenlar bekor qilinadi (o'g'irlangan sessiyalar o'ladi).
+  // Parol almashdi — barcha eski tokenlar va sessiyalar bekor qilinadi
+  // (o'g'irlangan sessiyalar o'ladi), joriy qurilma yangi sessiya oladi.
   user.tokenVersion = (user.tokenVersion ?? 0) + 1;
   await user.save();
-  const tokens = issueTokens(user.id as string, user.role, user.tokenVersion);
+  await RefreshSession.deleteMany({ user: user._id });
+  const sid = await createRefreshSession(user.id as string, userAgentOf(req));
+  const tokens = issueTokens(user.id as string, user.role, user.tokenVersion, sid);
   setRefreshCookie(res, tokens.refreshToken);
   res.json(ok({ accessToken: tokens.accessToken }, 'Parol o‘zgartirildi'));
 });

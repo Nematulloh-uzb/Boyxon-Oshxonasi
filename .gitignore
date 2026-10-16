@@ -14,6 +14,11 @@ vapid-keys.json
 strings.json
 extract.cjs
 i18n-scan.txt
+
+# TypeScript incremental build artefaktlari (git'ga tushmasligi shart —
+# ular build vaqtida qayta yaratiladi; ilgari tracked bo'lib, vite.config.js
+# vite.config.ts ni soya qilib qo'ygan edi)
+*.tsbuildinfo
 client.log
 client-dev.log
 server.log
