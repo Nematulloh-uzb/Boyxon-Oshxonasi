@@ -33,17 +33,47 @@ class _OrdersScreenState extends State<OrdersScreen> {
   int _page = 1;
   int _pages = 1;
   StreamSubscription<Map<String, dynamic>>? _statusSub;
+  AuthService? _auth;
+  bool _wasLoggedIn = false;
 
   @override
   void initState() {
     super.initState();
-    _load();
     _scrollCtrl.addListener(_onScroll);
     _statusSub = context.read<SocketService>().orderStatus.listen((_) => _load(silent: true));
+    // Cold start'da hali login bo'lmagan bo'lsa so'rov yubormaymiz — aks holda
+    // "Token topilmadi" xatosi saqlanib qolib, kirgandan keyin ham ko'rinadi.
+    // Login bo'lganda _onAuth avtomatik yuklaydi.
+    final auth = context.read<AuthService>();
+    _auth = auth;
+    _wasLoggedIn = auth.isLoggedIn;
+    auth.addListener(_onAuth);
+    if (_wasLoggedIn) {
+      _load();
+    } else {
+      _loading = false;
+    }
+  }
+
+  /// Login/logout holati o'zgarganda ro'yxatni yangilash.
+  void _onAuth() {
+    final loggedIn = _auth?.isLoggedIn ?? false;
+    if (loggedIn == _wasLoggedIn) return;
+    _wasLoggedIn = loggedIn;
+    if (loggedIn) {
+      _load();
+    } else if (mounted) {
+      setState(() {
+        _orders = [];
+        _error = null;
+        _loading = false;
+      });
+    }
   }
 
   @override
   void dispose() {
+    _auth?.removeListener(_onAuth);
     _statusSub?.cancel();
     _scrollCtrl.dispose();
     super.dispose();

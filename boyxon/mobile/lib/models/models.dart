@@ -278,12 +278,19 @@ class OrderItem {
     required this.quantity,
   });
 
-  factory OrderItem.fromJson(Map<String, dynamic> json) => OrderItem(
-        dishId: (json['dish'] ?? '') as String,
-        name: (json['name'] ?? '') as String,
-        price: ((json['price'] ?? 0) as num).toInt(),
-        quantity: ((json['quantity'] ?? 1) as num).toInt(),
-      );
+  factory OrderItem.fromJson(Map<String, dynamic> json) {
+    // `dish` ba'zi endpoint'larda string (id), ba'zilarida obyekt
+    // ({_id, slug, image}) bo'lib keladi — ikkalasi ham qo'llanadi.
+    final dish = json['dish'];
+    return OrderItem(
+      dishId: dish is Map<String, dynamic>
+          ? (dish['_id'] ?? '') as String
+          : (dish ?? '') as String,
+      name: (json['name'] ?? '') as String,
+      price: ((json['price'] ?? 0) as num).toInt(),
+      quantity: ((json['quantity'] ?? 1) as num).toInt(),
+    );
+  }
 }
 
 class StatusEvent {
