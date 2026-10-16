@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'core/constants.dart';
-import 'formatters.dart';
-
 /// DESIGN.md tokenlari (web globals.css / tailwind.config.ts bilan bir xil).
 class BoyxonColors extends ThemeExtension<BoyxonColors> {
   final Color bg;
@@ -277,9 +274,3 @@ ThemeData _theme(BoyxonColors c, Brightness brightness) {
 
 ThemeData lightTheme() => _theme(BoyxonColors.light, Brightness.light);
 ThemeData darkTheme() => _theme(BoyxonColors.dark, Brightness.dark);
-
-/// "45 000 UZS" — narx bor joyda ishlatish uchun kichik yordamchi ham shu yerda.
-String priceText(num value) => formatPrice(value);
-
-/// Bepul yetkazish chegarasi — cart ekranlarida qulay.
-const kFreeDeliveryFrom = freeDeliveryFrom;
