@@ -333,6 +333,8 @@ class Order {
   final String? notes;
   final List<StatusEvent> statusHistory;
   final DateTime? createdAt;
+  final String? userName;
+  final String? userPhone;
 
   const Order({
     required this.id,
@@ -352,6 +354,8 @@ class Order {
     this.notes,
     this.statusHistory = const [],
     this.createdAt,
+    this.userName,
+    this.userPhone,
   });
 
   bool get isDelivery => deliveryType == 'delivery';
@@ -360,6 +364,8 @@ class Order {
 
   factory Order.fromJson(Map<String, dynamic> json) {
     final addr = json['address'] as Map<String, dynamic>?;
+    final user = json['user'];
+    final userMap = user is Map<String, dynamic> ? user : null;
     return Order(
       id: (json['_id'] ?? '') as String,
       orderNumber: (json['orderNumber'] ?? '') as String,
@@ -382,6 +388,8 @@ class Order {
           .map((e) => StatusEvent.fromJson(e as Map<String, dynamic>))
           .toList(),
       createdAt: DateTime.tryParse((json['createdAt'] ?? '') as String),
+      userName: userMap?['name'] as String?,
+      userPhone: userMap?['phone'] as String?,
     );
   }
 }

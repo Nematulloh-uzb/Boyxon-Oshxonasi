@@ -11,7 +11,13 @@ import '../../l10n/app_localizations.dart';
 import '../../models/models.dart';
 import '../../services/socket_service.dart';
 import '../../widgets/state_views.dart';
+import '../../widgets/ui_kit.dart';
 
+/// Buyurtma tafsiloti — web `OrderDetailPage` bilan 1:1:
+/// karta ichida sarlavha + Orqaga, o'ngga tekislangan raqam/sana,
+/// keyin bo'limlar (mijoz, taomlar, hisob-kitob, holat, manzil, to'lov, izoh).
+/// Qo'shimcha (app'dagi mavjud funksiya): real-time yangilanish, holat tarixi,
+/// bekor qilish tugmasi.
 class OrderDetailScreen extends StatefulWidget {
   const OrderDetailScreen({super.key, required this.orderId});
 
@@ -110,314 +116,405 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final c = context.c;
-    final order = _order;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(order?.orderNumber ?? l.orders_title),
-      ),
-      body: SafeArea(
-        child: _loading
-            ? const LoadingView()
-            : _error != null || order == null
-                ? ErrorView(
-                    message: _error != null ? errorText(_error!, l) : l.common_error,
-                    onRetry: _load,
-                    retryLabel: l.common_retry,
-                  )
-                : ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                    children: [
-                      // Holat
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: c.surface,
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: c.line.withValues(alpha: 0.6)),
-                        ),
+    Widget child;
+    if (_loading) {
+      child = const LoadingView();
+    } else if (_error != null || _order == null) {
+      // Web: markazda danger matn + outline "Orqaga".
+      child = Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                _error != null ? errorText(_error!, l) : l.orders_not_found,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: c.danger),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: 200,
+                child: OutlinePill(
+                  label: l.common_back,
+                  onPressed: () => Navigator.of(context).maybePop(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    } else {
+      child = _detail(l, c, _order!);
+    }
+
+    return Scaffold(body: SafeArea(child: child));
+  }
+
+  Widget _detail(AppLocalizations l, BoyxonColors c, Order order) {
+    Widget inlineRow(String label, String value) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 4),
+        child: Text.rich(
+          TextSpan(
+            text: '$label: ',
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: c.fg,
+            ),
+            children: [
+              TextSpan(
+                text: value,
+                style: const TextStyle(fontWeight: FontWeight.w400),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    Widget section(String title, Widget child) {
+      return Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(top: 16),
+        padding: const EdgeInsets.only(top: 16),
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(color: c.line.withValues(alpha: 0.6)),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: c.fg,
+              ),
+            ),
+            const SizedBox(height: 8),
+            child,
+          ],
+        ),
+      );
+    }
+
+    Widget rightBlock(String label, String value) {
+      return Align(
+        alignment: Alignment.centerRight,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              '$label:',
+              style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: c.subtle),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              value,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: c.fg,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final (statusBg, statusFg) = statusBadgeColors(c, order.status);
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: c.surface,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 2,
+                offset: const Offset(0, 1),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Sarlavha + Orqaga.
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      l.orders_detail_title,
+                      style: TextStyle(
+                        fontFamily: 'Epilogue',
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        height: 1.2,
+                        color: c.fg,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  OutlinePill(
+                    label: l.common_back,
+                    expand: false,
+                    onPressed: () => Navigator.of(context).maybePop(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // O'ngga tekislangan raqam va sana.
+              rightBlock(l.orders_label_number, order.orderNumber),
+              const SizedBox(height: 16),
+              if (order.createdAt != null) ...[
+                rightBlock(l.orders_label_date, formatDateTime(order.createdAt!)),
+                const SizedBox(height: 16),
+              ],
+
+              // Mijoz ma'lumotlari.
+              section(
+                l.orders_label_customer,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    inlineRow(l.common_name, order.userName ?? '—'),
+                    inlineRow(l.common_phone, order.userPhone ?? '—'),
+                  ],
+                ),
+              ),
+
+              // Taomlar.
+              section(
+                l.orders_items,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (final item in order.items)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
                         child: Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  StatusBadge(
-                                    label: statusLabel(l, order.status),
-                                    color: statusColor(c, order.status),
-                                  ),
-                                  if (order.createdAt != null) ...[
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      formatDateTime(order.createdAt!),
-                                      style: TextStyle(
-                                        fontFamily: 'Inter',
-                                        fontSize: 12,
-                                        color: c.subtle,
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                            Icon(
-                              switch (order.status) {
-                                OrderStatus.pending => Icons.hourglass_top_rounded,
-                                OrderStatus.confirmed => Icons.thumb_up_alt_outlined,
-                                OrderStatus.packing => Icons.soup_kitchen_outlined,
-                                OrderStatus.handedToTaxi => Icons.delivery_dining_rounded,
-                                OrderStatus.delivered => Icons.check_circle_outline_rounded,
-                                OrderStatus.cancelled => Icons.cancel_outlined,
-                              },
-                              size: 34,
-                              color: statusColor(c, order.status),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // Taomlar
-                      _section(l.orders_items),
-                      _card(
-                        c,
-                        Column(
-                          children: [
-                            for (final item in order.items)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        '${item.name} ×${item.quantity}',
-                                        style: TextStyle(
-                                          fontFamily: 'Inter',
-                                          fontSize: 14,
-                                          color: c.fg,
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      formatPrice(item.price * item.quantity),
-                                      style: TextStyle(
-                                        fontFamily: 'Inter',
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: c.fg,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            Divider(color: c.line),
-                            const SizedBox(height: 8),
-                            _row(c, l.cart_subtotal, formatPrice(order.subtotal)),
-                            _row(
-                              c,
-                              l.cart_delivery,
-                              order.deliveryFee == 0 ? l.cart_free : formatPrice(order.deliveryFee),
-                              valueColor: order.deliveryFee == 0 ? c.success : null,
-                            ),
-                            if (order.discount > 0)
-                              _row(c, l.cart_discount, '-${formatPrice(order.discount)}',
-                                  valueColor: c.success),
-                            const SizedBox(height: 4),
-                            _row(c, l.cart_total, formatPrice(order.total), bold: true),
-                          ],
-                        ),
-                      ),
-
-                      // Manzil / olib ketish
-                      _section(order.isDelivery ? l.orders_address : l.checkout_pickup),
-                      _card(
-                        c,
-                        Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(
-                              order.isDelivery
-                                  ? Icons.location_on_outlined
-                                  : Icons.storefront_rounded,
-                              size: 20,
-                              color: c.primary,
-                            ),
-                            const SizedBox(width: 10),
                             Expanded(
                               child: Text(
-                                order.isDelivery
-                                    ? '${order.addressLabel ?? ''}\n${order.addressLine ?? ''}'.trim()
-                                    : l.checkout_pickup,
+                                item.name,
                                 style: TextStyle(
                                   fontFamily: 'Inter',
                                   fontSize: 14,
-                                  height: 1.4,
+                                  height: 1.3,
                                   color: c.fg,
                                 ),
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-
-                      // To'lov
-                      _section(l.orders_payment),
-                      _card(
-                        c,
-                        Row(
-                          children: [
-                            Icon(Icons.payments_outlined, size: 20, color: c.primary),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                paymentLabel(l, order.paymentMethod),
-                                style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: c.fg),
+                            const SizedBox(width: 12),
+                            Text(
+                              '${item.quantity} × ${formatPrice(item.price)} = '
+                              '${formatPrice(item.price * item.quantity)}',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 14,
+                                height: 1.3,
+                                color: c.fg,
                               ),
                             ),
                           ],
                         ),
                       ),
+                  ],
+                ),
+              ),
 
-                      // Izoh
-                      if (order.notes != null && order.notes!.isNotEmpty) ...[
-                        _section(l.orders_notes),
-                        _card(
-                          c,
+              // Hisob-kitob.
+              section(
+                l.orders_label_totals,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    inlineRow(l.cart_subtotal, formatPrice(order.subtotal)),
+                    if (order.discount > 0)
+                      inlineRow(l.cart_discount, '-${formatPrice(order.discount)}'),
+                    if (order.deliveryFee > 0)
+                      inlineRow(l.cart_delivery, formatPrice(order.deliveryFee)),
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(top: 4),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          top: BorderSide(color: c.line.withValues(alpha: 0.4)),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           Text(
-                            order.notes!,
+                            '${l.cart_total}:',
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: 14,
-                              height: 1.4,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
                               color: c.fg,
                             ),
                           ),
-                        ),
-                      ],
+                          Text(
+                            formatPrice(order.total),
+                            style: const TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              color: BoyxonPalette.primaryDark,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
-                      // Holat tarixi
-                      if (order.statusHistory.isNotEmpty) ...[
-                        _section(l.orders_history),
-                        _card(
-                          c,
-                          Column(
+              // Holat.
+              section(
+                l.orders_label_status,
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: statusBg,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    statusLabel(l, order.status),
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: statusFg,
+                    ),
+                  ),
+                ),
+              ),
+
+              // Manzil (yetkazishda).
+              if (order.isDelivery && order.addressLine != null)
+                section(
+                  l.orders_address,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      inlineRow(l.common_label, order.addressLabel ?? '—'),
+                      inlineRow(l.common_address, order.addressLine ?? '—'),
+                    ],
+                  ),
+                ),
+
+              // To'lov usuli.
+              section(
+                l.orders_payment,
+                Text(
+                  paymentLabel(l, order.paymentMethod),
+                  style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: c.fg),
+                ),
+              ),
+
+              // Izoh.
+              if (order.notes != null && order.notes!.isNotEmpty)
+                section(
+                  l.orders_notes,
+                  Text(
+                    order.notes!,
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 14,
+                      height: 1.4,
+                      color: c.subtle,
+                    ),
+                  ),
+                ),
+
+              // Holat tarixi (app qo'shimchasi).
+              if (order.statusHistory.isNotEmpty)
+                section(
+                  l.orders_history,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (final event in order.statusHistory)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              for (final event in order.statusHistory)
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 10),
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 4),
-                                        child: Container(
-                                          width: 10,
-                                          height: 10,
-                                          decoration: BoxDecoration(
-                                            color: statusColor(c, OrderStatus.parse(event.status)),
-                                            shape: BoxShape.circle,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              statusLabel(l, OrderStatus.parse(event.status)),
-                                              style: TextStyle(
-                                                fontFamily: 'Inter',
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w600,
-                                                color: c.fg,
-                                              ),
-                                            ),
-                                            if (event.timestamp != null)
-                                              Text(
-                                                formatDateTime(event.timestamp!),
-                                                style: TextStyle(
-                                                  fontFamily: 'Inter',
-                                                  fontSize: 11,
-                                                  color: c.subtle,
-                                                ),
-                                              ),
-                                            if (event.note != null && event.note!.isNotEmpty)
-                                              Text(
-                                                event.note!,
-                                                style: TextStyle(
-                                                  fontFamily: 'Inter',
-                                                  fontSize: 12,
-                                                  color: c.subtle,
-                                                ),
-                                              ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4),
+                                child: Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                    color: statusColor(c, OrderStatus.parse(event.status)),
+                                    shape: BoxShape.circle,
                                   ),
                                 ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      statusLabel(l, OrderStatus.parse(event.status)),
+                                      style: TextStyle(
+                                        fontFamily: 'Inter',
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: c.fg,
+                                      ),
+                                    ),
+                                    if (event.timestamp != null)
+                                      Text(
+                                        formatDateTime(event.timestamp!),
+                                        style: TextStyle(
+                                          fontFamily: 'Inter',
+                                          fontSize: 11,
+                                          color: c.subtle,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         ),
-                      ],
-
-                      if (order.canCancel) ...[
-                        const SizedBox(height: 20),
-                        OutlinedButton(
-                          onPressed: _cancelling ? null : _cancelOrder,
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: c.danger,
-                            side: BorderSide(color: c.danger.withValues(alpha: 0.5)),
-                          ),
-                          child: _cancelling
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2.2),
-                                )
-                              : Text(l.orders_cancel_confirm.split('?').first),
-                        ),
-                      ],
                     ],
                   ),
-      ),
-    );
-  }
-
-  Widget _section(String title) => Padding(
-        padding: const EdgeInsets.only(top: 18, bottom: 10),
-        child: Text(title, style: Theme.of(context).textTheme.titleMedium),
-      );
-
-  Widget _card(BoyxonColors c, Widget child) => Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: c.surface,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: c.line.withValues(alpha: 0.6)),
+                ),
+            ],
+          ),
         ),
-        child: child,
-      );
 
-  Widget _row(BoyxonColors c, String label, String value,
-      {Color? valueColor, bool bold = false}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: [
-          Text(label, style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: c.subtle)),
-          const Spacer(),
-          Text(
-            value,
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: bold ? 16 : 14,
-              fontWeight: bold ? FontWeight.w800 : FontWeight.w600,
-              color: valueColor ?? c.fg,
-            ),
+        // Bekor qilish (app qo'shimchasi) — faqat pending/confirmed holatda.
+        if (order.canCancel) ...[
+          const SizedBox(height: 16),
+          OutlinePill(
+            label: _cancelling ? '...' : l.orders_cancel_confirm.replaceAll('?', ''),
+            foreground: c.danger,
+            borderColor: c.danger.withValues(alpha: 0.5),
+            onPressed: _cancelling ? null : _cancelOrder,
           ),
         ],
-      ),
+      ],
     );
   }
 }

@@ -158,6 +158,10 @@
   "notif_view_all": "Barcha bildirishnomalar",
 
   "common_back": "Orqaga",
+  "common_name": "Ism",
+  "common_phone": "Telefon",
+  "common_label": "Nom",
+  "common_address": "Manzil",
 
   "home_greeting": "Xush kelibsiz",
   "home_title": "Bugun nima yeysiz?",
@@ -234,5 +238,6 @@
   "settings_help": "Yordam",
   "settings_help_contact": "Yordam: +998 71 200 00 00",
   "settings_address_default_label": "Asosiy",
-  "settings_address_set_default": "Asosiy qilish"
+  "settings_address_set_default": "Asosiy qilish",
+  "settings_address_required": "Nom va manzilni kiriting",
 }

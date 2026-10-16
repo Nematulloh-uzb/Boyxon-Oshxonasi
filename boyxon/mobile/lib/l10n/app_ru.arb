@@ -150,6 +150,10 @@
   "notif_view_all": "Все уведомления",
 
   "common_back": "Назад",
+  "common_name": "Имя",
+  "common_phone": "Телефон",
+  "common_label": "Название",
+  "common_address": "Адрес",
 
   "home_greeting": "Добро пожаловать",
   "home_title": "Что будете сегодня?",
@@ -215,7 +219,7 @@
   "@profile_bonus": { "placeholders": { "amount": { "type": "String" } } },
 
   "settings_account_group": "АККАУНТ",
-  "settings_preferences_group": "НАСТРОЙКИ",
+  "settings_preferences_group": "ПРЕДПОЧТЕНИЯ",
   "settings_security_group": "БЕЗОПАСНОСТЬ",
   "settings_orders": "Мои заказы",
   "settings_no_orders": "Пока нет заказов",
@@ -226,5 +230,6 @@
   "settings_help": "Помощь",
   "settings_help_contact": "Помощь: +998 71 200 00 00",
   "settings_address_default_label": "Основной",
-  "settings_address_set_default": "Сделать основным"
+  "settings_address_set_default": "Сделать основным",
+  "settings_address_required": "Заполните название и адрес",
 }

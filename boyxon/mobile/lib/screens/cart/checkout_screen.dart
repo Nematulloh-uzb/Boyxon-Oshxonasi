@@ -223,7 +223,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final cart = context.watch<CartService>();
     final discount = widget.promo?.discount ?? 0;
     final fee = _deliveryType == 'pickup' || cart.subtotal >= freeDeliveryFrom ? 0 : deliveryFee;
-    final total = (cart.subtotal + fee - discount).clamp(0, 1 << 31);
+    final rawTotal = cart.subtotal + fee - discount;
+    final total = rawTotal < 0 ? 0 : rawTotal;
     final canPlace = !_placing &&
         cart.lines.isNotEmpty &&
         (_deliveryType != 'delivery' || _addressId != null);

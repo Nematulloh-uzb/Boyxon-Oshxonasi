@@ -5,16 +5,18 @@ import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
 import '../../core/app_theme.dart';
-import '../../core/formatters.dart';
-import '../../core/order_status.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/models.dart';
 import '../../services/auth_service.dart';
 import '../../services/socket_service.dart';
+import '../../widgets/order_card.dart';
 import '../../widgets/state_views.dart';
+import '../../widgets/ui_kit.dart';
 import '../auth/login_screen.dart';
 import 'order_detail_screen.dart';
 
+/// Buyurtmalar ro'yxati — web `SettingsPage` buyurtmalar guruhi bilan bir xil
+/// karta uslubi (orderNumber + sana·taomlar soni | jami + holat matni).
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
 
@@ -146,6 +148,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final c = context.c;
     final auth = context.watch<AuthService>();
 
     if (!auth.isLoggedIn) {
@@ -155,156 +158,104 @@ class _OrdersScreenState extends State<OrdersScreen> {
             icon: Icons.lock_outline_rounded,
             title: l.auth_required_title,
             subtitle: l.auth_required_sub,
-            action: FilledButton(
-              style: FilledButton.styleFrom(
-                minimumSize: const Size(200, 48),
-                padding: const EdgeInsets.symmetric(horizontal: 28),
-              ),
+            action: GradientButton(
+              label: l.auth_login,
+              expand: false,
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const LoginScreen()),
               ),
-              child: Text(l.auth_login),
             ),
           ),
         ),
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l.orders_title)),
-      body: SafeArea(
-        child: _loading
-            ? const LoadingView()
-            : _error != null
-                ? ErrorView(
-                    message: errorText(_error!, l),
-                    onRetry: _load,
-                    retryLabel: l.common_retry,
-                  )
-                : RefreshIndicator(
-                    color: context.c.primary,
-                    onRefresh: _load,
-                    child: _orders.isEmpty
-                        ? ListView(
-                            children: [
-                              SizedBox(height: MediaQuery.of(context).size.height * 0.18),
-                              EmptyView(
-                                icon: Icons.receipt_long_outlined,
-                                title: l.orders_empty,
-                                subtitle: l.orders_empty_sub,
-                              ),
-                            ],
-                          )
-                        : ListView.builder(
-                            controller: _scrollCtrl,
-                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                            itemCount: _orders.length + (_loadingMore ? 1 : 0),
-                            itemBuilder: (context, i) {
-                              if (i >= _orders.length) {
-                                return const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 16),
-                                  child: Center(
-                                    child: SizedBox(
-                                      width: 24,
-                                      height: 24,
-                                      child: CircularProgressIndicator(strokeWidth: 2.4),
-                                    ),
-                                  ),
-                                );
-                              }
-                              return _OrderCard(order: _orders[i]);
-                            },
-                          ),
-                  ),
-      ),
-    );
-  }
-}
-
-class _OrderCard extends StatelessWidget {
-  const _OrderCard({required this.order});
-
-  final Order order;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final c = context.c;
-
-    final first = order.items.isNotEmpty ? order.items.first : null;
-    final extra = order.items.length - 1;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(18),
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => OrderDetailScreen(orderId: order.id)),
-        ),
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: c.surface,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: c.line.withValues(alpha: 0.6)),
+    Widget header() => Padding(
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+          child: Text(
+            l.orders_title,
+            style: TextStyle(
+              fontFamily: 'Epilogue',
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              height: 1.2,
+              color: c.fg,
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      order.orderNumber,
-                      style: TextStyle(
-                        fontFamily: 'Epilogue',
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: c.fg,
-                      ),
-                    ),
-                  ),
-                  StatusBadge(
-                    label: statusLabel(l, order.status),
-                    color: statusColor(c, order.status),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                order.createdAt == null ? '' : formatDateTime(order.createdAt!),
-                style: TextStyle(fontFamily: 'Inter', fontSize: 12, color: c.subtle),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      first == null
-                          ? ''
-                          : '${first.name} ×${first.quantity}${extra > 0 ? '  +$extra' : ''}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontFamily: 'Inter', fontSize: 13, color: c.fg),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    formatPrice(order.total),
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      color: c.primaryDark,
-                    ),
-                  ),
-                  Icon(Icons.chevron_right_rounded, size: 20, color: c.subtle),
-                ],
-              ),
-            ],
+        );
+
+    Widget child;
+    if (_loading) {
+      child = Column(
+        children: [
+          header(),
+          const Expanded(child: LoadingView()),
+        ],
+      );
+    } else if (_error != null) {
+      child = Column(
+        children: [
+          header(),
+          Expanded(
+            child: ErrorView(
+              message: errorText(_error!, l),
+              onRetry: _load,
+              retryLabel: l.common_retry,
+            ),
           ),
+        ],
+      );
+    } else if (_orders.isEmpty) {
+      child = Column(
+        children: [
+          header(),
+          Expanded(
+            child: EmptyView(
+              icon: Icons.receipt_long_outlined,
+              title: l.orders_empty,
+              subtitle: l.orders_empty_sub,
+            ),
+          ),
+        ],
+      );
+    } else {
+      child = RefreshIndicator(
+        color: c.primary,
+        onRefresh: _load,
+        child: ListView.builder(
+          controller: _scrollCtrl,
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          itemCount: _orders.length + 2,
+          itemBuilder: (context, i) {
+            if (i == 0) return header();
+            if (i == _orders.length + 1) {
+              if (!_loadingMore) return const SizedBox(height: 8);
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Center(
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2.4, color: c.primary),
+                  ),
+                ),
+              );
+            }
+            final order = _orders[i - 1];
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: OrderCard(
+                order: order,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => OrderDetailScreen(orderId: order.id)),
+                ),
+              ),
+            );
+          },
         ),
-      ),
-    );
+      );
+    }
+
+    return Scaffold(body: SafeArea(child: child));
   }
 }
