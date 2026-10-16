@@ -413,4 +413,215 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get notif_empty => 'Уведомлений нет';
+
+  @override
+  String get notif_site => 'Уведомления сайта';
+
+  @override
+  String get notif_view_all => 'Все уведомления';
+
+  @override
+  String get common_back => 'Назад';
+
+  @override
+  String get home_greeting => 'Добро пожаловать';
+
+  @override
+  String get home_title => 'Что будете сегодня?';
+
+  @override
+  String get home_new_season => 'Новый сезон';
+
+  @override
+  String get home_promo_title =>
+      'От 150 000 сум — доставка за наш счёт: сэкономите 12 000 сум';
+
+  @override
+  String get home_promo_code => 'Плюс WELCOME10 — ещё 10% на первый заказ';
+
+  @override
+  String home_promo_progress(String amount, String fee) {
+    return 'Ещё $amount — и доставка за наш счёт (сэкономите $fee)';
+  }
+
+  @override
+  String home_promo_unlocked(String fee) {
+    return 'Доставка за наш счёт — $fee остались у вас 🎉';
+  }
+
+  @override
+  String get home_all_dishes => 'Все блюда';
+
+  @override
+  String home_items_count(int count) {
+    return '$count шт.';
+  }
+
+  @override
+  String get home_load_error => 'Не удалось загрузить данные';
+
+  @override
+  String get home_no_dishes_hint => 'Попробуйте другую категорию или запрос';
+
+  @override
+  String get dish_no_image => 'Нет фото';
+
+  @override
+  String get dish_diet => 'Диетическое';
+
+  @override
+  String get dish_top => 'Топ';
+
+  @override
+  String get dish_vegetarian => 'Вегетарианское';
+
+  @override
+  String get dish_spicy => 'Острое';
+
+  @override
+  String get dish_description => 'Описание';
+
+  @override
+  String get dish_reviews => 'Отзывы';
+
+  @override
+  String dish_reviews_count(int count) {
+    return '$count отзывов';
+  }
+
+  @override
+  String get dish_no_reviews => 'Пока нет отзывов';
+
+  @override
+  String get dish_back_to_menu => 'Назад в меню';
+
+  @override
+  String get dish_add_to_cart => 'В корзину';
+
+  @override
+  String dish_added_name(String name) {
+    return '$name добавлен в корзину';
+  }
+
+  @override
+  String get filter_title => 'Фильтры';
+
+  @override
+  String get filter_price => 'Цена (сум)';
+
+  @override
+  String get filter_from => 'от';
+
+  @override
+  String get filter_to => 'до';
+
+  @override
+  String get filter_rating => 'Минимальный рейтинг';
+
+  @override
+  String get filter_all => 'Все';
+
+  @override
+  String get filter_tags => 'Теги';
+
+  @override
+  String get filter_apply => 'Применить';
+
+  @override
+  String get filter_reset => 'Сбросить';
+
+  @override
+  String get filter_sort => 'Сортировка';
+
+  @override
+  String get filter_sort_popular => 'Популярные';
+
+  @override
+  String get filter_sort_price_asc => 'Цена: по возрастанию';
+
+  @override
+  String get filter_sort_price_desc => 'Цена: по убыванию';
+
+  @override
+  String get filter_sort_rating => 'По рейтингу';
+
+  @override
+  String get filter_sort_new => 'Новые';
+
+  @override
+  String cart_free_hint(String amount, String fee) {
+    return 'Ещё $amount — и $fee останутся у вас';
+  }
+
+  @override
+  String cart_free_done(String fee) {
+    return 'Доставка за наш счёт — $fee остались у вас 🎉';
+  }
+
+  @override
+  String get orders_detail_title => 'Детали заказа';
+
+  @override
+  String get orders_label_number => 'Номер заказа';
+
+  @override
+  String get orders_label_date => 'Дата';
+
+  @override
+  String get orders_label_customer => 'Данные клиента';
+
+  @override
+  String get orders_label_totals => 'Итого';
+
+  @override
+  String get orders_label_status => 'Статус';
+
+  @override
+  String orders_dishes_count(int count) {
+    return '$count блюд';
+  }
+
+  @override
+  String profile_bonus(String amount) {
+    return 'Бонус: $amount';
+  }
+
+  @override
+  String get settings_account_group => 'АККАУНТ';
+
+  @override
+  String get settings_preferences_group => 'НАСТРОЙКИ';
+
+  @override
+  String get settings_security_group => 'БЕЗОПАСНОСТЬ';
+
+  @override
+  String get settings_orders => 'Мои заказы';
+
+  @override
+  String get settings_no_orders => 'Пока нет заказов';
+
+  @override
+  String get settings_toggle => 'Изменить';
+
+  @override
+  String get settings_saved => 'Сохранено';
+
+  @override
+  String get settings_save_error => 'Не удалось сохранить';
+
+  @override
+  String get settings_language_updated => 'Язык обновлён';
+
+  @override
+  String get settings_help => 'Помощь';
+
+  @override
+  String get settings_help_contact => 'Помощь: +998 71 200 00 00';
+
+  @override
+  String get settings_address_default_label => 'Основной';
+
+  @override
+  String get settings_address_set_default => 'Сделать основным';
 }

@@ -416,4 +416,217 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get notif_empty => 'Bildirishnomalar yo\'q';
+
+  @override
+  String get notif_site => 'Sayt bildirishnomalari';
+
+  @override
+  String get notif_view_all => 'Barcha bildirishnomalar';
+
+  @override
+  String get common_back => 'Orqaga';
+
+  @override
+  String get home_greeting => 'Xush kelibsiz';
+
+  @override
+  String get home_title => 'Bugun nima yeysiz?';
+
+  @override
+  String get home_new_season => 'Yangi mavsum';
+
+  @override
+  String get home_promo_title =>
+      '150 000 so\'mdan — yetkazish o\'zimizdan: 12 000 so\'m tejaysiz';
+
+  @override
+  String get home_promo_code =>
+      'Ustiga WELCOME10 — birinchi buyurtmaga yana 10%';
+
+  @override
+  String home_promo_progress(String amount, String fee) {
+    return 'Yana $amount — va yetkazish o\'zimizdan ($fee tejaysiz)';
+  }
+
+  @override
+  String home_promo_unlocked(String fee) {
+    return 'Yetkazish o\'zimizdan — $fee cho\'ntagingizda qoldi 🎉';
+  }
+
+  @override
+  String get home_all_dishes => 'Barcha taomlar';
+
+  @override
+  String home_items_count(int count) {
+    return '$count ta';
+  }
+
+  @override
+  String get home_load_error => 'Ma\'lumotni yuklab bo\'lmadi';
+
+  @override
+  String get home_no_dishes_hint =>
+      'Boshqa kategoriya yoki qidiruv so\'zini sinab ko\'ring';
+
+  @override
+  String get dish_no_image => 'Rasm yo\'q';
+
+  @override
+  String get dish_diet => 'Parhez';
+
+  @override
+  String get dish_top => 'Top';
+
+  @override
+  String get dish_vegetarian => 'Vegetarian';
+
+  @override
+  String get dish_spicy => 'Achchiq';
+
+  @override
+  String get dish_description => 'Tavsif';
+
+  @override
+  String get dish_reviews => 'Sharhlar';
+
+  @override
+  String dish_reviews_count(int count) {
+    return '$count sharh';
+  }
+
+  @override
+  String get dish_no_reviews => 'Hozircha sharh yo\'q';
+
+  @override
+  String get dish_back_to_menu => 'Menyuga qaytish';
+
+  @override
+  String get dish_add_to_cart => 'Savatga qo\'shish';
+
+  @override
+  String dish_added_name(String name) {
+    return '$name savatga qo\'shildi';
+  }
+
+  @override
+  String get filter_title => 'Filtrlar';
+
+  @override
+  String get filter_price => 'Narx (so\'m)';
+
+  @override
+  String get filter_from => 'dan';
+
+  @override
+  String get filter_to => 'gacha';
+
+  @override
+  String get filter_rating => 'Minimal reyting';
+
+  @override
+  String get filter_all => 'Hammasi';
+
+  @override
+  String get filter_tags => 'Teglar';
+
+  @override
+  String get filter_apply => 'Qo\'llash';
+
+  @override
+  String get filter_reset => 'Tozalash';
+
+  @override
+  String get filter_sort => 'Saralash';
+
+  @override
+  String get filter_sort_popular => 'Mashhur';
+
+  @override
+  String get filter_sort_price_asc => 'Narx: arzondan';
+
+  @override
+  String get filter_sort_price_desc => 'Narx: qimmatdan';
+
+  @override
+  String get filter_sort_rating => 'Reyting bo\'yicha';
+
+  @override
+  String get filter_sort_new => 'Yangi';
+
+  @override
+  String cart_free_hint(String amount, String fee) {
+    return 'Yana $amount — shu $fee cho\'ntagingizda qoladi';
+  }
+
+  @override
+  String cart_free_done(String fee) {
+    return 'Yetkazish o\'zimizdan — $fee cho\'ntagingizda qoldi 🎉';
+  }
+
+  @override
+  String get orders_detail_title => 'Buyurtma tafsiloti';
+
+  @override
+  String get orders_label_number => 'Buyurtma raqami';
+
+  @override
+  String get orders_label_date => 'Sana';
+
+  @override
+  String get orders_label_customer => 'Mijoz ma\'lumotlari';
+
+  @override
+  String get orders_label_totals => 'Hisob-kitob';
+
+  @override
+  String get orders_label_status => 'Holat';
+
+  @override
+  String orders_dishes_count(int count) {
+    return '$count ta taom';
+  }
+
+  @override
+  String profile_bonus(String amount) {
+    return 'Bonus: $amount';
+  }
+
+  @override
+  String get settings_account_group => 'HISOB';
+
+  @override
+  String get settings_preferences_group => 'AFZALLIKLAR';
+
+  @override
+  String get settings_security_group => 'XAVFSIZLIK';
+
+  @override
+  String get settings_orders => 'Buyurtmalarim';
+
+  @override
+  String get settings_no_orders => 'Hozircha buyurtmalar yo\'q';
+
+  @override
+  String get settings_toggle => 'O\'zgartirish';
+
+  @override
+  String get settings_saved => 'Saqlandi';
+
+  @override
+  String get settings_save_error => 'Saqlab bo\'lmadi';
+
+  @override
+  String get settings_language_updated => 'Til yangilandi';
+
+  @override
+  String get settings_help => 'Yordam';
+
+  @override
+  String get settings_help_contact => 'Yordam: +998 71 200 00 00';
+
+  @override
+  String get settings_address_default_label => 'Asosiy';
+
+  @override
+  String get settings_address_set_default => 'Asosiy qilish';
 }

@@ -412,4 +412,216 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notif_empty => 'No notifications';
+
+  @override
+  String get notif_site => 'Site notifications';
+
+  @override
+  String get notif_view_all => 'All notifications';
+
+  @override
+  String get common_back => 'Back';
+
+  @override
+  String get home_greeting => 'Welcome';
+
+  @override
+  String get home_title => 'What are you eating today?';
+
+  @override
+  String get home_new_season => 'New season';
+
+  @override
+  String get home_promo_title =>
+      'From 150,000 UZS — delivery is on us: save 12,000 UZS';
+
+  @override
+  String get home_promo_code =>
+      'Plus WELCOME10 — another 10% off your first order';
+
+  @override
+  String home_promo_progress(String amount, String fee) {
+    return 'Another $amount — and delivery is on us (save $fee)';
+  }
+
+  @override
+  String home_promo_unlocked(String fee) {
+    return 'Delivery is on us — $fee stays in your pocket 🎉';
+  }
+
+  @override
+  String get home_all_dishes => 'All dishes';
+
+  @override
+  String home_items_count(int count) {
+    return '$count items';
+  }
+
+  @override
+  String get home_load_error => 'Failed to load data';
+
+  @override
+  String get home_no_dishes_hint => 'Try another category or search term';
+
+  @override
+  String get dish_no_image => 'No image';
+
+  @override
+  String get dish_diet => 'Diet';
+
+  @override
+  String get dish_top => 'Top';
+
+  @override
+  String get dish_vegetarian => 'Vegetarian';
+
+  @override
+  String get dish_spicy => 'Spicy';
+
+  @override
+  String get dish_description => 'Description';
+
+  @override
+  String get dish_reviews => 'Reviews';
+
+  @override
+  String dish_reviews_count(int count) {
+    return '$count reviews';
+  }
+
+  @override
+  String get dish_no_reviews => 'No reviews yet';
+
+  @override
+  String get dish_back_to_menu => 'Back to menu';
+
+  @override
+  String get dish_add_to_cart => 'Add to cart';
+
+  @override
+  String dish_added_name(String name) {
+    return '$name added to cart';
+  }
+
+  @override
+  String get filter_title => 'Filters';
+
+  @override
+  String get filter_price => 'Price (UZS)';
+
+  @override
+  String get filter_from => 'from';
+
+  @override
+  String get filter_to => 'to';
+
+  @override
+  String get filter_rating => 'Minimum rating';
+
+  @override
+  String get filter_all => 'All';
+
+  @override
+  String get filter_tags => 'Tags';
+
+  @override
+  String get filter_apply => 'Apply';
+
+  @override
+  String get filter_reset => 'Reset';
+
+  @override
+  String get filter_sort => 'Sort';
+
+  @override
+  String get filter_sort_popular => 'Popular';
+
+  @override
+  String get filter_sort_price_asc => 'Price: low to high';
+
+  @override
+  String get filter_sort_price_desc => 'Price: high to low';
+
+  @override
+  String get filter_sort_rating => 'By rating';
+
+  @override
+  String get filter_sort_new => 'New';
+
+  @override
+  String cart_free_hint(String amount, String fee) {
+    return '$amount more — and $fee stays in your pocket';
+  }
+
+  @override
+  String cart_free_done(String fee) {
+    return 'Delivery is on us — $fee stays in your pocket 🎉';
+  }
+
+  @override
+  String get orders_detail_title => 'Order details';
+
+  @override
+  String get orders_label_number => 'Order number';
+
+  @override
+  String get orders_label_date => 'Date';
+
+  @override
+  String get orders_label_customer => 'Customer info';
+
+  @override
+  String get orders_label_totals => 'Totals';
+
+  @override
+  String get orders_label_status => 'Status';
+
+  @override
+  String orders_dishes_count(int count) {
+    return '$count dishes';
+  }
+
+  @override
+  String profile_bonus(String amount) {
+    return 'Bonus: $amount';
+  }
+
+  @override
+  String get settings_account_group => 'ACCOUNT';
+
+  @override
+  String get settings_preferences_group => 'PREFERENCES';
+
+  @override
+  String get settings_security_group => 'SECURITY';
+
+  @override
+  String get settings_orders => 'My orders';
+
+  @override
+  String get settings_no_orders => 'No orders yet';
+
+  @override
+  String get settings_toggle => 'Change';
+
+  @override
+  String get settings_saved => 'Saved';
+
+  @override
+  String get settings_save_error => 'Couldn\'t save';
+
+  @override
+  String get settings_language_updated => 'Language updated';
+
+  @override
+  String get settings_help => 'Help';
+
+  @override
+  String get settings_help_contact => 'Help: +998 71 200 00 00';
+
+  @override
+  String get settings_address_default_label => 'Default';
+
+  @override
+  String get settings_address_set_default => 'Make default';
 }

@@ -867,6 +867,390 @@ abstract class AppLocalizations {
   /// In uz, this message translates to:
   /// **'Bildirishnomalar yo\'q'**
   String get notif_empty;
+
+  /// No description provided for @notif_site.
+  ///
+  /// In uz, this message translates to:
+  /// **'Sayt bildirishnomalari'**
+  String get notif_site;
+
+  /// No description provided for @notif_view_all.
+  ///
+  /// In uz, this message translates to:
+  /// **'Barcha bildirishnomalar'**
+  String get notif_view_all;
+
+  /// No description provided for @common_back.
+  ///
+  /// In uz, this message translates to:
+  /// **'Orqaga'**
+  String get common_back;
+
+  /// No description provided for @home_greeting.
+  ///
+  /// In uz, this message translates to:
+  /// **'Xush kelibsiz'**
+  String get home_greeting;
+
+  /// No description provided for @home_title.
+  ///
+  /// In uz, this message translates to:
+  /// **'Bugun nima yeysiz?'**
+  String get home_title;
+
+  /// No description provided for @home_new_season.
+  ///
+  /// In uz, this message translates to:
+  /// **'Yangi mavsum'**
+  String get home_new_season;
+
+  /// No description provided for @home_promo_title.
+  ///
+  /// In uz, this message translates to:
+  /// **'150 000 so\'mdan — yetkazish o\'zimizdan: 12 000 so\'m tejaysiz'**
+  String get home_promo_title;
+
+  /// No description provided for @home_promo_code.
+  ///
+  /// In uz, this message translates to:
+  /// **'Ustiga WELCOME10 — birinchi buyurtmaga yana 10%'**
+  String get home_promo_code;
+
+  /// No description provided for @home_promo_progress.
+  ///
+  /// In uz, this message translates to:
+  /// **'Yana {amount} — va yetkazish o\'zimizdan ({fee} tejaysiz)'**
+  String home_promo_progress(String amount, String fee);
+
+  /// No description provided for @home_promo_unlocked.
+  ///
+  /// In uz, this message translates to:
+  /// **'Yetkazish o\'zimizdan — {fee} cho\'ntagingizda qoldi 🎉'**
+  String home_promo_unlocked(String fee);
+
+  /// No description provided for @home_all_dishes.
+  ///
+  /// In uz, this message translates to:
+  /// **'Barcha taomlar'**
+  String get home_all_dishes;
+
+  /// No description provided for @home_items_count.
+  ///
+  /// In uz, this message translates to:
+  /// **'{count} ta'**
+  String home_items_count(int count);
+
+  /// No description provided for @home_load_error.
+  ///
+  /// In uz, this message translates to:
+  /// **'Ma\'lumotni yuklab bo\'lmadi'**
+  String get home_load_error;
+
+  /// No description provided for @home_no_dishes_hint.
+  ///
+  /// In uz, this message translates to:
+  /// **'Boshqa kategoriya yoki qidiruv so\'zini sinab ko\'ring'**
+  String get home_no_dishes_hint;
+
+  /// No description provided for @dish_no_image.
+  ///
+  /// In uz, this message translates to:
+  /// **'Rasm yo\'q'**
+  String get dish_no_image;
+
+  /// No description provided for @dish_diet.
+  ///
+  /// In uz, this message translates to:
+  /// **'Parhez'**
+  String get dish_diet;
+
+  /// No description provided for @dish_top.
+  ///
+  /// In uz, this message translates to:
+  /// **'Top'**
+  String get dish_top;
+
+  /// No description provided for @dish_vegetarian.
+  ///
+  /// In uz, this message translates to:
+  /// **'Vegetarian'**
+  String get dish_vegetarian;
+
+  /// No description provided for @dish_spicy.
+  ///
+  /// In uz, this message translates to:
+  /// **'Achchiq'**
+  String get dish_spicy;
+
+  /// No description provided for @dish_description.
+  ///
+  /// In uz, this message translates to:
+  /// **'Tavsif'**
+  String get dish_description;
+
+  /// No description provided for @dish_reviews.
+  ///
+  /// In uz, this message translates to:
+  /// **'Sharhlar'**
+  String get dish_reviews;
+
+  /// No description provided for @dish_reviews_count.
+  ///
+  /// In uz, this message translates to:
+  /// **'{count} sharh'**
+  String dish_reviews_count(int count);
+
+  /// No description provided for @dish_no_reviews.
+  ///
+  /// In uz, this message translates to:
+  /// **'Hozircha sharh yo\'q'**
+  String get dish_no_reviews;
+
+  /// No description provided for @dish_back_to_menu.
+  ///
+  /// In uz, this message translates to:
+  /// **'Menyuga qaytish'**
+  String get dish_back_to_menu;
+
+  /// No description provided for @dish_add_to_cart.
+  ///
+  /// In uz, this message translates to:
+  /// **'Savatga qo\'shish'**
+  String get dish_add_to_cart;
+
+  /// No description provided for @dish_added_name.
+  ///
+  /// In uz, this message translates to:
+  /// **'{name} savatga qo\'shildi'**
+  String dish_added_name(String name);
+
+  /// No description provided for @filter_title.
+  ///
+  /// In uz, this message translates to:
+  /// **'Filtrlar'**
+  String get filter_title;
+
+  /// No description provided for @filter_price.
+  ///
+  /// In uz, this message translates to:
+  /// **'Narx (so\'m)'**
+  String get filter_price;
+
+  /// No description provided for @filter_from.
+  ///
+  /// In uz, this message translates to:
+  /// **'dan'**
+  String get filter_from;
+
+  /// No description provided for @filter_to.
+  ///
+  /// In uz, this message translates to:
+  /// **'gacha'**
+  String get filter_to;
+
+  /// No description provided for @filter_rating.
+  ///
+  /// In uz, this message translates to:
+  /// **'Minimal reyting'**
+  String get filter_rating;
+
+  /// No description provided for @filter_all.
+  ///
+  /// In uz, this message translates to:
+  /// **'Hammasi'**
+  String get filter_all;
+
+  /// No description provided for @filter_tags.
+  ///
+  /// In uz, this message translates to:
+  /// **'Teglar'**
+  String get filter_tags;
+
+  /// No description provided for @filter_apply.
+  ///
+  /// In uz, this message translates to:
+  /// **'Qo\'llash'**
+  String get filter_apply;
+
+  /// No description provided for @filter_reset.
+  ///
+  /// In uz, this message translates to:
+  /// **'Tozalash'**
+  String get filter_reset;
+
+  /// No description provided for @filter_sort.
+  ///
+  /// In uz, this message translates to:
+  /// **'Saralash'**
+  String get filter_sort;
+
+  /// No description provided for @filter_sort_popular.
+  ///
+  /// In uz, this message translates to:
+  /// **'Mashhur'**
+  String get filter_sort_popular;
+
+  /// No description provided for @filter_sort_price_asc.
+  ///
+  /// In uz, this message translates to:
+  /// **'Narx: arzondan'**
+  String get filter_sort_price_asc;
+
+  /// No description provided for @filter_sort_price_desc.
+  ///
+  /// In uz, this message translates to:
+  /// **'Narx: qimmatdan'**
+  String get filter_sort_price_desc;
+
+  /// No description provided for @filter_sort_rating.
+  ///
+  /// In uz, this message translates to:
+  /// **'Reyting bo\'yicha'**
+  String get filter_sort_rating;
+
+  /// No description provided for @filter_sort_new.
+  ///
+  /// In uz, this message translates to:
+  /// **'Yangi'**
+  String get filter_sort_new;
+
+  /// No description provided for @cart_free_hint.
+  ///
+  /// In uz, this message translates to:
+  /// **'Yana {amount} — shu {fee} cho\'ntagingizda qoladi'**
+  String cart_free_hint(String amount, String fee);
+
+  /// No description provided for @cart_free_done.
+  ///
+  /// In uz, this message translates to:
+  /// **'Yetkazish o\'zimizdan — {fee} cho\'ntagingizda qoldi 🎉'**
+  String cart_free_done(String fee);
+
+  /// No description provided for @orders_detail_title.
+  ///
+  /// In uz, this message translates to:
+  /// **'Buyurtma tafsiloti'**
+  String get orders_detail_title;
+
+  /// No description provided for @orders_label_number.
+  ///
+  /// In uz, this message translates to:
+  /// **'Buyurtma raqami'**
+  String get orders_label_number;
+
+  /// No description provided for @orders_label_date.
+  ///
+  /// In uz, this message translates to:
+  /// **'Sana'**
+  String get orders_label_date;
+
+  /// No description provided for @orders_label_customer.
+  ///
+  /// In uz, this message translates to:
+  /// **'Mijoz ma\'lumotlari'**
+  String get orders_label_customer;
+
+  /// No description provided for @orders_label_totals.
+  ///
+  /// In uz, this message translates to:
+  /// **'Hisob-kitob'**
+  String get orders_label_totals;
+
+  /// No description provided for @orders_label_status.
+  ///
+  /// In uz, this message translates to:
+  /// **'Holat'**
+  String get orders_label_status;
+
+  /// No description provided for @orders_dishes_count.
+  ///
+  /// In uz, this message translates to:
+  /// **'{count} ta taom'**
+  String orders_dishes_count(int count);
+
+  /// No description provided for @profile_bonus.
+  ///
+  /// In uz, this message translates to:
+  /// **'Bonus: {amount}'**
+  String profile_bonus(String amount);
+
+  /// No description provided for @settings_account_group.
+  ///
+  /// In uz, this message translates to:
+  /// **'HISOB'**
+  String get settings_account_group;
+
+  /// No description provided for @settings_preferences_group.
+  ///
+  /// In uz, this message translates to:
+  /// **'AFZALLIKLAR'**
+  String get settings_preferences_group;
+
+  /// No description provided for @settings_security_group.
+  ///
+  /// In uz, this message translates to:
+  /// **'XAVFSIZLIK'**
+  String get settings_security_group;
+
+  /// No description provided for @settings_orders.
+  ///
+  /// In uz, this message translates to:
+  /// **'Buyurtmalarim'**
+  String get settings_orders;
+
+  /// No description provided for @settings_no_orders.
+  ///
+  /// In uz, this message translates to:
+  /// **'Hozircha buyurtmalar yo\'q'**
+  String get settings_no_orders;
+
+  /// No description provided for @settings_toggle.
+  ///
+  /// In uz, this message translates to:
+  /// **'O\'zgartirish'**
+  String get settings_toggle;
+
+  /// No description provided for @settings_saved.
+  ///
+  /// In uz, this message translates to:
+  /// **'Saqlandi'**
+  String get settings_saved;
+
+  /// No description provided for @settings_save_error.
+  ///
+  /// In uz, this message translates to:
+  /// **'Saqlab bo\'lmadi'**
+  String get settings_save_error;
+
+  /// No description provided for @settings_language_updated.
+  ///
+  /// In uz, this message translates to:
+  /// **'Til yangilandi'**
+  String get settings_language_updated;
+
+  /// No description provided for @settings_help.
+  ///
+  /// In uz, this message translates to:
+  /// **'Yordam'**
+  String get settings_help;
+
+  /// No description provided for @settings_help_contact.
+  ///
+  /// In uz, this message translates to:
+  /// **'Yordam: +998 71 200 00 00'**
+  String get settings_help_contact;
+
+  /// No description provided for @settings_address_default_label.
+  ///
+  /// In uz, this message translates to:
+  /// **'Asosiy'**
+  String get settings_address_default_label;
+
+  /// No description provided for @settings_address_set_default.
+  ///
+  /// In uz, this message translates to:
+  /// **'Asosiy qilish'**
+  String get settings_address_set_default;
 }
 
 class _AppLocalizationsDelegate
