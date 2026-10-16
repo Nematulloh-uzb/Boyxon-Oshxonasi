@@ -41,6 +41,7 @@ export function Footer() {
             <Link to="/" className="hover:text-primary-600">{t('nav.menu')}</Link>
             <Link to="/cart" className="hover:text-primary-600">{t('nav.cart')}</Link>
             <Link to="/settings" className="hover:text-primary-600">{t('nav.settings')}</Link>
+            <Link to="/download" className="hover:text-primary-600">{t('nav.download')}</Link>
           </div>
         </div>
         <div>

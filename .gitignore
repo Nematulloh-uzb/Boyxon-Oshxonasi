@@ -19,6 +19,12 @@ i18n-scan.txt
 # ular build vaqtida qayta yaratiladi; ilgari tracked bo'lib, vite.config.js
 # vite.config.ts ni soya qilib qo'ygan edi)
 *.tsbuildinfo
+
+# Ilovani imzolash kalitlari — HECH QACHON git'ga qo'shilmaydi (repo public!)
+*.jks
+*.keystore
+key.properties
+**/android/key.properties
 client.log
 client-dev.log
 server.log
