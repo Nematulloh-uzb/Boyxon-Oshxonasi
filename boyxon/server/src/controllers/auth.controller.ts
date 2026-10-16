@@ -4,7 +4,8 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { ok } from '../utils/ApiResponse';
 import { ApiError } from '../utils/ApiError';
 import { User } from '../models/User.model';
-import { registerUser, loginUser, issueTokens } from '../services/auth.service';
+import { RefreshSession } from '../models/RefreshSession.model';
+import { registerUser, loginUser, issueTokens, createRefreshSession } from '../services/auth.service';
 import {
   signAccessToken,
   signRefreshToken,
@@ -14,6 +15,7 @@ import {
   signEmailVerifyToken,
   verifyEmailVerifyToken,
   refreshCookieOptions,
+  REFRESH_TTL_MS,
 } from '../services/token.service';
 import { sendResetEmail, sendVerifyEmail } from '../services/email.service';
 import { env, primaryClientUrl } from '../config/env';
@@ -22,6 +24,16 @@ import type { AuthRequest } from '../types/express';
 
 function setRefreshCookie(res: Response, token: string): void {
   res.cookie('refreshToken', token, refreshCookieOptions());
+}
+
+/** Refresh cookie'ni o'chirish (o'rnatilgandagi option'lar bilan aynan). */
+function clearRefreshCookie(res: Response): void {
+  res.clearCookie('refreshToken', { ...refreshCookieOptions(), maxAge: undefined });
+}
+
+/** So'rovdagi qurilma ma'lumoti (sessiyalarni ajratish uchun, max 255 belgi). */
+function userAgentOf(req: Request): string {
+  return String(req.headers['user-agent'] ?? '').slice(0, 255);
 }
 
 /**
