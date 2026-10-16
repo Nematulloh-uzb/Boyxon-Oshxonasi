@@ -45,7 +45,7 @@ function userAgentOf(req: Request): string {
  * (`ALLOW_UNVERIFIED_LOGIN` bilan boshqariladi).
  */
 export const register = asyncHandler(async (req: Request, res: Response) => {
-  const { user, accessToken, refreshToken } = await registerUser(req.body);
+  const { user, accessToken, refreshToken } = await registerUser(req.body, userAgentOf(req));
 
   // Tasdiqlash havosini yuboramiz. SMTP yo'q bo'lsa `false` qaytadi.
   const sent = await issueVerificationEmail(user);
@@ -158,7 +158,7 @@ export const resendVerification = asyncHandler(async (req: Request, res: Respons
 export const login = asyncHandler(async (req: Request, res: Response) => {
   const { email, password } = req.body as { email: string; password: string };
   try {
-    const { accessToken, refreshToken } = await loginUser(email, password);
+    const { accessToken, refreshToken } = await loginUser(email, password, userAgentOf(req));
     const user = await User.findOne({ email: email.toLowerCase() });
     setRefreshCookie(res, refreshToken);
     res.json(ok({ accessToken, user }, 'Xush kelibsiz!'));
