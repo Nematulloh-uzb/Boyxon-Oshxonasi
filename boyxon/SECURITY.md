@@ -27,7 +27,8 @@ qadamlarni** tavsiflaydi.
 | Access token | JWT, 15 daqiqa, `sessionStorage`da (localStorage emas) |
 | Refresh token | JWT, 7 kun, **httpOnly + secure + sameSite** cookie, `path=/api/auth` |
 | Token bekor qilish | `tokenVersion` — parol almashsa/bloklansa barcha tokenlar darhol o'ladi |
-| Refresh rotatsiyasi | har yangilanishda `tokenVersion` oshadi → o'g'irlangan refresh token eskiradi |
+| Refresh sessiyalari | har qurilma alohida `sid` bilan (`RefreshSession`) — refresh faqat shu qurilmani yangilaydi, boshqalar chiqmaydi |
+| Sessiyani yopish | `logout` — faqat shu qurilma; `logout-all` / parol almashish / bloklash — barcha sessiyalar + `tokenVersion` |
 | Parol tiklash | alohida kalit (`JWT_RESET_SECRET`), 15 daqiqa, **bir marta** ishlaydi |
 | Google OAuth | access token URL'da emas — bir martalik kod (60 s) almashtiriladi |
 
@@ -180,7 +181,8 @@ SEED_FORCE=true npm run seed
 cd boyxon/server
 npm run lint         # TypeScript xatolar yo'q
 npm audit --omit=dev # 0 vulnerabilities bo'lishi kerak
-npm test             # 37 ta tekshiruv (injection, poyga, duplicate himoya ham kiradi)
+npm test             # 59 ta tekshiruv (ko'p qurilma sessiyalari, avatar,
+                     # injection, poyga, duplicate himoya ham kiradi)
 ```
 
 Deploydan keyin:
@@ -213,8 +215,8 @@ server xatolarini ko'rinmas holga keltirardi.
 ## Hali qo'llanilmagan (kelajak uchun)
 
 - **2FA (TOTP)** — admin hisobi uchun ayniqsa foydali.
-- **Refresh tokenlarni bazada saqlash** — hozir stateless; qurilmalar ro'yxatini
-  ko'rsatish va alohida qurilmani o'chirish uchun kerak bo'ladi.
+- **Qurilmalar ro'yxati (UI)** — sessiyalar endi bazada saqlanadi (`RefreshSession`);
+  foydalanuvchiga ko'rsatish va alohida qurilmani masofadan o'chirish qoldi.
 - **Audit log** — kim, qachon, qaysi admin amalini bajargani.
 - **CSRF token** — hozir `sameSite` + `path=/api/auth` bilan himoyalangan; agar
   cookie butun saytga yoyilsa, qo'shimcha token kerak bo'ladi.
