@@ -85,6 +85,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auth_logout => 'Sign out';
 
   @override
+  String get auth_logout_all => 'Sign out on all devices';
+
+  @override
   String get auth_logout_confirm => 'Sign out of your account?';
 
   @override
@@ -323,6 +326,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profile_name => 'Name';
+
+  @override
+  String get profile_edit => 'Edit profile';
 
   @override
   String get profile_phone => 'Phone';

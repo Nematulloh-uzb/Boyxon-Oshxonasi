@@ -2,7 +2,8 @@
 
 O'zbek milliy taomlarini yetkazib berish platformasi: React 18 + Vite + TypeScript
 frontend, Express + MongoDB backend, Socket.IO real-time, Web Push, Google OAuth,
-Cloudinary rasmlar, to'liq admin panel.
+Cloudinary rasmlar, to'liq admin panel, hamda **Android ilova (Flutter)** —
+APK saytning `/download` sahifasidagi QR-kod orqali tarqatiladi.
 
 ## Dizayn tizimi
 
@@ -122,6 +123,24 @@ Socket.IO: client login dan keyin ulanadi.
   start `npm start`, env — `.env.example` dagi barchasi.
 - DB → MongoDB Atlas · Rasmlar → Cloudinary.
 
+## Mobil ilova (Android, Flutter)
+
+`boyxon/mobile` — sayt bilan bir xil API'ga ulanadigan mijoz ilovasi
+(menyu, savat, promokod, checkout, buyurtmalar + real-time holat, profil,
+manzillar, uz/ru/en, tun/kunduz mavzu).
+
+```bash
+cd boyxon/mobile
+flutter pub get
+flutter run                          # emulyator → http://10.0.2.2:5000/api
+flutter build apk --release --dart-define=API_URL=https://<server>/api
+```
+
+APK tarqatish: GitHub Releases → asset **`boyxon.apk`** → sayt `/download`
+sahifasi shu yuklab olinadi (`releases/latest/download/boyxon.apk`; saytdagi
+`VITE_APK_URL` bilan almashtirish mumkin). Batafsil: [mobile/README.md](mobile/README.md) —
+imzolash kaliti (keystore) va yangi versiya chiqarish tartibi shu yerda.
+
 ## Test oqimlari
 
 a) Google/kirish → home → savat → checkout → admin da buyurtma ko'rinadi.
@@ -136,6 +155,7 @@ boyxon-oshxonasi/        # repo ildizi
 ├── boyxon/
 │   ├── client/          # React 18 + Vite + TS + Tailwind + shadcn
 │   ├── server/          # Express + TS + Mongoose + Socket.IO
+│   ├── mobile/          # Flutter (Android) — APK / QR orqali tarqatiladi
 │   └── README.md        # shu fayl
 └── docker-compose.yml   # lokal Mongo (repo ildizida)
 ```

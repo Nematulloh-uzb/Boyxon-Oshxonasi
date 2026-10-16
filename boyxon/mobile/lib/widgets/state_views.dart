@@ -160,7 +160,7 @@ class DishImage extends StatelessWidget {
             width: width,
             height: height,
             placeholder: (context, _) => _placeholder(context),
-            errorWidget: (context, _, __) => _placeholder(context),
+            errorWidget: (context, _, _) => _placeholder(context),
           );
 
     if (radius == null) return image;
@@ -193,8 +193,8 @@ class AvatarImage extends StatelessWidget {
         fit: BoxFit.cover,
         width: size,
         height: size,
-        placeholder: (_, __) => Icon(Icons.person_rounded, size: size * 0.6, color: c.subtle),
-        errorWidget: (_, __, ___) => Icon(Icons.person_rounded, size: size * 0.6, color: c.subtle),
+        placeholder: (_, _) => Icon(Icons.person_rounded, size: size * 0.6, color: c.subtle),
+        errorWidget: (_, _, _) => Icon(Icons.person_rounded, size: size * 0.6, color: c.subtle),
       );
     } else {
       child = Icon(Icons.person_rounded, size: size * 0.6, color: c.subtle);

@@ -28,7 +28,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   Future<void> _submit() async {
-    final l = AppLocalizations.of(context);
     if (!(_formKey.currentState?.validate() ?? false)) return;
     final auth = context.read<AuthService>();
 

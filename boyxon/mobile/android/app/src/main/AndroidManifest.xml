@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- API va Socket.IO uchun internet kerak (release manifest'da ham!). -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="boyxon_app"
+        android:label="Boyxon Oshxonasi"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

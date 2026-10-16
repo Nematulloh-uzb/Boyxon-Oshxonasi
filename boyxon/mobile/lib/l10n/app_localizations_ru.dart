@@ -85,6 +85,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get auth_logout => 'Выйти';
 
   @override
+  String get auth_logout_all => 'Выйти на всех устройствах';
+
+  @override
   String get auth_logout_confirm => 'Выйти из аккаунта?';
 
   @override
@@ -324,6 +327,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get profile_name => 'Имя';
+
+  @override
+  String get profile_edit => 'Редактировать профиль';
 
   @override
   String get profile_phone => 'Телефон';

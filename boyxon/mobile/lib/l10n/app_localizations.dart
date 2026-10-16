@@ -250,6 +250,12 @@ abstract class AppLocalizations {
   /// **'Chiqish'**
   String get auth_logout;
 
+  /// No description provided for @auth_logout_all.
+  ///
+  /// In uz, this message translates to:
+  /// **'Barcha qurilmalardan chiqish'**
+  String get auth_logout_all;
+
   /// No description provided for @auth_logout_confirm.
   ///
   /// In uz, this message translates to:
@@ -693,6 +699,12 @@ abstract class AppLocalizations {
   /// In uz, this message translates to:
   /// **'Ism'**
   String get profile_name;
+
+  /// No description provided for @profile_edit.
+  ///
+  /// In uz, this message translates to:
+  /// **'Profilni tahrirlash'**
+  String get profile_edit;
 
   /// No description provided for @profile_phone.
   ///

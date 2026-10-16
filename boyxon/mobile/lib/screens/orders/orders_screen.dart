@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,7 +10,6 @@ import '../../core/order_status.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/models.dart';
 import '../../services/auth_service.dart';
-import '../../services/settings_service.dart';
 import '../../services/socket_service.dart';
 import '../../widgets/state_views.dart';
 import '../auth/login_screen.dart';
@@ -202,7 +200,6 @@ class _OrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final c = context.c;
-    final lang = context.watch<SettingsService>().languageCode;
 
     final first = order.items.isNotEmpty ? order.items.first : null;
     final extra = order.items.length - 1;

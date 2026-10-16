@@ -260,7 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                                 scrollDirection: Axis.horizontal,
                                 itemCount: _featured.length,
-                                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                                separatorBuilder: (_, _) => const SizedBox(width: 12),
                                 itemBuilder: (context, i) => _featuredCard(_featured[i], lang),
                               ),
                             ),
@@ -275,7 +275,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                               scrollDirection: Axis.horizontal,
                               itemCount: _categories.length + 1,
-                              separatorBuilder: (_, __) => const SizedBox(width: 8),
+                              separatorBuilder: (_, _) => const SizedBox(width: 8),
                               itemBuilder: (context, i) {
                                 if (i == 0) {
                                   return _categoryChip(l.home_all, _categoryId == null, () => _selectCategory(null));

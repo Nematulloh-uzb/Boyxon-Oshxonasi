@@ -85,6 +85,9 @@ class AppLocalizationsUz extends AppLocalizations {
   String get auth_logout => 'Chiqish';
 
   @override
+  String get auth_logout_all => 'Barcha qurilmalardan chiqish';
+
+  @override
   String get auth_logout_confirm => 'Hisobdan chiqishni tasdiqlaysizmi?';
 
   @override
@@ -327,6 +330,9 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get profile_name => 'Ism';
+
+  @override
+  String get profile_edit => 'Profilni tahrirlash';
 
   @override
   String get profile_phone => 'Telefon';
