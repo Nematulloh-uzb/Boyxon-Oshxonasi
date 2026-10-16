@@ -84,7 +84,7 @@ export async function registerUser(
  * (`ALLOW_UNVERIFIED_LOGIN` yoqilmagan bo'lsa). Tekshiruv parol tekshiruvidan
  * KEYIN bajariladi, shuning uchun xato urinishlar hisoblagichiga ta'sir qilmaydi.
  */
-export async function loginUser(email: string, password: string) {
+export async function loginUser(email: string, password: string, userAgent?: string) {
   const GENERIC = 'Email yoki parol noto‘g‘ri';
   const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
 
@@ -115,5 +115,6 @@ export async function loginUser(email: string, password: string) {
   user.lastLoginAt = new Date();
   await user.save();
 
-  return issueTokens(user.id as string, user.role, user.tokenVersion ?? 0);
+  const sid = await createRefreshSession(user.id as string, userAgent);
+  return issueTokens(user.id as string, user.role, user.tokenVersion ?? 0, sid);
 }
