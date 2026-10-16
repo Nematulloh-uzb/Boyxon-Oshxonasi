@@ -1,17 +1,37 @@
 import { User } from '../models/User.model';
-import { signAccessToken, signRefreshToken } from './token.service';
+import { RefreshSession } from '../models/RefreshSession.model';
+import { signAccessToken, signRefreshToken, REFRESH_TTL_MS } from './token.service';
 import { ApiError } from '../utils/ApiError';
 import { checkEmailDeliverable } from '../utils/email-verify';
 import { env } from '../config/env';
+import { randomBytes } from 'node:crypto';
 
 /**
- * Token juftligini beradi. `tokenVersion` payload'ga kiradi — parol almashsa yoki
- * hisob bloklansa, bu tokenlar avtomatik kuchini yo'qotadi.
+ * Yangi refresh sessiyasi (bitta qurilma uchun) yaratadi va `sid` qaytaradi.
+ * Har login/google/parol almashishda chaqiriladi — qurilmalar bir-biridan mustaqil.
  */
-export function issueTokens(id: string, role: string, tokenVersion: number) {
+export async function createRefreshSession(userId: string, userAgent?: string): Promise<string> {
+  const sid = randomBytes(32).toString('hex');
+  await RefreshSession.create({
+    user: userId,
+    sid,
+    userAgent: (userAgent ?? '').slice(0, 255),
+    expiresAt: new Date(Date.now() + REFRESH_TTL_MS),
+    lastUsedAt: new Date(),
+  });
+  return sid;
+}
+
+/**
+ * Token juftligini beradi. `tokenVersion` payload'ga kiradi — parol almashsa,
+ * "hammasidan chiqish" qilinsa yoki hisob bloklansa, bu tokenlar darhol o'ladi.
+ * Refresh token esa qo'shimcha `sid` (sessiya) bilan bog'lanadi — faqat o'sha
+ * qurilma yangilay oladi (boshqa qurilmalar refresh qilishi o'z sessiyalariga tegmaydi).
+ */
+export function issueTokens(id: string, role: string, tokenVersion: number, sid: string) {
   return {
     accessToken: signAccessToken({ id, role, ver: tokenVersion }),
-    refreshToken: signRefreshToken({ id, ver: tokenVersion }),
+    refreshToken: signRefreshToken({ id, ver: tokenVersion, sid }),
   };
 }
 
