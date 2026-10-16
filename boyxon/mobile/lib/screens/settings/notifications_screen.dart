@@ -7,6 +7,8 @@ import '../../l10n/app_localizations.dart';
 import '../../models/models.dart';
 import '../../widgets/state_views.dart';
 
+/// Bildirishnomalar ro'yxati — web `NotificationItem` bilan 1:1:
+/// 36px doira ikonka + sarlavha/matn/sana, o'qilmaganlari primary-50 fon va nuqta.
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
 
@@ -98,12 +100,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
+  /// Web `NotificationItem` ikonkalari.
   IconData _iconFor(String type) => switch (type) {
-        'order' => Icons.receipt_long_outlined,
-        'promo' => Icons.local_offer_outlined,
-        'new_dish' => Icons.restaurant_menu_rounded,
-        'bonus' => Icons.stars_rounded,
-        _ => Icons.campaign_outlined,
+        'order' => Icons.check_circle_outline_rounded,
+        'promo' || 'bonus' => Icons.card_giftcard_rounded,
+        'system' => Icons.info_outline_rounded,
+        'new_dish' => Icons.restaurant_rounded,
+        _ => Icons.notifications_none_rounded,
       };
 
   @override
@@ -111,120 +114,164 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final l = AppLocalizations.of(context);
     final c = context.c;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l.notif_title)),
-      body: SafeArea(
-        child: _loading
-            ? const LoadingView()
-            : _error != null
-                ? ErrorView(
-                    message: errorText(_error!, l),
-                    onRetry: _load,
-                    retryLabel: l.common_retry,
-                  )
-                : RefreshIndicator(
-                    color: c.primary,
-                    onRefresh: _load,
-                    child: _items.isEmpty
-                        ? ListView(
-                            children: [
-                              SizedBox(height: MediaQuery.of(context).size.height * 0.18),
-                              EmptyView(
-                                icon: Icons.notifications_off_outlined,
-                                title: l.notif_empty,
-                              ),
-                            ],
-                          )
-                        : ListView.builder(
-                            controller: _scrollCtrl,
-                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                            itemCount: _items.length + (_loadingMore ? 1 : 0),
-                            itemBuilder: (context, i) {
-                              if (i >= _items.length) {
-                                return const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 16),
-                                  child: Center(
-                                    child: SizedBox(
-                                      width: 24,
-                                      height: 24,
-                                      child: CircularProgressIndicator(strokeWidth: 2.4),
-                                    ),
-                                  ),
-                                );
-                              }
-                              final item = _items[i];
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 10),
-                                padding: const EdgeInsets.all(14),
-                                decoration: BoxDecoration(
-                                  color: c.surface,
-                                  borderRadius: BorderRadius.circular(18),
-                                  border: Border.all(
-                                    color: item.isRead
-                                        ? c.line.withValues(alpha: 0.6)
-                                        : c.primary.withValues(alpha: 0.4),
-                                  ),
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Icon(_iconFor(item.type), size: 22, color: c.primary),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            item.title,
-                                            style: TextStyle(
-                                              fontFamily: 'Inter',
-                                              fontSize: 14,
-                                              fontWeight:
-                                                  item.isRead ? FontWeight.w500 : FontWeight.w700,
-                                              color: c.fg,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            item.message,
-                                            style: TextStyle(
-                                              fontFamily: 'Inter',
-                                              fontSize: 13,
-                                              height: 1.4,
-                                              color: c.subtle,
-                                            ),
-                                          ),
-                                          if (item.createdAt != null) ...[
-                                            const SizedBox(height: 6),
-                                            Text(
-                                              formatDateTime(item.createdAt!),
-                                              style: TextStyle(
-                                                fontFamily: 'Inter',
-                                                fontSize: 11,
-                                                color: c.subtle,
-                                              ),
-                                            ),
-                                          ],
-                                        ],
-                                      ),
-                                    ),
-                                    if (!item.isRead)
-                                      Container(
-                                        margin: const EdgeInsets.only(top: 4, left: 8),
-                                        width: 8,
-                                        height: 8,
-                                        decoration: BoxDecoration(
-                                          color: c.primary,
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
+    Widget header() => Padding(
+          padding: const EdgeInsets.fromLTRB(0, 20, 0, 12),
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: () => Navigator.of(context).maybePop(),
+                behavior: HitTestBehavior.opaque,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.arrow_back_rounded, size: 16, color: c.fgMuted),
+                    const SizedBox(width: 6),
+                    Text(
+                      l.common_back,
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: c.fgMuted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+
+    Widget child;
+    if (_loading) {
+      child = Column(children: [header(), const Expanded(child: LoadingView())]);
+    } else if (_error != null) {
+      child = Column(
+        children: [
+          header(),
+          Expanded(
+            child: ErrorView(
+              message: errorText(_error!, l),
+              onRetry: _load,
+              retryLabel: l.common_retry,
+            ),
+          ),
+        ],
+      );
+    } else if (_items.isEmpty) {
+      child = Column(
+        children: [
+          header(),
+          Expanded(
+            child: EmptyView(
+              icon: Icons.notifications_off_outlined,
+              title: l.notif_empty,
+            ),
+          ),
+        ],
+      );
+    } else {
+      child = RefreshIndicator(
+        color: c.primary,
+        onRefresh: _load,
+        child: ListView.builder(
+          controller: _scrollCtrl,
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          itemCount: _items.length + 2,
+          itemBuilder: (context, i) {
+            if (i == 0) return header();
+            if (i == _items.length + 1) {
+              if (!_loadingMore) return const SizedBox(height: 8);
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Center(
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2.4, color: c.primary),
                   ),
-      ),
-    );
+                ),
+              );
+            }
+
+            final item = _items[i - 1];
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                decoration: BoxDecoration(
+                  color: item.isRead
+                      ? Colors.transparent
+                      : BoyxonPalette.primary50.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: const BoxDecoration(
+                        color: BoyxonPalette.primary100,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        _iconFor(item.type),
+                        size: 18,
+                        color: BoyxonPalette.primaryDark,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: c.fg,
+                            ),
+                          ),
+                          Text(
+                            item.message,
+                            style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: c.subtle),
+                          ),
+                          if (item.createdAt != null) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              formatDateTime(item.createdAt!),
+                              style: TextStyle(fontFamily: 'Inter', fontSize: 12, color: c.subtle),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    if (!item.isRead)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8, left: 8),
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: BoyxonPalette.primary,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    }
+
+    return Scaffold(body: SafeArea(child: child));
   }
 }

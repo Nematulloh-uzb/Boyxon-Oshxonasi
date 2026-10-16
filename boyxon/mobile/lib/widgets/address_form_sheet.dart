@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import '../core/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../models/models.dart';
+import 'ui_kit.dart';
 
-/// Manzil qo'shish/tahrirlash uchun bottom sheet.
+/// Manzil qo'shish/tahrirlash uchun bottom sheet (web inline forma uslubida).
 /// Saqlansa — yangi `Address` qaytaradi, aks holda `null`.
 Future<Address?> showAddressFormSheet(BuildContext context, {Address? initial}) {
   return showModalBottomSheet<Address>(
@@ -64,38 +65,46 @@ class _AddressFormState extends State<_AddressForm> {
     final l = AppLocalizations.of(context);
     final c = context.c;
 
+    OutlineInputBorder border(Color color) => OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: color),
+        );
+
+    InputDecoration decoration(String label, String hint) => InputDecoration(
+          labelText: label,
+          hintText: hint,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          border: border(c.line),
+          enabledBorder: border(c.line),
+          focusedBorder: border(c.primary),
+        );
+
     return SafeArea(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
         child: Form(
           key: _formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: c.line,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
               Text(
                 widget.initial == null ? l.addr_add : l.addr_title,
-                style: Theme.of(context).textTheme.titleLarge,
+                style: TextStyle(
+                  fontFamily: 'Epilogue',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: c.fg,
+                ),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _labelCtrl,
                 textInputAction: TextInputAction.next,
-                decoration: InputDecoration(
-                  labelText: l.addr_label,
-                  hintText: l.addr_label_hint,
-                ),
+                maxLength: 50,
+                style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: c.fg),
+                decoration: decoration(l.addr_label, l.addr_label_hint)
+                    .copyWith(counterText: ''),
                 validator: (v) => (v == null || v.trim().isEmpty) ? l.common_error : null,
               ),
               const SizedBox(height: 12),
@@ -103,22 +112,56 @@ class _AddressFormState extends State<_AddressForm> {
                 controller: _addressCtrl,
                 textInputAction: TextInputAction.next,
                 maxLines: 2,
-                decoration: InputDecoration(
-                  labelText: l.addr_text,
-                  hintText: l.addr_text_hint,
-                ),
+                maxLength: 300,
+                style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: c.fg),
+                decoration: decoration(l.addr_text, l.addr_text_hint)
+                    .copyWith(counterText: ''),
                 validator: (v) => (v == null || v.trim().isEmpty) ? l.common_error : null,
               ),
-              const SizedBox(height: 8),
-              SwitchListTile(
-                value: _isDefault,
-                onChanged: (v) => setState(() => _isDefault = v),
-                title: Text(l.addr_default),
-                contentPadding: EdgeInsets.zero,
-                activeThumbColor: c.primary,
+              const SizedBox(height: 12),
+              GestureDetector(
+                onTap: () => setState(() => _isDefault = !_isDefault),
+                behavior: HitTestBehavior.opaque,
+                child: Row(
+                  children: [
+                    Container(
+                      width: 18,
+                      height: 18,
+                      decoration: BoxDecoration(
+                        color: _isDefault ? c.primary : Colors.transparent,
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: _isDefault ? c.primary : c.lineStrong),
+                      ),
+                      child: _isDefault
+                          ? const Icon(Icons.check_rounded, size: 14, color: Colors.white)
+                          : null,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      l.addr_default,
+                      style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: c.fgMuted),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 8),
-              FilledButton(onPressed: _save, child: Text(l.common_save)),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinePill(
+                      label: l.common_cancel,
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: GradientButton(
+                      label: l.common_save,
+                      onPressed: _save,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),

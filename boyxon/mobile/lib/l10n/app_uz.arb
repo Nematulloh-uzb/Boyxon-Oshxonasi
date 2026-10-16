@@ -34,6 +34,7 @@
   "auth_verify_sent": "Tasdiqlash xati yuborildi. Pochtangizni tekshiring.",
   "auth_verify_required": "Buyurtma berishdan oldin emailingizni tasdiqlang — pochtangizga yuborilgan havolani bosing.",
   "auth_password_hint": "Kamida 8 belgi",
+  "auth_or": "yoki",
   "auth_required_title": "Tizimga kirish kerak",
   "auth_required_sub": "Bu bo'limdan foydalanish uchun hisobingizga kiring",
 

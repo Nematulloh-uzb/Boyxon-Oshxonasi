@@ -230,5 +230,6 @@
   "settings_help": "Help",
   "settings_help_contact": "Help: +998 71 200 00 00",
   "settings_address_default_label": "Default",
-  "settings_address_set_default": "Make default"
+  "settings_address_set_default": "Make default",
+  "settings_address_required": "Enter a name and address",
 }
