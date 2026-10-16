@@ -39,7 +39,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   int _page = 1;
   int _pages = 1;
-  String? _categoryId;
+  // Server `category` parametrini **slug** bo'yicha filtrlaydi (web ham shunday
+  // yuboradi) — _id emas, slug saqlanadi.
+  String? _categorySlug;
   String _search = '';
 
   @override
@@ -66,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Map<String, dynamic> _dishQuery({required int page}) => {
         'page': page,
         'limit': 12,
-        if (_categoryId != null) 'category': _categoryId,
+        if (_categorySlug != null) 'category': _categorySlug,
         if (_search.isNotEmpty) 'search': _search,
       };
 
@@ -170,8 +172,8 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _selectCategory(String? id) {
-    setState(() => _categoryId = id);
+  void _selectCategory(String? slug) {
+    setState(() => _categorySlug = slug);
     _loadDishes();
   }
 
@@ -243,7 +245,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         SliverToBoxAdapter(child: _FreeDeliveryBanner()),
 
                         // Mashhur taomlar
-                        if (_featured.isNotEmpty && _search.isEmpty && _categoryId == null) ...[
+                        if (_featured.isNotEmpty && _search.isEmpty && _categorySlug == null) ...[
                           SliverPadding(
                             padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
                             sliver: SliverToBoxAdapter(
@@ -278,13 +280,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               separatorBuilder: (_, _) => const SizedBox(width: 8),
                               itemBuilder: (context, i) {
                                 if (i == 0) {
-                                  return _categoryChip(l.home_all, _categoryId == null, () => _selectCategory(null));
+                                  return _categoryChip(l.home_all, _categorySlug == null, () => _selectCategory(null));
                                 }
                                 final cat = _categories[i - 1];
                                 return _categoryChip(
                                   cat.localizedName(lang),
-                                  _categoryId == cat.id,
-                                  () => _selectCategory(cat.id),
+                                  _categorySlug == cat.slug,
+                                  () => _selectCategory(cat.slug),
                                 );
                               },
                             ),

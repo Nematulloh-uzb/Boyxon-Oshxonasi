@@ -104,6 +104,10 @@ Kalitlar generatsiyada **o'z holida** qoladi (`auth_login` → `l.auth_login`).
   `android/gradle.properties` da `kotlin.incremental=false` qo'yilgan —
   o'chirmang. Yana takrorlansa: `flutter clean` + `android\gradlew --stop`,
   so'ng qayta build qiling.
+- `The contents of the immutable workspace ... have been modified` xatosi —
+  Gradle'ning global transform keshi buzilgan (odatda build jarayoni zo'rlab
+  to'xtatilganda). Yechim: `%USERPROFILE%\.gradle\caches\<gradle-versiya>\transforms`
+  papkasini o'chirib, qayta build qiling.
 
 ## Eslatmalar
 
