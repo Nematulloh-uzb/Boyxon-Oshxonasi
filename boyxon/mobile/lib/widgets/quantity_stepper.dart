@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../core/app_theme.dart';
 
-/// [- 2 +] ko'rinishidagi miqdor tanlagich.
+/// [- 2 +] miqdor tanlagich — web CartItem stepper bilan 1:1:
+/// rounded-full border-ink-line, oq fon, h-8 w-8 tugmalar, w-6 soni.
 class QuantityStepper extends StatelessWidget {
   const QuantityStepper({
     super.key,
@@ -18,7 +19,8 @@ class QuantityStepper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.c;
-    final buttonSize = compact ? 30.0 : 34.0;
+    final buttonSize = compact ? 28.0 : 32.0;
+    final iconSize = compact ? 13.0 : 14.0;
 
     Widget button(IconData icon, VoidCallback onTap) {
       return InkWell(
@@ -27,33 +29,30 @@ class QuantityStepper extends StatelessWidget {
         child: SizedBox(
           width: buttonSize,
           height: buttonSize,
-          child: Icon(icon, size: compact ? 16 : 18, color: c.fg),
+          child: Icon(icon, size: iconSize, color: c.fgMuted),
         ),
       );
     }
 
     return Container(
       decoration: BoxDecoration(
-        color: c.surfaceRaised,
         borderRadius: BorderRadius.circular(999),
         border: Border.all(color: c.line),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          button(value <= 1 ? Icons.delete_outline_rounded : Icons.remove_rounded, () {
-            onChanged(value - 1);
-          }),
+          button(Icons.remove_rounded, () => onChanged(value - 1)),
           SizedBox(
-            width: compact ? 22 : 28,
+            width: 24,
             child: Text(
               '$value',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: 'Inter',
-                fontSize: compact ? 13 : 15,
-                fontWeight: FontWeight.w700,
+                fontSize: compact ? 13 : 14,
+                fontWeight: FontWeight.w600,
                 color: c.fg,
               ),
             ),

@@ -56,6 +56,7 @@
   "dish_about": "Taom haqida",
   "dish_min": "{n} daqiqa",
   "@dish_min": { "placeholders": { "n": { "type": "String" } } },
+  "dish_min_short": "daq",
   "dish_kcal": "{n} kkal",
   "@dish_kcal": { "placeholders": { "n": { "type": "String" } } },
   "dish_not_found": "Taom topilmadi",
@@ -94,6 +95,9 @@
   "checkout_done_sub": "Buyurtma raqami: {number}",
   "@checkout_done_sub": { "placeholders": { "number": { "type": "String" } } },
   "checkout_to_orders": "Buyurtmalarim",
+  "cart_go_home": "Bosh sahifaga",
+  "cart_processing": "Yuborilmoqda...",
+  "checkout_track": "Statusni real-time kuzatib boring.",
 
   "orders_title": "Buyurtmalarim",
   "orders_empty": "Buyurtmalar yo'q",

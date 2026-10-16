@@ -54,6 +54,7 @@
   "dish_added": "Added to cart",
   "dish_about": "About the dish",
   "dish_min": "{n} min",
+  "dish_min_short": "min",
   "dish_kcal": "{n} kcal",
   "dish_not_found": "Dish not found",
 
@@ -89,6 +90,9 @@
   "checkout_done_title": "Order accepted!",
   "checkout_done_sub": "Order number: {number}",
   "checkout_to_orders": "My orders",
+  "cart_go_home": "Home",
+  "cart_processing": "Sending...",
+  "checkout_track": "Track the status in real time.",
 
   "orders_title": "My orders",
   "orders_empty": "No orders yet",

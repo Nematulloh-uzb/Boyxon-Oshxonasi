@@ -54,6 +54,7 @@
   "dish_added": "Добавлено в корзину",
   "dish_about": "О блюде",
   "dish_min": "{n} мин",
+  "dish_min_short": "мин",
   "dish_kcal": "{n} ккал",
   "dish_not_found": "Блюдо не найдено",
 
@@ -89,6 +90,9 @@
   "checkout_done_title": "Заказ принят!",
   "checkout_done_sub": "Номер заказа: {number}",
   "checkout_to_orders": "Мои заказы",
+  "cart_go_home": "На главную",
+  "cart_processing": "Отправляется...",
+  "checkout_track": "Следите за статусом в реальном времени.",
 
   "orders_title": "Мои заказы",
   "orders_empty": "Заказов нет",

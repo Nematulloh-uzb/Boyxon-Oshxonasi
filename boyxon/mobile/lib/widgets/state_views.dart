@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../core/app_theme.dart';
+import '../l10n/app_localizations.dart';
 
 /// Yuklanmoqda — markazda spinner.
 class LoadingView extends StatelessWidget {
@@ -15,13 +16,17 @@ class LoadingView extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40),
-        child: CircularProgressIndicator(color: c.primary),
+        child: SizedBox(
+          width: 28,
+          height: 28,
+          child: CircularProgressIndicator(color: c.primary, strokeWidth: 3),
+        ),
       ),
     );
   }
 }
 
-/// Xatolik — xabar + "Qayta urinish".
+/// Xatolik — web'dagi `bg-danger/10` banner uslubida: xabar + "Qayta urinish".
 class ErrorView extends StatelessWidget {
   const ErrorView({super.key, required this.message, required this.onRetry, required this.retryLabel});
 
@@ -34,38 +39,38 @@ class ErrorView extends StatelessWidget {
     final c = context.c;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: c.danger.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
+        padding: const EdgeInsets.all(16),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: c.danger.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: c.danger),
               ),
-              child: Icon(Icons.wifi_off_rounded, size: 32, color: c.danger),
-            ),
-            const SizedBox(height: 14),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 14),
-            OutlinedButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: Text(retryLabel),
-            ),
-          ],
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: onRetry,
+                style: TextButton.styleFrom(foregroundColor: c.primaryDark),
+                child: Text(retryLabel),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-/// Bo'sh holat — ikonka + sarlavha + ixtiyoriy tugma.
+/// Bo'sh holat — web DishGrid/CartPage uslubi:
+/// doira ichida ikonka + sarlavha (Epilogue) + tavsif + ixtiyoriy CTA.
 class EmptyView extends StatelessWidget {
   const EmptyView({
     super.key,
@@ -73,6 +78,8 @@ class EmptyView extends StatelessWidget {
     required this.title,
     this.subtitle,
     this.action,
+    this.muted = false,
+    this.titleSize = 18,
   });
 
   final IconData icon;
@@ -80,9 +87,14 @@ class EmptyView extends StatelessWidget {
   final String? subtitle;
   final Widget? action;
 
+  /// `true` — doira foni placeholder-bg (savat bo'sh holati), aks holda surface-raised.
+  final bool muted;
+  final double titleSize;
+
   @override
   Widget build(BuildContext context) {
     final c = context.c;
+    final size = muted ? 80.0 : 96.0;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -90,29 +102,35 @@ class EmptyView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(18),
+              width: size,
+              height: size,
               decoration: BoxDecoration(
-                color: c.primary.withValues(alpha: 0.1),
+                color: muted ? c.placeholderBg : c.surfaceRaised,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: 36, color: c.primary),
+              child: Icon(icon, size: size * 0.45, color: c.subtle),
             ),
             const SizedBox(height: 16),
             Text(
               title,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleMedium,
+              style: TextStyle(
+                fontFamily: 'Epilogue',
+                fontSize: titleSize,
+                fontWeight: FontWeight.w700,
+                color: c.fg,
+              ),
             ),
             if (subtitle != null) ...[
-              const SizedBox(height: 6),
+              const SizedBox(height: 4),
               Text(
                 subtitle!,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodySmall,
+                style: TextStyle(fontFamily: 'Inter', fontSize: 13, height: 1.4, color: c.subtle),
               ),
             ],
             if (action != null) ...[
-              const SizedBox(height: 18),
+              const SizedBox(height: 24),
               action!,
             ],
           ],
@@ -122,7 +140,7 @@ class EmptyView extends StatelessWidget {
   }
 }
 
-/// Taom rasmi — xato/bo'sh holatda placeholder (DESIGN.md: DishPlaceholder).
+/// Taom rasmi — xato/bo'sh holatda placeholder (bg-placeholder + pichoq-sanchqiq).
 class DishImage extends StatelessWidget {
   const DishImage({
     super.key,
@@ -144,9 +162,9 @@ class DishImage extends StatelessWidget {
     return Container(
       width: width,
       height: height,
-      color: c.surfaceRaised,
+      color: c.placeholderBg,
       alignment: Alignment.center,
-      child: Icon(Icons.restaurant_rounded, size: 30, color: c.subtle.withValues(alpha: 0.6)),
+      child: Icon(Icons.restaurant_rounded, size: 30, color: c.subtle.withValues(alpha: 0.7)),
     );
   }
 
@@ -165,6 +183,34 @@ class DishImage extends StatelessWidget {
 
     if (radius == null) return image;
     return ClipRRect(borderRadius: radius!, child: image);
+  }
+}
+
+/// Web `DishPlaceholder`: aspect-[4/3] + bg-muted + ikonka + "Rasm yo'q".
+class DishPlaceholder extends StatelessWidget {
+  const DishPlaceholder({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+    final l = AppLocalizations.of(context);
+    return AspectRatio(
+      aspectRatio: 4 / 3,
+      child: Container(
+        color: c.placeholderBg,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.restaurant_rounded, size: 40, color: c.subtle),
+            const SizedBox(height: 6),
+            Text(
+              l.dish_no_image,
+              style: TextStyle(fontFamily: 'Inter', fontSize: 11, color: c.subtle),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -214,28 +260,36 @@ class AvatarImage extends StatelessWidget {
   }
 }
 
-/// Kichik status badge (rangli fon + matn).
+/// Kichik status badge (rangli fon + matn) — web status chip uslubi.
 class StatusBadge extends StatelessWidget {
-  const StatusBadge({super.key, required this.label, required this.color});
+  const StatusBadge({
+    super.key,
+    required this.label,
+    required this.background,
+    required this.foreground,
+    this.fontSize = 12,
+  });
 
   final String label;
-  final Color color;
+  final Color background;
+  final Color foreground;
+  final double fontSize;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.14),
+        color: background,
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
         label,
         style: TextStyle(
           fontFamily: 'Inter',
-          fontSize: 12,
+          fontSize: fontSize,
           fontWeight: FontWeight.w600,
-          color: color,
+          color: foreground,
         ),
       ),
     );
