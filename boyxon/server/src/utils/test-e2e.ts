@@ -209,6 +209,29 @@ async function main(): Promise<void> {
     }
   }
 
+  // ── Avatar yuklash (data-URL) — regressiya testi ──
+  // Ilgari avatar umuman saqlanmasdi (server 500 belgili URL talab qilardi,
+  // client esa megabaytli base64 yuborardi). Endi siqilgan data-URL qabul qilinadi,
+  // SVG esa XSS xavfi sababli rad etiladi.
+  {
+    const smallJpeg = 'data:image/jpeg;base64,' + 'A'.repeat(1500);
+    const upd = await request(base, 'PATCH', '/users/me', { avatar: smallJpeg }, cookie ?? undefined, accessToken);
+    const savedAvatar = (upd.body as { data: { avatar?: string } }).data?.avatar;
+    check('PATCH /users/me avatar data-URL → 200 + saqlandi', upd.status === 200 && savedAvatar === smallJpeg, `status ${upd.status}`);
+
+    const svg = await request(base, 'PATCH', '/users/me', { avatar: 'data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=' }, cookie ?? undefined, accessToken);
+    check('SVG avatar rad etiladi → 400', svg.status === 400, `status ${svg.status}`);
+
+    const huge = await request(base, 'PATCH', '/users/me', { avatar: 'data:image/jpeg;base64,' + 'A'.repeat(160_000) }, cookie ?? undefined, accessToken);
+    check('Juda katta avatar rad etiladi → 400/413', huge.status === 400 || huge.status === 413, `status ${huge.status}`);
+
+    const notaUrl = await request(base, 'PATCH', '/users/me', { avatar: 'javascript:alert(1)' }, cookie ?? undefined, accessToken);
+    check('Xavfli avatar URL rad etiladi → 400', notaUrl.status === 400, `status ${notaUrl.status}`);
+
+    // Avatar keyingi testlarga xalaqit bermasligi uchun tozalaymiz.
+    await request(base, 'PATCH', '/users/me', { avatar: null }, cookie ?? undefined, accessToken);
+  }
+
   // ── Ko'p qurilma sessiyalari (multi-device) — C2 regressiya testi ──
   // Ilgari har refresh global tokenVersion ni oshirardi va BOSHQA qurilmalar
   // majburan chiqarilardi. Endi har qurilma o'z sessiyasiga (sid) ega.
