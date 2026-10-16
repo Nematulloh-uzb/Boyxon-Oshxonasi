@@ -52,6 +52,7 @@ class User {
   final int bonusBalance;
   final bool emailVerified;
   final UserPrefs preferences;
+  final bool pushEnabled;
 
   const User({
     required this.id,
@@ -64,6 +65,7 @@ class User {
     this.bonusBalance = 0,
     this.emailVerified = false,
     this.preferences = const UserPrefs(),
+    this.pushEnabled = true,
   });
 
   bool get isAdmin => role == 'admin';
@@ -83,6 +85,9 @@ class User {
         preferences: json['preferences'] is Map<String, dynamic>
             ? UserPrefs.fromJson(json['preferences'] as Map<String, dynamic>)
             : const UserPrefs(),
+        pushEnabled: json['notificationPrefs'] is Map<String, dynamic>
+            ? ((json['notificationPrefs'] as Map<String, dynamic>)['pushEnabled'] ?? true) as bool
+            : true,
       );
 }
 
@@ -136,6 +141,7 @@ class Dish {
   final int? calories;
   final List<String> tags;
   final double rating;
+  final int reviewCount;
   final bool isFeatured;
 
   const Dish({
@@ -155,6 +161,7 @@ class Dish {
     this.calories,
     this.tags = const [],
     this.rating = 0,
+    this.reviewCount = 0,
     this.isFeatured = false,
   });
 
@@ -177,6 +184,7 @@ class Dish {
         calories: (json['calories'] as num?)?.toInt(),
         tags: ((json['tags'] ?? []) as List).map((e) => e.toString()).toList(),
         rating: ((json['rating'] ?? 0) as num).toDouble(),
+        reviewCount: ((json['reviewCount'] ?? 0) as num).toInt(),
         isFeatured: (json['isFeatured'] ?? false) as bool,
       );
 
