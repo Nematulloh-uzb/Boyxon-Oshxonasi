@@ -69,6 +69,36 @@ Release imzolash uchun repository **secrets**:
 Agar keystore sir bo'lmasa — APK debug imzo bilan yig'iladi (faqat test uchun).
 ⚠️ **Keystore faylni hech qachon repoga qo'shmang** (lokal baza: `D:\Installs\Android\boyxon-keys\`).
 
+### Lokal APK build (Windows)
+
+⚠️ Windows'da yo'l uzunligi cheklovi (MAX_PATH 260) NDK/CMake build'ni buzadi:
+`D:\Loyihalar\Boyxon oshxonasi\...` (bo'sh joy + uzun yo'l) sababli
+`react-native-worklets` CMake bosqichida `ninja: error: mkdir(...): No such file or directory`
+xatosi chiqadi. `subst`/`junction` **yordam bermaydi** (Gradle yo'lni canonicalize qilib,
+asl uzun yo'lga qaytaradi). Ishlaydigan usul — loyihani **qisqa yo'lga nusxalash**:
+
+```powershell
+$src = "D:\Loyihalar\Boyxon oshxonasi\boyxon\mobile"
+$dst = "C:\Users\user\bx"   # qisqa yo'l — CMake'ning barcha ichki fayllariga 260 belgi yetadi
+
+robocopy $src $dst /E /MT:16 /XD "$src\node_modules" "$src\android" "$src\.expo" "$src\dist"
+robocopy "$src\node_modules" "$dst\node_modules" /E /MT:32 /XD ".cxx" /NFL /NDL /NJH /NJS
+
+cd $dst
+node .\node_modules\expo\bin\cli prebuild --platform android --clean
+Copy-Item "D:\Installs\Android\boyxon-keys\boyxon-release.jks" "android\app\release.keystore"
+# build.gradle'ga release signing qo'shiladi: signingConfigs { release {...} } +
+# release buildType'da `signingConfig signingConfigs.release` (CI'dagi python patch bilan bir xil)
+
+cd "$dst\android"
+$env:JAVA_HOME = "D:\Installs\Android\jdk\jdk-17.0.20.1+1"
+$env:ANDROID_HOME = "D:\Installs\Android\sdk"
+.\gradlew.bat assembleRelease --no-daemon -x lint -x test
+# Natija: C:\Users\user\bx\android\app\build\outputs\apk\release\app-release.apk
+```
+
+CI (ubuntu-latest) bu muammodan xoli — workflow oddiy yo'l bilan ishlaydi.
+
 ## Google bilan kirish (Android emulyator + lokal backend)
 
 Lokal serverda `GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback`
