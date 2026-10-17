@@ -99,6 +99,8 @@ export function Button({
           backgroundColor: p.bg,
           borderWidth: p.border ? 1 : 0,
           borderColor: p.border,
+          // Kontent vertikal markazda turadi (aks holda tepaga yopishadi).
+          justifyContent: 'center',
           opacity: isDisabled ? 0.55 : pressed ? 0.88 : 1,
           transform: [{ scale: pressed && !isDisabled ? 0.98 : 1 }],
         },

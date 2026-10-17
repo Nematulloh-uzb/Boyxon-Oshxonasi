@@ -1,28 +1,24 @@
-name: Boyxon APK (Capacitor — sayt 1:1)
+name: Boyxon APK (React Native — Expo)
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'boyxon/client/**'
-      - '.github/workflows/boyxon-apk.yml'
   workflow_dispatch:
     inputs:
       api_url:
         description: 'Backend API manzili (masalan https://boyxon-server.onrender.com/api)'
         required: false
         default: 'https://boyxon-server.onrender.com/api'
-      socket_url:
-        description: 'Socket.IO manzili (masalan https://boyxon-server.onrender.com)'
-        required: false
-        default: 'https://boyxon-server.onrender.com'
+  push:
+    tags: ['v*']
 
 jobs:
   build-apk:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: boyxon/client
+        working-directory: boyxon/mobile
+    env:
+      EXPO_PUBLIC_API_URL: ${{ inputs.api_url || 'https://boyxon-server.onrender.com/api' }}
+      EXPO_NO_TELEMETRY: '1'
     steps:
       - uses: actions/checkout@v4
 
@@ -30,40 +26,74 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: boyxon/client/package-lock.json
+          cache-dependency-path: boyxon/mobile/package-lock.json
 
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 21
+          java-version: 17
 
       - name: Install deps
         run: npm ci
 
       - name: Typecheck
-        run: npx tsc --noEmit
+        run: node ./node_modules/typescript/lib/tsc.js --noEmit
 
-      - name: Build web (1:1 sayt)
+      - name: Expo prebuild (android)
+        run: npx expo prebuild --platform android --clean
+
+      - name: Keystore fayl (agar sir mavjud bo'lsa)
         env:
-          VITE_API_URL: ${{ inputs.api_url || 'https://boyxon-server.onrender.com/api' }}
-          VITE_SOCKET_URL: ${{ inputs.socket_url || 'https://boyxon-server.onrender.com' }}
-          VITE_APK_URL: https://github.com/${{ github.repository }}/releases/latest/download/boyxon.apk
-        run: npm run build
-
-      - name: Sync Capacitor
-        run: npx cap sync android
-
-      - name: Build debug APK (1:1 sayt ichida)
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
-          cd android
+          if [ -n "$KS_B64" ]; then
+            echo "$KS_B64" | base64 -d > android/app/release.keystore
+            echo "Release keystore yozildi."
+          else
+            echo "ANDROID_KEYSTORE_BASE64 yo'q — debug imzo bilan release build qilinadi."
+          fi
+
+      - name: Signing sozlamalari (release imzo bo'lsa)
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          python3 - <<'PY'
+          import os, pathlib
+          if not os.environ.get('KS_B64'):
+              raise SystemExit(0)
+          p = pathlib.Path('android/app/build.gradle')
+          s = p.read_text()
+          block = """    signingConfigs {
+          release {
+              storeFile file('release.keystore')
+              storePassword System.getenv('KS_PASS')
+              keyAlias System.getenv('KEY_ALIAS')
+              keyPassword System.getenv('KEY_PASS')
+          }"""
+          s = s.replace('    signingConfigs {', block, 1)
+          s = s.replace('signingConfig signingConfigs.debug', 'signingConfig signingConfigs.release')
+          p.write_text(s)
+          print('build.gradle: release signing sozlandi.')
+          PY
+
+      - name: Build release APK
+        working-directory: boyxon/mobile/android
+        env:
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleRelease --no-daemon -x lint -x test
+
+      - name: APK nomlash
+        run: cp android/app/build/outputs/apk/release/app-release.apk boyxon.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: boyxon-apk
-          path: boyxon/client/android/app/build/outputs/apk/debug/app-debug.apk
+          path: boyxon/mobile/boyxon.apk
           retention-days: 30
 
   release:
@@ -77,10 +107,9 @@ jobs:
         with:
           name: boyxon-apk
           path: ./apk
-      - run: mv ./apk/app-debug.apk ./apk/boyxon.apk
       - uses: softprops/action-gh-release@v2
         with:
           files: ./apk/boyxon.apk
           body: |
-            Boyxon Oshxonasi — Android ilova (sayt bilan 1:1).
+            Boyxon Oshxonasi — Android ilova (React Native, 1:1 dizayn).
             O'rnatish: `boyxon.apk` ni yuklab, "Noma'lum manba"ga ruxsat bering.

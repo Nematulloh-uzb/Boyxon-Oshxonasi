@@ -1,56 +1,102 @@
-# Welcome to your Expo app 👋
+# Boyxon Oshxonasi — Mobil ilova (React Native / Expo)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Google Stitch dizayni asosida **1:1** qurilgan React Native ilova. Backend sifatida
+`boyxon/server` REST API ishlatiladi (web sayt bilan aynan bir xil API).
 
-## Get started
+## Texnologiyalar
 
-1. Install dependencies
+- **Expo SDK 58** / React Native 0.88 / React 19 (React Compiler yoqilgan)
+- **expo-router** — fayl-asosli routing (typed routes)
+- **TanStack Query** — server holati; **Zustand** — auth/savat/toast
+- **expo-secure-store** — tokenlar; **expo-local-authentication** — biometrik qulf
+- i18n: o'zbekcha (asosiy), ruscha, inglizcha — `src/locales/*.json`
+- Material-3 tokenlar (`src/theme/tokens.ts`) — Stitch `tailwind config`dan aynan olingan
 
-   ```bash
-   npm install
-   ```
+## Ishga tushirish
 
-2. Start the app
+1. Bog'liqliklar: `npm install`
+2. Backend (`boyxon/server`): `npm run dev:local` — lokal xotira MongoDB + seed
+3. Ilova:
+   - `npm run start` — QR / Expo Go
+   - `npm run android` — Android emulyator avtomatik ochiladi
+   - Google OAuth sinovi uchun: `npm run android:reverse` (tcp:5000 tunnel, pastga qarang)
 
-   ```bash
-   npx expo start
-   ```
+## Konfiguratsiya
 
-In the output, you'll find options to open the app in a
+`EXPO_PUBLIC_API_URL` — backend manzili (`mobile/.env`, namuna — `.env.example`):
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+| Muhit            | Qiymat                                   |
+| ---------------- | ---------------------------------------- |
+| Emulyator (lokal)| `http://10.0.2.2:5000/api`               |
+| Prod (Render)    | `https://boyxon-server.onrender.com/api` |
 
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Struktura
 
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+src/
+  app/            # ekranlar (expo-router)
+    (tabs)/       # Asosiy, Savat, Sozlamalar
+    kirish.tsx    # Kirish / Ro'yxatdan o'tish
+    taom/[slug]   # Taom detali
+    buyurtmalar   # Buyurtmalar ro'yxati
+    buyurtma/[id] # Buyurtma kuzatuvi
+    bildirishnomalar
+    admin/        # Admin boshqaruv paneli (05 dizayn)
+  api/            # REST klient (x-client: mobile, 401 single-flight refresh)
+  components/     # UI kutubxona (Button, Input, AppBar, OrderStatusChip, ...)
+  store/          # auth, cart, toast (Zustand)
+  theme/          # Material-3 tokenlar + ThemeProvider (light/dark)
+  lib/            # format, orderStatus, initials, tokenStorage, constants
+  locales/        # uz / ru / en
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+## Android APK (GitHub Actions)
 
-### Other setup steps
+`.github/workflows/boyxon-apk.yml` — **workflow_dispatch** orqali ishga tushiriladi:
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+- `boyxon.apk` nomli artifact yig'iladi;
+- `v*` teg push qilinsa — GitHub Release'ga `boyxon.apk` biriktiriladi.
 
-## Learn more
+Release imzolash uchun repository **secrets**:
 
-To learn more about developing your project with Expo, look at the following resources:
+| Secret | Izoh |
+| ------ | ---- |
+| `ANDROID_KEYSTORE_BASE64` | Keystore faylining base64 nusxasi |
+| `ANDROID_KEYSTORE_PASSWORD` | Keystore paroli |
+| `ANDROID_KEY_ALIAS` | Kalit aliasi |
+| `ANDROID_KEY_PASSWORD` | Kalit paroli |
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Agar keystore sir bo'lmasa — APK debug imzo bilan yig'iladi (faqat test uchun).
+⚠️ **Keystore faylni hech qachon repoga qo'shmang** (lokal baza: `D:\Installs\Android\boyxon-keys\`).
 
-## Join the community
+## Google bilan kirish (Android emulyator + lokal backend)
 
-Join our community of developers creating universal apps.
+Lokal serverda `GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback`
+(GCP Console'da ro'yxatdan o'tgan; Google http uchun faqat `localhost`ga ruxsat beradi,
+`10.0.2.2` kabi manzillarga yo'q). Emulyator brauzeri `localhost`ni **emulyatorning
+o'ziga** yo'naltiradi, shuning uchun host kompyuter portini emulyatorga tunnel qilib
+berish kerak:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```powershell
+npm run android:reverse
+# yoki qo'lda:
+& "D:\Installs\Android\Sdk\platform-tools\adb.exe" reverse tcp:5000 tcp:5000
+```
+
+- Emulyator har qayta ishga tushganda takrorlanadi (doimiy emas).
+- Tekshirish: `adb reverse --list` ro'yxatida `tcp:5000 tcp:5000` bo'lishi kerak.
+- Aks holda Google'dan qaytishda brauzerda `ERR_CONNECTION_REFUSED` (localhost:5000) chiqadi.
+- Google OAuth `boyxon://auth/...` deep-link ishlatadi — **Expo Go'da emas**, dev-build/APK'da ishlaydi.
+
+## Tekshirish
+
+```powershell
+# Typecheck (npx o'rniga node orqali — Windows script cheklovi):
+node ./node_modules/typescript/lib/tsc.js --noEmit
+```
+
+## Buyurtma holati zanjiri
+
+`pending → confirmed → packing → handed_to_taxi → delivered` (+ `cancelled`).
+Status ranglari/ikonkalari `src/lib/orderStatus.ts`da yagona manbadan olinadi
+(savat, buyurtmalar, kuzatuv, admin — hammasi shu fayldan foydalanadi).
