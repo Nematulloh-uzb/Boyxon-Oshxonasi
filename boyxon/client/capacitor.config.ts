@@ -11,8 +11,11 @@ const config: CapacitorConfig = {
     // WebView'da refresh ishlamay qoladi.
     androidScheme: 'http',
     cleartext: true,
-    // Deep-link: boyxon://auth/callback?code=... (Google OAuth native qaytishi)
-    hostname: 'boyxon.local',
+    // MUHIM: hostname 'localhost' — WebView sahifasi va API (localhost:5000,
+    // adb reverse orqali) bir xil saytda bo'lishi uchun. 'boyxon.local' bo'lsa
+    // API 10.0.2.2:5000 bilan cross-site bo'lib, refresh cookie (SameSite=Lax)
+    // WebView'da umuman saqlanmaydi va ilova qayta ochilganda sessiya tiklanmaydi.
+    hostname: 'localhost',
   },
   android: {
     // Chiqishda Chrome Custom Tab emas, o'z WebView ichida ochiladi.

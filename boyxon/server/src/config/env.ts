@@ -234,3 +234,26 @@ export function primaryClientUrl(): string {
   const first = env.CLIENT_URL.split(',')[0]?.trim().replace(/\/$/, '') ?? '';
   return first || 'http://localhost:5173';
 }
+
+/**
+ * CORS uchun ruxsat etilgan manbalar: CLIENT_URL ro'yxati + Capacitor ilova manbalari.
+ *
+ * Capacitor WebView sahifalarni o'z ichki hostidan yuklaydi (`boyxon.local`) va har
+ * bir API so'rovda shu Origin sarlavhasini yuboradi. Bu manbalar ruxsat etilmasa,
+ * mobil ilovadagi barcha so'rovlar (login, refresh, google/exchange) CORS tomonidan
+ * to'sib qo'yiladi. `*` ishlatilmaydi — credentials: true bilan birga xavfli.
+ */
+export function corsOrigins(): string[] {
+  const fromEnv = env.CLIENT_URL.split(',')
+    .map((s) => s.trim().replace(/\/$/, ''))
+    .filter(Boolean);
+  const capacitor = [
+    'http://boyxon.local',
+    'https://boyxon.local',
+    'http://localhost',
+    'https://localhost',
+    'capacitor://localhost',
+    'ionic://localhost',
+  ];
+  return Array.from(new Set([...fromEnv, ...capacitor]));
+}

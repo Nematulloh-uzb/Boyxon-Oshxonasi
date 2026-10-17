@@ -2,7 +2,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import { createApp } from './app';
 import { connectDb } from './config/db';
-import { env } from './config/env';
+import { corsOrigins, env } from './config/env';
 import { setIo } from './socket';
 import { verifyAccessToken } from './services/token.service';
 import { User } from './models/User.model';
@@ -12,9 +12,7 @@ async function main(): Promise<void> {
   const app = createApp();
   const server = http.createServer(app);
 
-  const allowedOrigins = env.CLIENT_URL.split(',')
-    .map((s) => s.trim().replace(/\/$/, ''))
-    .filter(Boolean);
+  const allowedOrigins = corsOrigins();
   const io = new Server(server, {
     cors: { origin: allowedOrigins, credentials: true },
   });

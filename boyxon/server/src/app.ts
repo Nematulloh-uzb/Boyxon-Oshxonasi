@@ -3,7 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
-import { env, isProd } from './config/env';
+import { corsOrigins, env, isProd } from './config/env';
 import { initPassport } from './config/passport';
 import { errorHandler } from './middlewares/error.middleware';
 import { apiLimiter } from './middlewares/rateLimit.middleware';
@@ -48,11 +48,9 @@ export function createApp() {
     }),
   );
 
-  // CORS: faqat aniq ro'yxatdagi domenlar. `*` hech qachon ishlatilmaydi, chunki
-  // credentials: true bilan birga `*` brauzerlar tomonidan rad etiladi va xavfli.
-  const allowedOrigins = env.CLIENT_URL.split(',')
-    .map((s) => s.trim().replace(/\/$/, ''))
-    .filter(Boolean);
+  // CORS: faqat aniq ro'yxatdagi domenlar (CLIENT_URL + Capacitor ilova hosti).
+  // `*` hech qachon ishlatilmaydi, chunki credentials: true bilan birga xavfli.
+  const allowedOrigins = corsOrigins();
   app.use(
     cors({
       origin: (origin, cb) => {
