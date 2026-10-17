@@ -29,6 +29,10 @@ export const usersApi = {
     api
       .get<Paginated<AppNotification>>('/users/me/notifications', { params: { page, limit } })
       .then((r) => r.data),
+  unreadCount: () =>
+    api.get<ApiOk<{ count: number }>>('/notifications/unread-count').then((r) => r.data),
+  markAllNotificationsRead: () =>
+    api.patch<ApiOk<null>>('/notifications/read-all').then((r) => r.data),
 };
 
 export const promosApi = {

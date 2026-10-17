@@ -22,6 +22,7 @@ import { GoogleG } from '../components/GoogleG';
 import { Icon } from '../components/Icon';
 import { Input } from '../components/Input';
 import { SegmentedControl } from '../components/SegmentedControl';
+import { completeGoogleLogin } from '../lib/googleLogin';
 import { setRefreshToken } from '../lib/tokenStorage';
 import { useAuthStore } from '../store/auth.store';
 import { useToastStore } from '../store/toast.store';
@@ -155,6 +156,10 @@ export default function KirishScreen() {
     try {
       setLoading(true);
       const result = await WebBrowser.openAuthSessionAsync(authApi.googleUrl(), 'boyxon://auth');
+      // Android: qaytish deep-link (boyxon://auth/callback) router orqali
+      // auth/callback sahifasiga tushadi — kod almashinuvi o'sha yerda bo'ladi
+      // (promise ba'zan "dismiss" bo'lib qolishi mumkin, shunga ishonmaymiz).
+      if (Platform.OS === 'android') return;
       if (result.type !== 'success' || !result.url) return;
       const url = new URL(result.url);
       const code = url.searchParams.get('code');
@@ -164,10 +169,7 @@ export default function KirishScreen() {
         return;
       }
       if (!code) return;
-      const res = await authApi.googleExchange(code);
-      await useAuthStore.getState().applySession(res.data);
-      showToast('Kirdingiz!', 'success');
-      goHome();
+      if (await completeGoogleLogin(code)) goHome();
     } catch (e) {
       showToast(apiErrorMessage(e, 'Google orqali kirish amalga oshmadi'), 'error');
     } finally {

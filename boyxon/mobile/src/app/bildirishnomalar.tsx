@@ -1,7 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -37,6 +37,7 @@ export default function BildirishnomalarScreen() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
+  const qc = useQueryClient();
 
   const q = useQuery({
     queryKey: ['notifications'],
@@ -44,6 +45,22 @@ export default function BildirishnomalarScreen() {
     enabled: !!user,
   });
   const items: AppNotification[] = q.data?.data ?? [];
+
+  // Ekran ochilganda o'qilmaganlar o'qilgan deb belgilanadi —
+  // ro'yxatdagi nuqtalar shu tashrif davomida ko'rinib turadi (cache), badge esa tozalanadi.
+  const hasUnread = items.some((n) => !n.isRead);
+  const markReadMut = useMutation({
+    mutationFn: () => usersApi.markAllNotificationsRead(),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['notifications', 'unread'] });
+    },
+  });
+  useEffect(() => {
+    if (user && items.length > 0 && hasUnread) {
+      markReadMut.mutate();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, hasUnread]);
 
   const renderItem = ({ item }: { item: AppNotification }) => (
     <View

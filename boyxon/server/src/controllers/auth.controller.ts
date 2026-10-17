@@ -330,13 +330,16 @@ export const googleCallback = asyncHandler(async (req: Request, res: Response) =
   }
   if (!wantsNative) wantsNative = (req.query.native as string | undefined) === '1';
   const base = wantsNative ? 'boyxon://auth' : primaryClientUrl();
+  // Native (mobil) oqimda xato ham, muvaffaqiyat ham bitta sahifaga qaytadi:
+  // boyxon://auth/callback (mobil app: src/app/auth/callback.tsx).
+  const errorPath = wantsNative ? '/callback' : '/auth';
   if (!userDoc.isActive) {
-    return res.redirect(`${base}/auth?error=blocked`);
+    return res.redirect(`${base}${errorPath}?error=blocked`);
   }
   // TALAB: admin panel faqat admin@gmail.com + parol bilan kiradi — Google orqali emas.
   // Aks holda Google hisobi egasi parolisiz kira olardi.
   if (userDoc.role === 'admin') {
-    return res.redirect(`${base}/auth?error=admin_password_only`);
+    return res.redirect(`${base}${errorPath}?error=admin_password_only`);
   }
   userDoc.lastLoginAt = new Date();
   await userDoc.save();
@@ -348,7 +351,7 @@ export const googleCallback = asyncHandler(async (req: Request, res: Response) =
     for (const [k, v] of googleCodes) if (v.expiresAt < Date.now()) googleCodes.delete(k);
   }
 
-  res.redirect(`${base}/auth/callback?code=${code}`);
+  res.redirect(`${base}${wantsNative ? '/callback' : '/auth/callback'}?code=${code}`);
 });
 
 /**

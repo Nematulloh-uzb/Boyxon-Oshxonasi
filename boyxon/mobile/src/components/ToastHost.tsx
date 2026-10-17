@@ -16,7 +16,7 @@ export function ToastHost() {
   if (toasts.length === 0) return null;
 
   return (
-    <View pointerEvents="box-none" style={[styles.host, { top: insets.top + 8 }]}>
+    <View pointerEvents="box-none" style={[styles.host, { top: insets.top + 60 }]}>
       {toasts.map((toast) => {
         const success = toast.kind === 'success';
         const error = toast.kind === 'error';

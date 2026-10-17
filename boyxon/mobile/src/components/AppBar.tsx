@@ -1,8 +1,9 @@
+import { useQuery } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getInitials } from '../lib/initials';
+import { usersApi } from '../api/users.api';
 import { useAuthStore } from '../store/auth.store';
 import { useTheme } from '../theme/ThemeProvider';
 import { Icon } from './Icon';
@@ -35,7 +36,16 @@ export function AppBar({
   const { colors } = theme;
   const insets = useSafeAreaInsets();
   const user = useAuthStore((s) => s.user);
-  const initials = getInitials(user?.name);
+
+  // Qo'ng'iroq badge'i — o'qilmagan bildirishnomalar soni (dizayn 02).
+  const unreadQ = useQuery({
+    queryKey: ['notifications', 'unread'],
+    queryFn: () => usersApi.unreadCount(),
+    enabled: !!user,
+    staleTime: 30_000,
+    refetchInterval: 60_000,
+  });
+  const unread = unreadQ.data?.data?.count ?? 0;
 
   return (
     <View
@@ -80,7 +90,16 @@ export function AppBar({
             style={({ pressed }) => [styles.iconBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
             <Icon name="notifications" size={22} color={colors.onPrimary} />
-            <View style={[styles.dot, { backgroundColor: colors.onPrimary }]} />
+            {unread > 0 ? (
+              <View
+                style={[
+                  styles.badge,
+                  { backgroundColor: colors.secondaryContainer, borderColor: colors.onPrimary },
+                ]}
+              >
+                <Text style={styles.badgeText}>{unread > 9 ? '9+' : String(unread)}</Text>
+              </View>
+            ) : null}
           </Pressable>
         ) : null}
         {showAvatar ? (
@@ -88,16 +107,12 @@ export function AppBar({
             accessibilityRole="button"
             hitSlop={6}
             onPress={onAvatarPress}
-            style={({ pressed }) => [styles.avatar, { backgroundColor: colors.surfaceContainerLowest, opacity: pressed ? 0.8 : 1 }]}
+            style={({ pressed }) => [styles.avatar, { backgroundColor: colors.primary, opacity: pressed ? 0.8 : 1 }]}
           >
             {user?.avatar ? (
               <Image source={{ uri: user.avatar }} style={styles.avatarImg} contentFit="cover" />
-            ) : initials ? (
-              <Text style={{ color: colors.primary, fontFamily: 'Epilogue_700Bold', fontSize: 13 }}>
-                {initials}
-              </Text>
             ) : (
-              <Icon name="person" size={20} color={colors.primary} />
+              <Icon name="person" size={20} color={colors.onPrimary} />
             )}
           </Pressable>
         ) : null}
@@ -132,13 +147,23 @@ const styles = StyleSheet.create({
   titleBox: { flex: 1, minWidth: 0 },
   actions: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   iconBtn: { width: 34, height: 34, alignItems: 'center', justifyContent: 'center' },
-  dot: {
+  badge: {
     position: 'absolute',
-    top: 7,
-    right: 7,
-    width: 7,
-    height: 7,
-    borderRadius: 4,
+    top: 3,
+    right: 1,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    paddingHorizontal: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+  },
+  badgeText: {
+    color: '#ffffff',
+    fontSize: 9,
+    lineHeight: 12,
+    fontFamily: 'Inter_600SemiBold',
   },
   avatar: {
     width: 34,
