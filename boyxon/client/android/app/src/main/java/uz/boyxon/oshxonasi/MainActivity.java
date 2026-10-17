@@ -17,4 +17,13 @@ public class MainActivity extends BridgeActivity {
             CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);
         }
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Chromium cookie'ni diskka ~20-30 soniya kechikish bilan yozadi. Ilova fon
+        // rejimiga o'tganda (yoki yopilishidan oldin) majburan yozamiz — aks holda
+        // refresh cookie yo'qolib, qayta ochilganda sessiya tiklanmasligi mumkin.
+        CookieManager.getInstance().flush();
+    }
 }
