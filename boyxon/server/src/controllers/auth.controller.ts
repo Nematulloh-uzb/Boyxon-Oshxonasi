@@ -35,6 +35,15 @@ function userAgentOf(req: Request): string {
 }
 
 /**
+ * Mobil ilova (`x-client: mobile`) — httpOnly cookie o'rniga refreshToken
+ * javob body'sida ham qaytariladi (ilova uni SecureStore'da saqlaydi).
+ * Web oqimi o'zgarmaydi: cookie o'rnatiladi, body'da token bo'lmaydi.
+ */
+function wantsMobileRefreshToken(req: Request): boolean {
+  return String(req.headers['x-client'] ?? '') === 'mobile';
+}
+
+/**
  * POST /api/auth/register — yangi hisob ochish.
  * Body: { name, email, phone?, password }
  *
@@ -66,6 +75,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
       {
         accessToken: mustVerify ? null : accessToken,
         user,
+        ...(!mustVerify && wantsMobileRefreshToken(req) ? { refreshToken } : {}),
         verificationSent: sent,
         verificationRequired: mustVerify,
         // Xat yuborilmagan bo'lsa frontend aniq xabar ko'rsatadi.
@@ -159,7 +169,16 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     const { accessToken, refreshToken } = await loginUser(email, password, userAgentOf(req));
     const user = await User.findOne({ email: email.toLowerCase() });
     setRefreshCookie(res, refreshToken);
-    res.json(ok({ accessToken, user }, 'Xush kelibsiz!'));
+    res.json(
+      ok(
+        {
+          accessToken,
+          user,
+          ...(wantsMobileRefreshToken(req) ? { refreshToken } : {}),
+        },
+        'Xush kelibsiz!',
+      ),
+    );
   } catch (e) {
     // Maxsus holat: parol to'g'ri, lekin email tasdiqlanmagan.
     if (e instanceof ApiError && e.message === 'EMAIL_NOT_VERIFIED') {
@@ -177,7 +196,9 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 
 /** POST /api/auth/logout — faqat shu qurilma sessiyasini yopish (cookie ni ham tozalash). */
 export const logout = asyncHandler(async (req: Request, res: Response) => {
-  const token = req.cookies?.refreshToken as string | undefined;
+  // Mobil ilova cookie yubormaydi — refreshToken body'da kelishi mumkin.
+  const bodyToken = typeof req.body?.refreshToken === 'string' ? (req.body.refreshToken as string) : undefined;
+  const token = (req.cookies?.refreshToken as string | undefined) ?? bodyToken;
   if (token) {
     // Cookie buzilgan/imzosi noto'g'ri bo'lsa ham xato bermaymiz — baribir tozalanadi.
     try {
@@ -218,7 +239,8 @@ export const logoutAll = asyncHandler(async (req: Request, res: Response) => {
  * parol almashgan) — 401. `ver` mos kelsa ham sessiya majburiy.
  */
 export const refresh = asyncHandler(async (req: Request, res: Response) => {
-  const token = req.cookies?.refreshToken as string | undefined;
+  const bodyToken = typeof req.body?.refreshToken === 'string' ? (req.body.refreshToken as string) : undefined;
+  const token = (req.cookies?.refreshToken as string | undefined) ?? bodyToken;
   if (!token) throw ApiError.unauthorized('Refresh token topilmadi');
   let payload: { id: string; ver: number; sid: string };
   try {
@@ -249,7 +271,16 @@ export const refresh = asyncHandler(async (req: Request, res: Response) => {
   // tokenVersion OSHIRILMAYDI — aks holda boshqa qurilmalar o'lardi.
   const tokens = issueTokens(user.id as string, user.role, user.tokenVersion ?? 0, payload.sid);
   setRefreshCookie(res, tokens.refreshToken);
-  res.json(ok({ accessToken: tokens.accessToken, user }, 'Token yangilandi'));
+  res.json(
+    ok(
+      {
+        accessToken: tokens.accessToken,
+        user,
+        ...(wantsMobileRefreshToken(req) || bodyToken ? { refreshToken: tokens.refreshToken } : {}),
+      },
+      'Token yangilandi',
+    ),
+  );
 });
 
 /** GET /api/auth/me — joriy foydalanuvchi (auth talab qiladi). */
@@ -334,7 +365,16 @@ export const googleExchange = asyncHandler(async (req: Request, res: Response) =
   const sid = await createRefreshSession(user.id as string, userAgentOf(req));
   const tokens = issueTokens(user.id as string, user.role, user.tokenVersion ?? 0, sid);
   setRefreshCookie(res, tokens.refreshToken);
-  res.json(ok({ accessToken: tokens.accessToken, user }, 'Kirdingiz'));
+  res.json(
+    ok(
+      {
+        accessToken: tokens.accessToken,
+        user,
+        ...(wantsMobileRefreshToken(req) ? { refreshToken: tokens.refreshToken } : {}),
+      },
+      'Kirdingiz',
+    ),
+  );
 });
 
 function randomCode(): string {
@@ -437,5 +477,13 @@ export const changePassword = asyncHandler(async (req: Request, res: Response) =
   const sid = await createRefreshSession(user.id as string, userAgentOf(req));
   const tokens = issueTokens(user.id as string, user.role, user.tokenVersion, sid);
   setRefreshCookie(res, tokens.refreshToken);
-  res.json(ok({ accessToken: tokens.accessToken }, 'Parol o‘zgartirildi'));
+  res.json(
+    ok(
+      {
+        accessToken: tokens.accessToken,
+        ...(wantsMobileRefreshToken(req) ? { refreshToken: tokens.refreshToken } : {}),
+      },
+      'Parol o‘zgartirildi',
+    ),
+  );
 });

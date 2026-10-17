@@ -1,81 +1,56 @@
-# Boyxon Oshxonasi — Android ilova (Capacitor — sayt 1:1)
+# Welcome to your Expo app 👋
 
-Saytning o'zi APK ichida ishlaydi — **100% 1:1 kafolat**. Alohida Flutter
-ilovasi (`boyxon/mobile/`) ham bor, lekin u qo'shimcha loyiha; asosiy tavsiya
-shu Capacitor o'rami: saytga kiritilgan har qanday o'zgarish keyingi build'da
-avtomatik ilovada ham chiqadi.
+This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
-APK fayl GitHub Releases'dan tarqatiladi, saytning `/download` sahifasida
-QR-kod va yuklab olish tugmasi shu manzilga ishora qiladi.
+## Get started
 
-## Stek
+1. Install dependencies
 
-- **React sayt** (`boyxon/client`) + **Capacitor 8** (WebView o'rami)
-- Native ko'prik: `client/src/lib/native.ts` (status bar, klaviatura, splash,
-  back tugma, Google OAuth Custom Tab, deep-link)
-- Deep-link: `boyxon://auth/callback?code=...` (Google qaytishi)
-- Build: GitHub Actions (`.github/workflows/boyxon-apk.yml`) — Java/Android SDK
-  talab qilmaydi
+   ```bash
+   npm install
+   ```
 
-## Tuzilma (ilovaga tegishli)
+2. Start the app
 
-```
-boyxon/client/
-├── capacitor.config.ts      # appId uz.boyxon.oshxonasi, http sxema (cookie uchun)
-├── .env.capacitor           # lokal sinov manzillari (10.0.2.2)
-├── src/lib/native.ts        # native ko'prik (faqat APK ichida ishlaydi)
-├── src/pages/auth/AuthPage.tsx  # Google tugmasi native'da Custom Tab ochadi
-└── android/                 # Capacitor generatsiyasi (git'da, cap sync yangilaydi)
-```
+   ```bash
+   npx expo start
+   ```
 
-## Lokal ishga tushirish
+In the output, you'll find options to open the app in a
 
-```powershell
-# 1) Backend ishda bo'lsin
-cd boyxon\server
-npm run dev:local   # http://localhost:5000 + 24 taom seed
+- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
+- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
+- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
+- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
-# 2) Frontend (brauzerda 1:1 ko'rinish)
-cd boyxon\client
-npm run dev         # http://localhost:5173
+You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+
+## Get a fresh project
+
+When you're ready, run:
+
+```bash
+npm run reset-project
 ```
 
-> Emulyatorda sinash uchun API manzili `http://10.0.2.2:5000/api`
-> (`.env.capacitor` da tayyor). Haqiqiy telefonda — kompyuter LAN IP:
-> `http://192.168.x.x:5000/api`.
+This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
 
-## Release APK yig'ish (avtomatik)
+### Other setup steps
 
-Har `main` ga push'da GitHub Actions APK yig'adi:
+- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
+- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
+- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
 
-1. GitHub → repo → **Actions** → `Boyxon APK` → yugurilgan build
-2. **Artifacts** → `boyxon-apk` → `app-debug.apk` ni yuklab oling
-3. Telefonga ko'chirib o'rnating (Noma'lum manbaga ruxsat)
+## Learn more
 
-Qo'lda boshqa serverga yig'ish: Actions → **Run workflow** →
-`api_url` ga masalan `https://boyxon-server.onrender.com/api` yozing.
+To learn more about developing your project with Expo, look at the following resources:
 
-## Yangi versiya chiqarish (sayt QR → APK)
+- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
+- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
 
-1. GitHub'da **Release** yarating, tag `v1.0.1` kabi
-2. Yuqoridagi Actions'dan chiqqan APK'ni **aniq `boyxon.apk` nomi bilan** yuklang:
+## Join the community
 
-   `https://github.com/Nematulloh-uzb/Boyxon-Oshxonasi/releases/latest/download/boyxon.apk`
+Join our community of developers creating universal apps.
 
-   Sayt `DownloadPage.tsx` default'i shu manzil (yoki `VITE_APK_URL` bilan
-   almashtiriladi). Asset nomi o'zgarsa QR/tugma ishlamaydi!
-
-## Nega aynan Capacitor (1:1 kafolat sababi)
-
-- APK ichida saytning `dist/` build'i ishlaydi — dizayn, til (uz/ru/en),
-  savat, checkout, chat, admin panel — hammasi bir xil kod.
-- Cookie/auth: `androidScheme: 'http'` — server dev rejimida `sameSite=lax`
-  cookie qo'yadi, WebView'da refresh ishlaydi.
-- Google login: WebView bloklaydi → tizim brauzeri (Custom Tab) + qaytish
-  `boyxon://` deep-link orqali.
-- Back tugma, status bar rangi, klaviatura resize — `src/lib/native.ts`.
-
-## Eski Flutter ilova (ixtiyoriy)
-
-`boyxon/mobile/` — alohida Flutter loyiha (qo'lda 1:1 saqlanadi). Capacitor
-asosiy yo'l bo'lgani uchun u hozir zaxira sifatida turibdi.
+- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
+- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
