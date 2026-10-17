@@ -19,7 +19,7 @@ public class MainActivity extends BridgeActivity {
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         // Chromium cookie'ni diskka ~20-30 soniya kechikish bilan yozadi. Ilova fon
         // rejimiga o'tganda (yoki yopilishidan oldin) majburan yozamiz — aks holda
