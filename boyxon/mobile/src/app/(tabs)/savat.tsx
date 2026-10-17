@@ -29,8 +29,9 @@ import { Input } from '../../components/Input';
 import { Placeholder } from '../../components/Placeholder';
 import { QtyStepper } from '../../components/QtyStepper';
 import { SegmentedControl } from '../../components/SegmentedControl';
-import { calcDeliveryFee, PUSH_PROMPT_KEY } from '../../lib/constants';
+import { calcDeliveryFee, PAYMENT_KEY, PUSH_PROMPT_KEY } from '../../lib/constants';
 import { formatPrice } from '../../lib/format';
+import { ORDER_STATUS_INDEX, ORDER_STEPS } from '../../lib/orderStatus';
 import { useAuthStore } from '../../store/auth.store';
 import { useCartStore, type CartLine } from '../../store/cart.store';
 import { useToastStore } from '../../store/toast.store';
@@ -44,17 +45,6 @@ const PAYMENTS = [
 ] as const;
 
 type PaymentKey = (typeof PAYMENTS)[number]['key'];
-
-const STEPS = ['Qabul qilindi', 'Oshxonada', "Yo'lda", 'Yetkazildi'];
-
-const STATUS_INDEX: Record<OrderStatus, number> = {
-  pending: 0,
-  confirmed: 0,
-  packing: 1,
-  handed_to_taxi: 2,
-  delivered: 3,
-  cancelled: 0,
-};
 
 /** Savat qatori (dizayn 03): rasm + nom/tavsif/narx + QtyStepper. */
 function CartRow({ line }: { line: CartLine }) {
@@ -136,6 +126,11 @@ export default function SavatScreen() {
     AsyncStorage.getItem(PUSH_PROMPT_KEY)
       .then((v) => setPushDismissed(v === '1'))
       .catch(() => setPushDismissed(false));
+    AsyncStorage.getItem(PAYMENT_KEY)
+      .then((v) => {
+        if (v === 'payme' || v === 'click' || v === 'uzum' || v === 'cash') setPayment(v);
+      })
+      .catch(() => undefined);
   }, []);
 
   const subtotal = useMemo(() => lines.reduce((s, l) => s + l.price * l.quantity, 0), [lines]);
@@ -263,8 +258,8 @@ export default function SavatScreen() {
     router.replace('/(tabs)');
   };
 
-  const stepIndex = successOrder ? (STATUS_INDEX[successOrder.status] ?? 0) : 0;
-  const progress = ((stepIndex + 1) / STEPS.length) * 100;
+  const stepIndex = successOrder ? (ORDER_STATUS_INDEX[successOrder.status] ?? 0) : 0;
+  const progress = ((stepIndex + 1) / ORDER_STEPS.length) * 100;
 
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
@@ -465,6 +460,14 @@ export default function SavatScreen() {
             )}
 
             {/* To'lov usuli */}
+            <Text
+              style={[
+                theme.typography.labelLg,
+                { color: colors.onSurface, marginBottom: 8, marginTop: 4 },
+              ]}
+            >
+              {t('cart.payment_method', { defaultValue: "To'lov usuli" })}
+            </Text>
             <View style={styles.payGrid}>
               {PAYMENTS.map((p) => {
                 const active = payment === p.key;
@@ -522,7 +525,7 @@ export default function SavatScreen() {
             >
               <View style={styles.summaryRow}>
                 <Text style={[theme.typography.bodyMd, { color: colors.onSurfaceVariant }]}>
-                  {t('cart.items', { defaultValue: 'Taomlar' })}
+                  {t('cart.subtotal', { defaultValue: 'Taomlar narxi' })}
                 </Text>
                 <Text style={[theme.typography.labelLg, { color: colors.onSurface }]}>
                   {formatPrice(subtotal)}
@@ -560,7 +563,7 @@ export default function SavatScreen() {
                     { color: colors.onSurface, fontFamily: 'Epilogue_600SemiBold', fontSize: 18 },
                   ]}
                 >
-                  {t('cart.total', { defaultValue: 'Jami' })}
+                  {t('cart.total', { defaultValue: "Jami to'lov" })}
                 </Text>
                 <Text
                   style={[
@@ -740,7 +743,7 @@ export default function SavatScreen() {
             </View>
 
             <View style={[styles.tracker, { backgroundColor: colors.surfaceContainerLow }]}>
-              {STEPS.map((label, i) => {
+              {ORDER_STEPS.map((label, i) => {
                 const done = i < stepIndex;
                 const current = i === stepIndex;
                 return (
@@ -947,7 +950,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   successRoot: { flex: 1, justifyContent: 'flex-end' },
-  successBackdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(28,27,27,0.5)' },
+  successBackdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(28,27,27,0.5)',
+  },
   successSheet: {
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,

@@ -16,6 +16,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { authApi } from '../api/auth.api';
 import { refreshSession } from '../api/client';
+import { BiometricGate } from '../components/BiometricGate';
 import { ToastHost } from '../components/ToastHost';
 import { loadSavedLanguage } from '../i18n';
 import { getRefreshToken, getStoredAccessToken } from '../lib/tokenStorage';
@@ -106,7 +107,9 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
-            <RootStack />
+            <BiometricGate>
+              <RootStack />
+            </BiometricGate>
           </ThemeProvider>
         </QueryClientProvider>
       </SafeAreaProvider>

@@ -151,7 +151,7 @@ export default function HomeScreen() {
   const [sort, setSort] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
   const [pushDismissed, setPushDismissed] = useState(true);
-  const searchRef = useRef<TextInput>(null);
+  const searchRef = useRef<React.ComponentRef<typeof TextInput>>(null);
 
   useEffect(() => {
     AsyncStorage.getItem(PUSH_PROMPT_KEY)
@@ -395,9 +395,9 @@ export default function HomeScreen() {
     <View style={[styles.root, { backgroundColor: colors.background }]}>
       <StatusBar style="light" />
       <AppBar
-        subtitle={t('nav.home', { defaultValue: 'Menyu' })}
+        subtitle={t('nav.menu', { defaultValue: 'Menyu' })}
         onSearchPress={() => searchRef.current?.focus()}
-        onBellPress={() => showToast('Bildirishnomalar tez kunda', 'info')}
+        onBellPress={() => router.push('/bildirishnomalar')}
         onAvatarPress={() => router.push('/(tabs)/sozlamalar')}
       />
       <FlatList

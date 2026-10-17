@@ -19,6 +19,8 @@ export interface Palette {
   surfaceContainer: string;
   surfaceContainerHigh: string;
   surfaceContainerHighest: string;
+  /** Chip/toggle OFF fonlari (surface-variant) */
+  surfaceVariant: string;
   onSurface: string;
   onSurfaceVariant: string;
   outline: string;
@@ -30,6 +32,7 @@ export interface Palette {
   primaryFixed: string;
   primaryFixedDim: string;
   onPrimaryFixed: string;
+  onPrimaryFixedVariant: string;
   /** Karta fonida ishlatiladigan "fixed" fon (promo, badge) */
   secondary: string;
   onSecondary: string;
@@ -67,6 +70,7 @@ const light: Palette = {
   surfaceContainer: '#f0eded',
   surfaceContainerHigh: '#eae7e7',
   surfaceContainerHighest: '#e5e2e1',
+  surfaceVariant: '#e5e2e1',
   onSurface: '#1c1b1b',
   onSurfaceVariant: '#564337',
   outline: '#897365',
@@ -78,6 +82,7 @@ const light: Palette = {
   primaryFixed: '#ffdcc5',
   primaryFixedDim: '#ffb783',
   onPrimaryFixed: '#301400',
+  onPrimaryFixedVariant: '#713700',
   secondary: '#a23f00',
   onSecondary: '#ffffff',
   secondaryContainer: '#fc7127',
@@ -111,6 +116,7 @@ const dark: Palette = {
   surfaceContainer: '#252525',
   surfaceContainerHigh: '#2c2c2c',
   surfaceContainerHighest: '#353534',
+  surfaceVariant: '#353534',
   onSurface: '#ffffff',
   onSurfaceVariant: '#a0a0a0',
   outline: '#4a4a4a',
@@ -122,6 +128,7 @@ const dark: Palette = {
   primaryFixed: '#3d2511',
   primaryFixedDim: '#e67e22',
   onPrimaryFixed: '#ffb783',
+  onPrimaryFixedVariant: '#ffb783',
   secondary: '#ffb961',
   onSecondary: '#121212',
   secondaryContainer: '#963800',
@@ -212,7 +219,21 @@ export type TypographyToken = keyof typeof typography;
  * Warm ambient soyalar (dizayn qo'llanmasi: sovuq kulrang soya emas).
  * RN'da iOS uchun shadow*, Android uchun elevation ishlatiladi.
  */
-export const shadows = {
+export interface ShadowStyle {
+  shadowColor: string;
+  shadowOffset: { width: number; height: number };
+  shadowOpacity: number;
+  shadowRadius: number;
+  elevation: number;
+}
+
+export interface Shadows {
+  card: ShadowStyle;
+  raised: ShadowStyle;
+  modal: ShadowStyle;
+}
+
+export const shadows: { light: Shadows; dark: Shadows } = {
   light: {
     /** Level 1 — kartalar */
     card: {
@@ -262,4 +283,4 @@ export const shadows = {
       elevation: 16,
     },
   },
-} as const;
+};

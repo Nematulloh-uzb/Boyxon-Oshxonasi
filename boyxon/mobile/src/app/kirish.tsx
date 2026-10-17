@@ -15,17 +15,17 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, Path, Pattern, Rect } from 'react-native-svg';
-import { authApi } from '../../api/auth.api';
-import { apiErrorMessage } from '../../api/client';
-import { Button } from '../../components/Button';
-import { GoogleG } from '../../components/GoogleG';
-import { Icon } from '../../components/Icon';
-import { Input } from '../../components/Input';
-import { SegmentedControl } from '../../components/SegmentedControl';
-import { setRefreshToken } from '../../lib/tokenStorage';
-import { useAuthStore } from '../../store/auth.store';
-import { useToastStore } from '../../store/toast.store';
-import { useTheme } from '../../theme/ThemeProvider';
+import { authApi } from '../api/auth.api';
+import { apiErrorMessage } from '../api/client';
+import { Button } from '../components/Button';
+import { GoogleG } from '../components/GoogleG';
+import { Icon } from '../components/Icon';
+import { Input } from '../components/Input';
+import { SegmentedControl } from '../components/SegmentedControl';
+import { setRefreshToken } from '../lib/tokenStorage';
+import { useAuthStore } from '../store/auth.store';
+import { useToastStore } from '../store/toast.store';
+import { useTheme } from '../theme/ThemeProvider';
 
 type Mode = 'login' | 'register' | 'forgot';
 

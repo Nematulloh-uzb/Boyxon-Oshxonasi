@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import {
   type Palette,
+  type Shadows,
   type ThemeMode,
   palettes,
   radius,
@@ -17,7 +18,9 @@ export interface Theme {
   spacing: typeof spacing;
   radius: typeof radius;
   typography: typeof typography;
-  shadows: typeof shadows.light;
+  shadows: Shadows;
+  setMode: (m: ThemeMode) => void;
+  toggle: () => void;
 }
 
 export const THEME_STORAGE_KEY = 'boyxon-theme';
@@ -57,8 +60,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       radius,
       typography,
       shadows: shadows[mode],
+      setMode,
+      toggle,
     }),
-    [mode],
+    [mode, setMode, toggle],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

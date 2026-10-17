@@ -13,5 +13,11 @@ export function calcDeliveryFee(subtotal: number, deliveryType: 'delivery' | 'pi
 
 export const PUSH_PROMPT_KEY = 'boyxon.push-prompt-dismissed';
 
+/** Biometrik qulf yoqilgani (AsyncStorage flag) */
+export const BIOMETRIC_KEY = 'boyxon-biometric';
+
+/** Oxirgi tanlangan to'lov usuli (AsyncStorage) */
+export const PAYMENT_KEY = 'boyxon-payment';
+
 /** Aksiya banneri uchun standart promo kod (server'dagi faol kod). */
 export const DEFAULT_PROMO_CODE = 'BOYXON20';
