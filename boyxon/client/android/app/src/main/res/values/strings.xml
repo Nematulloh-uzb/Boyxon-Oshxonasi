@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Boyxon Oshxonasi</string>
+    <string name="title_activity_main">Boyxon Oshxonasi</string>
+    <string name="package_name">uz.boyxon.oshxonasi</string>
+    <string name="custom_url_scheme">uz.boyxon.oshxonasi</string>
+</resources>

@@ -18,7 +18,7 @@
 import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
 import { Browser } from '@capacitor/browser';
-import { Keyboard } from '@capacitor/keyboard';
+import { Keyboard, KeyboardResize } from '@capacitor/keyboard';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { StatusBar, Style } from '@capacitor/status-bar';
 
@@ -87,8 +87,8 @@ export function initNativeBridge(onDeepLink?: (path: string) => void, onBack?: (
   if (!isNative) return;
 
   // Klaviatura ochilganda WebView resize — inputlar klaviatura tagida qolmaydi.
-  void Keyboard.setResizeMode({ mode: 'body' }).catch(() => undefined);
-  Keyboard.setAccessoryBarVisible({ visible: true }).catch(() => undefined);
+  void Keyboard.setResizeMode({ mode: KeyboardResize.Body }).catch(() => undefined);
+  Keyboard.setAccessoryBarVisible({ isVisible: true }).catch(() => undefined);
 
   // Mavzu o'zgarganda status bar rangini sinxronlash.
   void syncStatusBar();

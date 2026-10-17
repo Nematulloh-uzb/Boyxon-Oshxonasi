@@ -1,116 +1,81 @@
-# Boyxon Oshxonasi — Android ilova (Flutter)
+# Boyxon Oshxonasi — Android ilova (Capacitor — sayt 1:1)
 
-Sayt bilan **bir xil backend API**'ga ulanadigan mijoz ilovasi (Flutter/Dart).
+Saytning o'zi APK ichida ishlaydi — **100% 1:1 kafolat**. Alohida Flutter
+ilovasi (`boyxon/mobile/`) ham bor, lekin u qo'shimcha loyiha; asosiy tavsiya
+shu Capacitor o'rami: saytga kiritilgan har qanday o'zgarish keyingi build'da
+avtomatik ilovada ham chiqadi.
+
 APK fayl GitHub Releases'dan tarqatiladi, saytning `/download` sahifasida
 QR-kod va yuklab olish tugmasi shu manzilga ishora qiladi.
 
 ## Stek
 
-- **Flutter 3.47** (stable) + Dart 3 · faqat Android
-- **dio** + **cookie_jar** (refresh token — serverning httpOnly cookie dizayni
-  bilan bir xil, 401 da single-flight avtomatik yangilash)
-- **provider** (holat), **socket_io_client** (real-time: `order:status`,
-  `notification:new`), **cached_network_image**, **shared_preferences**
-- **gen-l10n** (ARB) — uz / ru / en
-- Shriftlar: Epilogue + Inter (sayt dizayni bilan bir xil), `assets/fonts/`
+- **React sayt** (`boyxon/client`) + **Capacitor 8** (WebView o'rami)
+- Native ko'prik: `client/src/lib/native.ts` (status bar, klaviatura, splash,
+  back tugma, Google OAuth Custom Tab, deep-link)
+- Deep-link: `boyxon://auth/callback?code=...` (Google qaytishi)
+- Build: GitHub Actions (`.github/workflows/boyxon-apk.yml`) — Java/Android SDK
+  talab qilmaydi
 
-## Tuzilma
+## Tuzilma (ilovaga tegishli)
 
 ```
-lib/
-├── main.dart            # ApiClient.init + runApp
-├── app.dart             # MaterialApp, provider'lar, socket ulash, snackbarlar
-├── core/                # env, api_client, theme (DESIGN.md tokenlari), formatlar
-├── models/              # User, Dish, Order, ... (web types/index.ts bilan bir xil)
-├── services/            # auth, cart, settings, socket
-├── l10n/                # app_uz/ru/en.arb + generatsiya (gen-l10n)
-├── widgets/             # DishCard, QuantityStepper, holat ko'rinishlari, formalar
-└── screens/             # splash, shell, auth, home, cart, orders, settings
+boyxon/client/
+├── capacitor.config.ts      # appId uz.boyxon.oshxonasi, http sxema (cookie uchun)
+├── .env.capacitor           # lokal sinov manzillari (10.0.2.2)
+├── src/lib/native.ts        # native ko'prik (faqat APK ichida ishlaydi)
+├── src/pages/auth/AuthPage.tsx  # Google tugmasi native'da Custom Tab ochadi
+└── android/                 # Capacitor generatsiyasi (git'da, cap sync yangilaydi)
 ```
 
 ## Lokal ishga tushirish
 
-Android Studio kerak emas — VS Code + emulyator yetarli.
-
 ```powershell
-# 1) Portativ toolchain (har yangi terminalda)
-. D:\Installs\Android\env.ps1
+# 1) Backend ishda bo'lsin
+cd boyxon\server
+npm run dev:local   # http://localhost:5000 + 24 taom seed
 
-# 2) Server ishda bo'lsin (boyxon/server, npm run dev:local)
-
-# 3) Emulyatorda ishga tushirish
-cd boyxon\mobile
-flutter run        # emulyatordan hostga default: http://10.0.2.2:5000/api
+# 2) Frontend (brauzerda 1:1 ko'rinish)
+cd boyxon\client
+npm run dev         # http://localhost:5173
 ```
 
-> Emulyator `10.0.2.2` → kompyuteringizning `localhost`'i. Haqiqiy qurilmada
-> sinash uchun kompyuter LAN IP'sini bering:
-> `flutter run --dart-define=API_URL=http://192.168.x.x:5000/api`
->
-> Debug build'lar lokal `http://` ga ruxsat beradi
-> (`android/app/src/debug/AndroidManifest.xml`); release'da faqat https ishlaydi.
+> Emulyatorda sinash uchun API manzili `http://10.0.2.2:5000/api`
+> (`.env.capacitor` da tayyor). Haqiqiy telefonda — kompyuter LAN IP:
+> `http://192.168.x.x:5000/api`.
 
-## Release APK yig'ish
+## Release APK yig'ish (avtomatik)
 
-```powershell
-cd boyxon\mobile
-flutter build apk --release --dart-define=API_URL=https://<server>/api
-```
+Har `main` ga push'da GitHub Actions APK yig'adi:
 
-- **`API_URL`** — build vaqtida qotib qoladi (dart-define). Deploy bo'lgach
-  qiymat: `https://boyxon-server.onrender.com/api` (render.yaml'dagi nom).
-- Natija: `build\app\outputs\flutter-apk\app-release.apk` (~20 MB, barcha ABI).
-- Imzolash: `android/key.properties` (git'ga **tushmaydi**) +
-  `D:\Installs\Android\boyxon-keys\boyxon-release.jks`.
+1. GitHub → repo → **Actions** → `Boyxon APK` → yugurilgan build
+2. **Artifacts** → `boyxon-apk` → `app-debug.apk` ni yuklab oling
+3. Telefonga ko'chirib o'rnating (Noma'lum manbaga ruxsat)
 
-> ⚠️ **Kalitni yo'qotsangiz** Google Play/sayt orqali yangilanish chiqara
-> olmaysiz (boshqa imzo = yangi ilova sifatida o'rnatiladi). Zaxira nusxasini
-> xavfsiz joyda saqlang. Parol: `D:\Installs\Android\boyxon-keys\INFO.txt`.
+Qo'lda boshqa serverga yig'ish: Actions → **Run workflow** →
+`api_url` ga masalan `https://boyxon-server.onrender.com/api` yozing.
 
 ## Yangi versiya chiqarish (sayt QR → APK)
 
-1. `pubspec.yaml` da `version: 1.0.0+2` kabi oshiring.
-2. Release APK yig'ing (yuqoriga qarang).
-3. GitHub Release yarating va APK'ni **aniq `boyxon.apk` nomi bilan** yuklang:
+1. GitHub'da **Release** yarating, tag `v1.0.1` kabi
+2. Yuqoridagi Actions'dan chiqqan APK'ni **aniq `boyxon.apk` nomi bilan** yuklang:
 
    `https://github.com/Nematulloh-uzb/Boyxon-Oshxonasi/releases/latest/download/boyxon.apk`
 
    Sayt `DownloadPage.tsx` default'i shu manzil (yoki `VITE_APK_URL` bilan
    almashtiriladi). Asset nomi o'zgarsa QR/tugma ishlamaydi!
 
-## Ikonka (launcher)
+## Nega aynan Capacitor (1:1 kafolat sababi)
 
-`assets/icon/` ichidagi PNG'lardan generatsiya qilinadi:
+- APK ichida saytning `dist/` build'i ishlaydi — dizayn, til (uz/ru/en),
+  savat, checkout, chat, admin panel — hammasi bir xil kod.
+- Cookie/auth: `androidScheme: 'http'` — server dev rejimida `sameSite=lax`
+  cookie qo'yadi, WebView'da refresh ishlaydi.
+- Google login: WebView bloklaydi → tizim brauzeri (Custom Tab) + qaytish
+  `boyxon://` deep-link orqali.
+- Back tugma, status bar rangi, klaviatura resize — `src/lib/native.ts`.
 
-```powershell
-dart run flutter_launcher_icons
-```
+## Eski Flutter ilova (ixtiyoriy)
 
-## Tarjimalar
-
-Matn qo'shsangiz: `lib/l10n/app_uz.arb` (shablon) + `app_ru.arb` + `app_en.arb`,
-so'ng:
-
-```powershell
-flutter gen-l10n
-```
-
-Kalitlar generatsiyada **o'z holida** qoladi (`auth_login` → `l.auth_login`).
-
-## Build muammolari (Windows)
-
-- `Could not close incremental caches ...` xatosi — Kotlin inkremental keshi
-  Windows'da fayl bloklanishi tufayli ba'zan yiqiladi. Shu sabab
-  `android/gradle.properties` da `kotlin.incremental=false` qo'yilgan —
-  o'chirmang. Yana takrorlansa: `flutter clean` + `android\gradlew --stop`,
-  so'ng qayta build qiling.
-- `The contents of the immutable workspace ... have been modified` xatosi —
-  Gradle'ning global transform keshi buzilgan (odatda build jarayoni zo'rlab
-  to'xtatilganda). Yechim: `%USERPROFILE%\.gradle\caches\<gradle-versiya>\transforms`
-  papkasini o'chirib, qayta build qiling.
-
-## Eslatmalar
-
-- Google bilan kirish (OAuth) ilovada yo'q — email/parol kiradi.
-- Push (FCM) hali yo'q — real-time socket + ilova ichidagi bildirishnomalar bor.
-- To'lov (Payme/Click/Uzum) sayt kabi hozircha faqat qayd etiladi.
+`boyxon/mobile/` — alohida Flutter loyiha (qo'lda 1:1 saqlanadi). Capacitor
+asosiy yo'l bo'lgani uchun u hozir zaxira sifatida turibdi.
