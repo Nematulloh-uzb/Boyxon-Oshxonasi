@@ -184,6 +184,7 @@
   "dish_top": "Top",
   "dish_vegetarian": "Vegetarian",
   "dish_spicy": "Achchiq",
+  "dish_new": "Yangi",
   "dish_description": "Tavsif",
   "dish_reviews": "Sharhlar",
   "dish_reviews_count": "{count} sharh",
@@ -221,6 +222,7 @@
   "orders_label_customer": "Mijoz ma'lumotlari",
   "orders_label_totals": "Hisob-kitob",
   "orders_label_status": "Holat",
+  "orders_not_found": "Buyurtma topilmadi",
   "orders_dishes_count": "{count} ta taom",
   "@orders_dishes_count": { "placeholders": { "count": { "type": "int" } } },
 
@@ -240,5 +242,5 @@
   "settings_help_contact": "Yordam: +998 71 200 00 00",
   "settings_address_default_label": "Asosiy",
   "settings_address_set_default": "Asosiy qilish",
-  "settings_address_required": "Nom va manzilni kiriting",
+  "settings_address_required": "Nom va manzilni kiriting"
 }

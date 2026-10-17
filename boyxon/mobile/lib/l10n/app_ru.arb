@@ -34,6 +34,7 @@
   "auth_verify_sent": "Письмо отправлено. Проверьте почту.",
   "auth_verify_required": "Подтвердите email, чтобы оформить заказ — перейдите по ссылке в письме.",
   "auth_password_hint": "Минимум 8 символов",
+  "auth_or": "или",
   "auth_required_title": "Требуется вход",
   "auth_required_sub": "Войдите в аккаунт, чтобы пользоваться этим разделом",
 
@@ -175,6 +176,7 @@
   "dish_top": "Топ",
   "dish_vegetarian": "Вегетарианское",
   "dish_spicy": "Острое",
+  "dish_new": "Новое",
   "dish_description": "Описание",
   "dish_reviews": "Отзывы",
   "dish_reviews_count": "{count} отзывов",
@@ -212,6 +214,7 @@
   "orders_label_customer": "Данные клиента",
   "orders_label_totals": "Итого",
   "orders_label_status": "Статус",
+  "orders_not_found": "Заказ не найден",
   "orders_dishes_count": "{count} блюд",
   "@orders_dishes_count": { "placeholders": { "count": { "type": "int" } } },
 
@@ -231,5 +234,5 @@
   "settings_help_contact": "Помощь: +998 71 200 00 00",
   "settings_address_default_label": "Основной",
   "settings_address_set_default": "Сделать основным",
-  "settings_address_required": "Заполните название и адрес",
+  "settings_address_required": "Заполните название и адрес"
 }

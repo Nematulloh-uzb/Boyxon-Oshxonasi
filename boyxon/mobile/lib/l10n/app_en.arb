@@ -34,6 +34,7 @@
   "auth_verify_sent": "Verification email sent. Check your inbox.",
   "auth_verify_required": "Verify your email before ordering — tap the link we sent to your inbox.",
   "auth_password_hint": "At least 8 characters",
+  "auth_or": "or",
   "auth_required_title": "Sign in required",
   "auth_required_sub": "Sign in to your account to use this section",
 
@@ -175,6 +176,7 @@
   "dish_top": "Top",
   "dish_vegetarian": "Vegetarian",
   "dish_spicy": "Spicy",
+  "dish_new": "New",
   "dish_description": "Description",
   "dish_reviews": "Reviews",
   "dish_reviews_count": "{count} reviews",
@@ -212,6 +214,7 @@
   "orders_label_customer": "Customer info",
   "orders_label_totals": "Totals",
   "orders_label_status": "Status",
+  "orders_not_found": "Order not found",
   "orders_dishes_count": "{count} dishes",
   "@orders_dishes_count": { "placeholders": { "count": { "type": "int" } } },
 
@@ -231,5 +234,5 @@
   "settings_help_contact": "Help: +998 71 200 00 00",
   "settings_address_default_label": "Default",
   "settings_address_set_default": "Make default",
-  "settings_address_required": "Enter a name and address",
+  "settings_address_required": "Enter a name and address"
 }

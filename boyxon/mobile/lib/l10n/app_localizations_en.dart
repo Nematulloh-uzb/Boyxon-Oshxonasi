@@ -104,6 +104,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auth_password_hint => 'At least 8 characters';
 
   @override
+  String get auth_or => 'or';
+
+  @override
   String get auth_required_title => 'Sign in required';
 
   @override
@@ -158,6 +161,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String dish_min(String n) {
     return '$n min';
   }
+
+  @override
+  String get dish_min_short => 'min';
 
   @override
   String dish_kcal(String n) {
@@ -265,6 +271,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get checkout_to_orders => 'My orders';
+
+  @override
+  String get cart_go_home => 'Home';
+
+  @override
+  String get cart_processing => 'Sending...';
+
+  @override
+  String get checkout_track => 'Track the status in real time.';
 
   @override
   String get orders_title => 'My orders';
@@ -423,6 +438,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get common_back => 'Back';
 
   @override
+  String get common_name => 'Name';
+
+  @override
+  String get common_phone => 'Phone';
+
+  @override
+  String get common_label => 'Label';
+
+  @override
+  String get common_address => 'Address';
+
+  @override
   String get home_greeting => 'Welcome';
 
   @override
@@ -477,6 +504,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dish_spicy => 'Spicy';
+
+  @override
+  String get dish_new => 'New';
 
   @override
   String get dish_description => 'Description';
@@ -577,6 +607,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get orders_label_status => 'Status';
 
   @override
+  String get orders_not_found => 'Order not found';
+
+  @override
   String orders_dishes_count(int count) {
     return '$count dishes';
   }
@@ -624,4 +657,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings_address_set_default => 'Make default';
+
+  @override
+  String get settings_address_required => 'Enter a name and address';
 }

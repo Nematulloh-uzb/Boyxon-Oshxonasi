@@ -104,6 +104,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get auth_password_hint => 'Минимум 8 символов';
 
   @override
+  String get auth_or => 'или';
+
+  @override
   String get auth_required_title => 'Требуется вход';
 
   @override
@@ -160,6 +163,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String dish_min(String n) {
     return '$n мин';
   }
+
+  @override
+  String get dish_min_short => 'мин';
 
   @override
   String dish_kcal(String n) {
@@ -266,6 +272,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get checkout_to_orders => 'Мои заказы';
+
+  @override
+  String get cart_go_home => 'На главную';
+
+  @override
+  String get cart_processing => 'Отправляется...';
+
+  @override
+  String get checkout_track => 'Следите за статусом в реальном времени.';
 
   @override
   String get orders_title => 'Мои заказы';
@@ -424,6 +439,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get common_back => 'Назад';
 
   @override
+  String get common_name => 'Имя';
+
+  @override
+  String get common_phone => 'Телефон';
+
+  @override
+  String get common_label => 'Название';
+
+  @override
+  String get common_address => 'Адрес';
+
+  @override
   String get home_greeting => 'Добро пожаловать';
 
   @override
@@ -477,6 +504,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get dish_spicy => 'Острое';
+
+  @override
+  String get dish_new => 'Новое';
 
   @override
   String get dish_description => 'Описание';
@@ -577,6 +607,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get orders_label_status => 'Статус';
 
   @override
+  String get orders_not_found => 'Заказ не найден';
+
+  @override
   String orders_dishes_count(int count) {
     return '$count блюд';
   }
@@ -590,7 +623,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settings_account_group => 'АККАУНТ';
 
   @override
-  String get settings_preferences_group => 'НАСТРОЙКИ';
+  String get settings_preferences_group => 'ПРЕДПОЧТЕНИЯ';
 
   @override
   String get settings_security_group => 'БЕЗОПАСНОСТЬ';
@@ -624,4 +657,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settings_address_set_default => 'Сделать основным';
+
+  @override
+  String get settings_address_required => 'Заполните название и адрес';
 }

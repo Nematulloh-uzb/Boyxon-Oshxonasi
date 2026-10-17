@@ -5,10 +5,12 @@ import '../../core/api_client.dart';
 import '../../core/app_theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/auth_service.dart';
+import '../../widgets/ui_kit.dart';
 import 'forgot_password_screen.dart';
 
-/// Kirish / ro'yxatdan o'tish ekrani.
-/// `embedded: true` — Profil tab ichida (orqaga tugmasiz).
+/// Kirish / ro'yxatdan o'tish — web `AuthPage` bilan 1:1:
+/// yuqorida gradient brend blok, pastda tablar + forma.
+/// `embedded: true` — Profil tab ichida (yopish tugmasiz).
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key, this.embedded = false});
 
@@ -21,19 +23,16 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameCtrl = TextEditingController();
-  final _phoneCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
 
   bool _registerMode = false;
   bool _busy = false;
   bool _obscure = true;
-  Object? _error;
 
   @override
   void dispose() {
     _nameCtrl.dispose();
-    _phoneCtrl.dispose();
     _emailCtrl.dispose();
     _passCtrl.dispose();
     super.dispose();
@@ -46,17 +45,13 @@ class _LoginScreenState extends State<LoginScreen> {
     final navigator = Navigator.of(context);
     final messenger = ScaffoldMessenger.of(context);
 
-    setState(() {
-      _busy = true;
-      _error = null;
-    });
+    setState(() => _busy = true);
 
     try {
       if (_registerMode) {
         final loggedIn = await auth.register(
           name: _nameCtrl.text,
           email: _emailCtrl.text,
-          phone: _phoneCtrl.text,
           password: _passCtrl.text,
         );
         if (!mounted) return;
@@ -64,16 +59,17 @@ class _LoginScreenState extends State<LoginScreen> {
           // Email tasdiqlash talab qilinadi — login rejimiga qaytamiz.
           setState(() => _registerMode = false);
           messenger.showSnackBar(SnackBar(content: Text(l.auth_verify_sent)));
-        } else if (navigator.canPop()) {
+        } else if (!widget.embedded && navigator.canPop()) {
           navigator.pop(true);
         }
       } else {
         await auth.login(_emailCtrl.text, _passCtrl.text);
         if (!mounted) return;
-        if (navigator.canPop()) navigator.pop(true);
+        messenger.showSnackBar(SnackBar(content: Text(l.auth_welcome)));
+        if (!widget.embedded && navigator.canPop()) navigator.pop(true);
       }
     } catch (e) {
-      if (mounted) setState(() => _error = e);
+      messenger.showSnackBar(SnackBar(content: Text(errorText(e, l))));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -85,177 +81,207 @@ class _LoginScreenState extends State<LoginScreen> {
     final c = context.c;
 
     return Scaffold(
-      appBar: widget.embedded
-          ? null
-          : AppBar(
-              leading: IconButton(
-                icon: const Icon(Icons.close_rounded),
-                onPressed: () => Navigator.of(context).maybePop(),
-              ),
-            ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (widget.embedded) ...[
-                  const SizedBox(height: 24),
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: c.primary.withValues(alpha: 0.12),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(Icons.restaurant_menu_rounded, size: 38, color: c.primary),
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 20),
-                Text(
-                  _registerMode ? l.auth_register : l.auth_welcome,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  l.auth_login_sub,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                const SizedBox(height: 24),
-
-                if (_registerMode) ...[
-                  TextFormField(
-                    controller: _nameCtrl,
-                    textInputAction: TextInputAction.next,
-                    decoration: InputDecoration(labelText: l.auth_name),
-                    validator: (v) =>
-                        (v == null || v.trim().isEmpty) ? l.common_error : null,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _phoneCtrl,
-                    keyboardType: TextInputType.phone,
-                    textInputAction: TextInputAction.next,
-                    decoration: InputDecoration(labelText: l.auth_phone),
-                  ),
-                  const SizedBox(height: 12),
-                ],
-
-                TextFormField(
-                  controller: _emailCtrl,
-                  keyboardType: TextInputType.emailAddress,
-                  textInputAction: TextInputAction.next,
-                  autofillHints: const [AutofillHints.email],
-                  decoration: InputDecoration(labelText: l.auth_email),
-                  validator: (v) {
-                    final value = v?.trim() ?? '';
-                    final ok = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(value);
-                    return ok ? null : l.auth_email;
-                  },
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _passCtrl,
-                  obscureText: _obscure,
-                  autofillHints: const [AutofillHints.password],
-                  decoration: InputDecoration(
-                    labelText: l.auth_password,
-                    helperText: _registerMode ? l.auth_password_hint : null,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscure ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                        size: 20,
-                        color: c.subtle,
-                      ),
-                      onPressed: () => setState(() => _obscure = !_obscure),
-                    ),
-                  ),
-                  onFieldSubmitted: (_) => _busy ? null : _submit(),
-                  validator: (v) {
-                    final value = v ?? '';
-                    if (value.isEmpty) return l.common_error;
-                    if (_registerMode && value.length < 8) return l.auth_password_hint;
-                    return null;
-                  },
-                ),
-
-                if (_error != null) ...[
-                  const SizedBox(height: 14),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: c.danger.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: c.danger.withValues(alpha: 0.3)),
-                    ),
-                    child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Brend bloki (web chap panel).
+              Container(
+                padding: const EdgeInsets.all(28),
+                decoration: const BoxDecoration(gradient: BoyxonPalette.heroGradient),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
-                        Icon(Icons.error_outline_rounded, size: 18, color: c.danger),
-                        const SizedBox(width: 8),
-                        Expanded(
+                        const Expanded(
                           child: Text(
-                            errorText(_error!, l),
+                            'Boyxon Oshxonasi',
                             style: TextStyle(
+                              fontFamily: 'Epilogue',
+                              fontSize: 24,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        if (!widget.embedded)
+                          InkWell(
+                            onTap: () => Navigator.of(context).maybePop(),
+                            customBorder: const CircleBorder(),
+                            child: const Padding(
+                              padding: EdgeInsets.all(4),
+                              child: Icon(Icons.close_rounded, size: 22, color: Colors.white),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      '© ${DateTime.now().year} Boyxon',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 14,
+                        color: Colors.white.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Forma.
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Tab almashtirgich (web: rounded-2xl bg-muted p-1).
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: c.placeholderBg,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          children: [
+                            _tab(l.auth_login, !_registerMode, () {
+                              setState(() => _registerMode = false);
+                            }),
+                            const SizedBox(width: 4),
+                            _tab(l.auth_register, _registerMode, () {
+                              setState(() => _registerMode = true);
+                            }),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      if (_registerMode) ...[
+                        TextFormField(
+                          controller: _nameCtrl,
+                          textInputAction: TextInputAction.next,
+                          style: TextStyle(fontFamily: 'Inter', fontSize: 15, color: c.fg),
+                          decoration: InputDecoration(hintText: l.auth_name),
+                          validator: (v) =>
+                              (v == null || v.trim().isEmpty) ? l.common_error : null,
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+
+                      TextFormField(
+                        controller: _emailCtrl,
+                        keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.next,
+                        autofillHints: const [AutofillHints.email],
+                        style: TextStyle(fontFamily: 'Inter', fontSize: 15, color: c.fg),
+                        decoration: InputDecoration(hintText: l.auth_email),
+                        validator: (v) {
+                          final value = v?.trim() ?? '';
+                          final ok = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(value);
+                          return ok ? null : l.auth_email;
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _passCtrl,
+                        obscureText: _obscure,
+                        autofillHints: const [AutofillHints.password],
+                        style: TextStyle(fontFamily: 'Inter', fontSize: 15, color: c.fg),
+                        decoration: InputDecoration(
+                          hintText:
+                              _registerMode ? l.auth_password_hint : l.auth_password,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscure
+                                  ? Icons.visibility_off_rounded
+                                  : Icons.visibility_rounded,
+                              size: 20,
+                              color: c.subtle,
+                            ),
+                            onPressed: () => setState(() => _obscure = !_obscure),
+                          ),
+                        ),
+                        onFieldSubmitted: (_) => _busy ? null : _submit(),
+                        validator: (v) {
+                          final value = v ?? '';
+                          if (value.isEmpty) return l.common_error;
+                          if (_registerMode && value.length < 8) return l.auth_password_hint;
+                          return null;
+                        },
+                      ),
+
+                      const SizedBox(height: 20),
+                      GradientButton(
+                        label: _registerMode ? l.auth_register : l.auth_login,
+                        loading: _busy,
+                        onPressed: _submit,
+                      ),
+
+                      if (!_registerMode) ...[
+                        const SizedBox(height: 12),
+                        GestureDetector(
+                          onTap: _busy
+                              ? null
+                              : () => Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => const ForgotPasswordScreen(),
+                                    ),
+                                  ),
+                          behavior: HitTestBehavior.opaque,
+                          child: Text(
+                            l.auth_forgot,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: 13,
-                              color: c.danger,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: BoyxonPalette.primaryDark,
                             ),
                           ),
                         ),
                       ],
-                    ),
+                    ],
                   ),
-                ],
-
-                const SizedBox(height: 20),
-                FilledButton(
-                  onPressed: _busy ? null : _submit,
-                  child: _busy
-                      ? const SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white),
-                        )
-                      : Text(_registerMode ? l.auth_register : l.auth_login),
                 ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-                if (!_registerMode)
-                  TextButton(
-                    onPressed: _busy
-                        ? null
-                        : () => Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
-                            ),
-                    child: Text(l.auth_forgot),
-                  )
-                else
-                  const SizedBox(height: 8),
-
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      _registerMode ? l.auth_has_account : l.auth_no_account,
-                      style: Theme.of(context).textTheme.bodySmall,
+  Widget _tab(String label, bool active, VoidCallback onTap) {
+    final c = context.c;
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: active ? c.surface : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: active
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 2,
+                      offset: const Offset(0, 1),
                     ),
-                    TextButton(
-                      onPressed: _busy
-                          ? null
-                          : () => setState(() {
-                                _registerMode = !_registerMode;
-                                _error = null;
-                              }),
-                      child: Text(_registerMode ? l.auth_login : l.auth_register),
-                    ),
-                  ],
-                ),
-              ],
+                  ]
+                : null,
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: active ? BoyxonPalette.primaryDark : c.subtle,
             ),
           ),
         ),

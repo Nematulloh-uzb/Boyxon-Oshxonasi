@@ -286,6 +286,12 @@ abstract class AppLocalizations {
   /// **'Kamida 8 belgi'**
   String get auth_password_hint;
 
+  /// No description provided for @auth_or.
+  ///
+  /// In uz, this message translates to:
+  /// **'yoki'**
+  String get auth_or;
+
   /// No description provided for @auth_required_title.
   ///
   /// In uz, this message translates to:
@@ -387,6 +393,12 @@ abstract class AppLocalizations {
   /// In uz, this message translates to:
   /// **'{n} daqiqa'**
   String dish_min(String n);
+
+  /// No description provided for @dish_min_short.
+  ///
+  /// In uz, this message translates to:
+  /// **'daq'**
+  String get dish_min_short;
 
   /// No description provided for @dish_kcal.
   ///
@@ -585,6 +597,24 @@ abstract class AppLocalizations {
   /// In uz, this message translates to:
   /// **'Buyurtmalarim'**
   String get checkout_to_orders;
+
+  /// No description provided for @cart_go_home.
+  ///
+  /// In uz, this message translates to:
+  /// **'Bosh sahifaga'**
+  String get cart_go_home;
+
+  /// No description provided for @cart_processing.
+  ///
+  /// In uz, this message translates to:
+  /// **'Yuborilmoqda...'**
+  String get cart_processing;
+
+  /// No description provided for @checkout_track.
+  ///
+  /// In uz, this message translates to:
+  /// **'Statusni real-time kuzatib boring.'**
+  String get checkout_track;
 
   /// No description provided for @orders_title.
   ///
@@ -886,6 +916,30 @@ abstract class AppLocalizations {
   /// **'Orqaga'**
   String get common_back;
 
+  /// No description provided for @common_name.
+  ///
+  /// In uz, this message translates to:
+  /// **'Ism'**
+  String get common_name;
+
+  /// No description provided for @common_phone.
+  ///
+  /// In uz, this message translates to:
+  /// **'Telefon'**
+  String get common_phone;
+
+  /// No description provided for @common_label.
+  ///
+  /// In uz, this message translates to:
+  /// **'Nom'**
+  String get common_label;
+
+  /// No description provided for @common_address.
+  ///
+  /// In uz, this message translates to:
+  /// **'Manzil'**
+  String get common_address;
+
   /// No description provided for @home_greeting.
   ///
   /// In uz, this message translates to:
@@ -981,6 +1035,12 @@ abstract class AppLocalizations {
   /// In uz, this message translates to:
   /// **'Achchiq'**
   String get dish_spicy;
+
+  /// No description provided for @dish_new.
+  ///
+  /// In uz, this message translates to:
+  /// **'Yangi'**
+  String get dish_new;
 
   /// No description provided for @dish_description.
   ///
@@ -1162,6 +1222,12 @@ abstract class AppLocalizations {
   /// **'Holat'**
   String get orders_label_status;
 
+  /// No description provided for @orders_not_found.
+  ///
+  /// In uz, this message translates to:
+  /// **'Buyurtma topilmadi'**
+  String get orders_not_found;
+
   /// No description provided for @orders_dishes_count.
   ///
   /// In uz, this message translates to:
@@ -1251,6 +1317,12 @@ abstract class AppLocalizations {
   /// In uz, this message translates to:
   /// **'Asosiy qilish'**
   String get settings_address_set_default;
+
+  /// No description provided for @settings_address_required.
+  ///
+  /// In uz, this message translates to:
+  /// **'Nom va manzilni kiriting'**
+  String get settings_address_required;
 }
 
 class _AppLocalizationsDelegate

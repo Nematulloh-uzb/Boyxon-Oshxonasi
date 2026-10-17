@@ -5,7 +5,6 @@ import '../core/formatters.dart';
 import '../core/order_status.dart';
 import '../l10n/app_localizations.dart';
 import '../models/models.dart';
-import 'ui_kit.dart';
 
 /// Buyurtma kartasi (ro'yxatlar uchun) — web'dagi kabi:
 /// chapda raqam + sana·taomlar soni, o'ngda jami + holat matni.

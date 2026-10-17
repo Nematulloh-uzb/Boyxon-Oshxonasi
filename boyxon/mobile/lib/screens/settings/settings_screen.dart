@@ -498,7 +498,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _divider(c),
                 _settingsRow(
                   icon: settings.themeMode == ThemeMode.dark
-                      ? Icons.moon_rounded
+                      ? Icons.dark_mode_rounded
                       : Icons.wb_sunny_outlined,
                   label: l.settings_theme,
                   value: settings.themeMode == ThemeMode.dark ? l.theme_dark : l.theme_light,
@@ -830,7 +830,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // -------------------------------------------------------------------------
 
   Widget _group(String title, List<Widget> children) {
-    final c = context.c;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -912,7 +911,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
 
-    return TapRow(child: row, onTap: onTap, radius: 0);
+    return TapRow(onTap: onTap, radius: 0, child: row);
   }
 
   Widget _expandChevron(bool open) {

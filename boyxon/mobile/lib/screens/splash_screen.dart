@@ -16,8 +16,8 @@ class SplashScreen extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [c.primary, c.accent]),
+              decoration: const BoxDecoration(
+                gradient: BoyxonPalette.gradient,
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.restaurant_menu_rounded, size: 44, color: Colors.white),

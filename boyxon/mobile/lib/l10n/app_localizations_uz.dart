@@ -105,6 +105,9 @@ class AppLocalizationsUz extends AppLocalizations {
   String get auth_password_hint => 'Kamida 8 belgi';
 
   @override
+  String get auth_or => 'yoki';
+
+  @override
   String get auth_required_title => 'Tizimga kirish kerak';
 
   @override
@@ -161,6 +164,9 @@ class AppLocalizationsUz extends AppLocalizations {
   String dish_min(String n) {
     return '$n daqiqa';
   }
+
+  @override
+  String get dish_min_short => 'daq';
 
   @override
   String dish_kcal(String n) {
@@ -269,6 +275,15 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get checkout_to_orders => 'Buyurtmalarim';
+
+  @override
+  String get cart_go_home => 'Bosh sahifaga';
+
+  @override
+  String get cart_processing => 'Yuborilmoqda...';
+
+  @override
+  String get checkout_track => 'Statusni real-time kuzatib boring.';
 
   @override
   String get orders_title => 'Buyurtmalarim';
@@ -427,6 +442,18 @@ class AppLocalizationsUz extends AppLocalizations {
   String get common_back => 'Orqaga';
 
   @override
+  String get common_name => 'Ism';
+
+  @override
+  String get common_phone => 'Telefon';
+
+  @override
+  String get common_label => 'Nom';
+
+  @override
+  String get common_address => 'Manzil';
+
+  @override
   String get home_greeting => 'Xush kelibsiz';
 
   @override
@@ -482,6 +509,9 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get dish_spicy => 'Achchiq';
+
+  @override
+  String get dish_new => 'Yangi';
 
   @override
   String get dish_description => 'Tavsif';
@@ -582,6 +612,9 @@ class AppLocalizationsUz extends AppLocalizations {
   String get orders_label_status => 'Holat';
 
   @override
+  String get orders_not_found => 'Buyurtma topilmadi';
+
+  @override
   String orders_dishes_count(int count) {
     return '$count ta taom';
   }
@@ -629,4 +662,7 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get settings_address_set_default => 'Asosiy qilish';
+
+  @override
+  String get settings_address_required => 'Nom va manzilni kiriting';
 }
