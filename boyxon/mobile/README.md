@@ -34,7 +34,7 @@ Android Studio kerak emas — VS Code + emulyator yetarli.
 
 ```powershell
 # 1) Portativ toolchain (har yangi terminalda)
-. D:\Android\env.ps1
+. D:\Installs\Android\env.ps1
 
 # 2) Server ishda bo'lsin (boyxon/server, npm run dev:local)
 
@@ -61,11 +61,11 @@ flutter build apk --release --dart-define=API_URL=https://<server>/api
   qiymat: `https://boyxon-server.onrender.com/api` (render.yaml'dagi nom).
 - Natija: `build\app\outputs\flutter-apk\app-release.apk` (~20 MB, barcha ABI).
 - Imzolash: `android/key.properties` (git'ga **tushmaydi**) +
-  `D:\Android\boyxon-keys\boyxon-release.jks`.
+  `D:\Installs\Android\boyxon-keys\boyxon-release.jks`.
 
 > ⚠️ **Kalitni yo'qotsangiz** Google Play/sayt orqali yangilanish chiqara
 > olmaysiz (boshqa imzo = yangi ilova sifatida o'rnatiladi). Zaxira nusxasini
-> xavfsiz joyda saqlang. Parol: `D:\Android\boyxon-keys\INFO.txt`.
+> xavfsiz joyda saqlang. Parol: `D:\Installs\Android\boyxon-keys\INFO.txt`.
 
 ## Yangi versiya chiqarish (sayt QR → APK)
 
