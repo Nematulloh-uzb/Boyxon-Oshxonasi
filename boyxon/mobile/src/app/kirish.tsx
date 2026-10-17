@@ -206,7 +206,7 @@ export default function KirishScreen() {
                 </View>
               </View>
               <Text style={[theme.typography.headlineLgMobile, styles.brand]}>Boyxon Oshxonasi</Text>
-              <Text style={styles.tagline}>Uy ta'mi, har bir luqmada</Text>
+              <Text style={styles.tagline}>{"Uy ta'mi, har bir luqmada"}</Text>
             </SafeAreaView>
           </LinearGradient>
 

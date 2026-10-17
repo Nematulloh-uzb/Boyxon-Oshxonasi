@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import i18n from 'i18next';
+import i18n, { changeLanguage, use as i18nUse } from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import en from './locales/en.json';
 import ru from './locales/ru.json';
@@ -21,7 +21,7 @@ function normalizeBraces(dict: Record<string, unknown>): Record<string, unknown>
   return out;
 }
 
-void i18n.use(initReactI18next).init({
+void i18nUse(initReactI18next).init({
   resources: {
     uz: { translation: normalizeBraces(uz as Record<string, unknown>) },
     ru: { translation: normalizeBraces(ru as Record<string, unknown>) },
@@ -40,7 +40,7 @@ export async function loadSavedLanguage(): Promise<void> {
   try {
     const saved = await AsyncStorage.getItem(LANG_STORAGE_KEY);
     if (saved && SUPPORTED_LANGS.includes(saved as AppLang) && saved !== i18n.language) {
-      await i18n.changeLanguage(saved);
+      await changeLanguage(saved);
     }
   } catch {
     /* jim — default til qoladi */

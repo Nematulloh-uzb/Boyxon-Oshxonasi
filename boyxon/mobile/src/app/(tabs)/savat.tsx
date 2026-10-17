@@ -20,7 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { apiErrorMessage } from '../../api/client';
 import { authApi } from '../../api/auth.api';
 import { ordersApi } from '../../api/orders.api';
-import type { Address, Order, OrderStatus } from '../../api/types';
+import type { Address, Order } from '../../api/types';
 import { promosApi, usersApi } from '../../api/users.api';
 import { Button } from '../../components/Button';
 import { EmptyState } from '../../components/EmptyState';
@@ -139,7 +139,7 @@ export default function SavatScreen() {
   const discount = Math.min(storedDiscount, subtotal);
   const total = subtotal + deliveryFee - discount;
 
-  const addresses = user?.addresses ?? [];
+  const addresses = useMemo(() => user?.addresses ?? [], [user]);
   const selectedAddress = useMemo<Address | undefined>(() => {
     if (selectedAddressId) {
       const found = addresses.find((a) => a._id === selectedAddressId);

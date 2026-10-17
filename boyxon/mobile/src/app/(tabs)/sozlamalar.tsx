@@ -4,6 +4,7 @@ import Constants from 'expo-constants';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import * as WebBrowser from 'expo-web-browser';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
@@ -28,7 +29,7 @@ import { Button } from '../../components/Button';
 import { Icon } from '../../components/Icon';
 import { Input } from '../../components/Input';
 import i18n, { LANG_STORAGE_KEY, type AppLang } from '../../i18n';
-import { BIOMETRIC_KEY, PAYMENT_KEY } from '../../lib/constants';
+import { BIOMETRIC_KEY, PAYMENT_KEY, SITE_URL } from '../../lib/constants';
 import { getInitials } from '../../lib/initials';
 import { getRefreshToken } from '../../lib/tokenStorage';
 import { useAuthStore } from '../../store/auth.store';
@@ -207,7 +208,11 @@ export default function SozlamalarScreen() {
   const user = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
 
-  const [pushEnabled, setPushEnabled] = useState(true);
+  // Push holati — server prefs asos, foydalanuvchi toggle'i lokal ustuvor.
+  // Effektdagi setState o'rniga hosilaviy qiymat ishlatiladi.
+  const serverPush = user?.notificationPrefs?.pushEnabled ?? true;
+  const [pushOverride, setPushOverride] = useState<boolean | null>(null);
+  const pushEnabled = pushOverride ?? serverPush;
   const [biometric, setBiometric] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentKey>('payme');
   const [savedFlash, setSavedFlash] = useState(false);
@@ -235,10 +240,6 @@ export default function SozlamalarScreen() {
     enabled: !!user,
   });
   const ordersCount = ordersQ.data?.pagination.total ?? 0;
-
-  useEffect(() => {
-    if (user) setPushEnabled(user.notificationPrefs?.pushEnabled ?? true);
-  }, [user]);
 
   useEffect(() => {
     AsyncStorage.getItem(BIOMETRIC_KEY)
@@ -658,7 +659,9 @@ export default function SozlamalarScreen() {
                   <SettingsRow
                     icon="admin_panel_settings"
                     title={t('settings.admin', { defaultValue: 'Admin panel' })}
-                    onPress={() => router.push('/admin')}
+                    onPress={() => {
+                      void WebBrowser.openBrowserAsync(`${SITE_URL}/admin`);
+                    }}
                   />
                 </>
               ) : null}
@@ -679,7 +682,7 @@ export default function SozlamalarScreen() {
             <SettingsRow
               icon="notifications_active"
               title={t('settings.push', { defaultValue: 'Push bildirishnomalar' })}
-              right={<Toggle value={pushEnabled} onChange={setPushEnabled} />}
+              right={<Toggle value={pushEnabled} onChange={setPushOverride} />}
             />
             <Divider />
             <SettingsRow

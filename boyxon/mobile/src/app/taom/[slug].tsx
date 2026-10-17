@@ -142,7 +142,7 @@ export default function TaomScreen() {
                       { color: colors.onSurfaceVariant, marginTop: 6, fontWeight: '500' },
                     ]}
                   >
-                    Rasm yo'q
+                    {"Rasm yo'q"}
                   </Text>
                 </View>
               )}

@@ -21,3 +21,11 @@ export const PAYMENT_KEY = 'boyxon-payment';
 
 /** Aksiya banneri uchun standart promo kod (server'dagi faol kod). */
 export const DEFAULT_PROMO_CODE = 'BOYXON20';
+
+/**
+ * Sayt manzili — mobil ilovada web sahifalar (masalan, admin panel)
+ * brauzerda ochiladi. Production: boyxon-frontend.onrender.com.
+ */
+export const SITE_URL =
+  (process.env.EXPO_PUBLIC_SITE_URL as string | undefined)?.replace(/\/+$/, '') ??
+  'https://boyxon-frontend.onrender.com';

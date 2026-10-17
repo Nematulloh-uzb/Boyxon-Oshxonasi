@@ -31,7 +31,7 @@ export function Placeholder({ size = 96, icon = 'restaurant', showLabel = true, 
       <Icon name={icon} size={size >= 80 ? 30 : 22} color={colors.outline} style={styles.icon} />
       {showLabel && size >= 80 ? (
         <Text style={[theme.typography.bodySm, { color: colors.onSurfaceVariant, marginTop: 4, fontWeight: '500' }]}>
-          Rasm yo'q
+          {"Rasm yo'q"}
         </Text>
       ) : null}
     </View>

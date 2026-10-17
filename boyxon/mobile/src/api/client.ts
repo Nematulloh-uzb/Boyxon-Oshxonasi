@@ -1,4 +1,4 @@
-import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import { create, post, type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { getRefreshToken, setRefreshToken } from '../lib/tokenStorage';
 import { useAuthStore } from '../store/auth.store';
 import type { AuthPayload } from './types';
@@ -14,7 +14,7 @@ export const API_URL =
 /** Mobil qurilma ekanini bildiruvchi header — server refreshToken'ni body'da ham qaytaradi. */
 export const CLIENT_HEADERS = { 'x-client': 'mobile' } as const;
 
-export const api = axios.create({
+export const api = create({
   baseURL: API_URL,
   timeout: 20000,
   headers: {
@@ -93,7 +93,7 @@ export async function refreshSession(): Promise<string> {
   if (!refreshToken) throw new Error('Refresh token topilmadi');
 
   // ATAYIN xom axios — interceptor'lar refresh so'rovini qayta ishlamasligi uchun.
-  const { data } = await axios.post(
+  const { data } = await post(
     `${API_URL}/auth/refresh`,
     { refreshToken },
     { headers: { Accept: 'application/json', ...CLIENT_HEADERS }, timeout: 20000 },
