@@ -250,15 +250,7 @@ export default function AdminScreen() {
   }
 
   /* ---- karta uslublari ---- */
-  const card = [
-    styles.card,
-    theme.shadows.card,
-    { backgroundColor: colors.surfaceContainerLowest },
-  ] as const;
-  const iconBox = (bg: string, fg: string) =>
-    ({ backgroundColor: bg, color: fg }) as unknown; // yordamchi emas — pastda ishlatilgan joyda to'g'ridan-to'g'ri
-
-  void iconBox;
+  const card = [styles.card, theme.shadows.card, { backgroundColor: colors.surfaceContainerLowest }];
 
   const chip = (
     bg: string,
@@ -420,7 +412,7 @@ export default function AdminScreen() {
               <Icon name="done_all" size={18} color={colors.onPrimary} />
             )}
             <Text style={[theme.typography.labelMd, { color: colors.onPrimary }]}>
-              Tayyor bo'ldi
+              {"Tayyor bo'ldi"}
             </Text>
           </Pressable>
           <Pressable
@@ -465,7 +457,7 @@ export default function AdminScreen() {
               ]}
             >
               <Icon name="call" size={18} color={colors.onSurface} />
-              <Text style={[theme.typography.labelMd, { color: colors.onSurface }]}>Bog'lanish</Text>
+              <Text style={[theme.typography.labelMd, { color: colors.onSurface }]}>{"Bog'lanish"}</Text>
             </Pressable>
           ) : null}
         </View>
@@ -609,7 +601,7 @@ export default function AdminScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHead}>
             <Text style={[theme.typography.headlineSm, { color: colors.onSurface }]}>
-              Bugungi ko'rsatkichlar
+              {"Bugungi ko'rsatkichlar"}
             </Text>
             <Text
               style={[
@@ -692,7 +684,7 @@ export default function AdminScreen() {
                   {stats?.users ?? 0} ta foydalanuvchi
                 </Text>
                 <Text style={[theme.typography.labelSm, { color: colors.onSurfaceVariant }]}>
-                  Ro'yxatdan o'tgan
+                  {"Ro'yxatdan o'tgan"}
                 </Text>
               </View>
             </View>
@@ -1063,7 +1055,7 @@ export default function AdminScreen() {
                 { color: colors.onSurfaceVariant, paddingVertical: 6 },
               ]}
             >
-              Hozircha faol kuryer yo'q
+              {"Hozircha faol kuryer yo'q"}
             </Text>
           ) : (
             <View style={styles.courierList}>
@@ -1410,6 +1402,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   sectionTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 },
+  pulse: { width: 8, height: 8, borderRadius: 4 },
   loading: { paddingVertical: 32, alignItems: 'center' },
 
   statusTop: { flexDirection: 'row', alignItems: 'center', gap: 8 },
@@ -1558,7 +1551,7 @@ const styles = StyleSheet.create({
   pushDraft: { borderRadius: 10, padding: 10, marginTop: 10 },
 
   modalRoot: { flex: 1, justifyContent: 'flex-end' },
-  backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.45)' },
+  backdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.45)' },
   sheet: {
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,

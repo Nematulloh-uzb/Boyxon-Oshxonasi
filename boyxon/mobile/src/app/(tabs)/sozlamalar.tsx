@@ -4,7 +4,6 @@ import Constants from 'expo-constants';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import * as WebBrowser from 'expo-web-browser';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
@@ -29,7 +28,7 @@ import { Button } from '../../components/Button';
 import { Icon } from '../../components/Icon';
 import { Input } from '../../components/Input';
 import i18n, { LANG_STORAGE_KEY, type AppLang } from '../../i18n';
-import { BIOMETRIC_KEY, PAYMENT_KEY, SITE_URL } from '../../lib/constants';
+import { BIOMETRIC_KEY, PAYMENT_KEY } from '../../lib/constants';
 import { getInitials } from '../../lib/initials';
 import { getRefreshToken } from '../../lib/tokenStorage';
 import { useAuthStore } from '../../store/auth.store';
@@ -659,9 +658,7 @@ export default function SozlamalarScreen() {
                   <SettingsRow
                     icon="admin_panel_settings"
                     title={t('settings.admin', { defaultValue: 'Admin panel' })}
-                    onPress={() => {
-                      void WebBrowser.openBrowserAsync(`${SITE_URL}/admin`);
-                    }}
+                    onPress={() => router.push('/admin')}
                   />
                 </>
               ) : null}
