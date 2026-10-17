@@ -3,6 +3,7 @@ import * as LocalAuthentication from 'expo-local-authentication';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, StyleSheet, Text, View } from 'react-native';
 import { BIOMETRIC_KEY } from '../lib/constants';
+import { useAuthStore } from '../store/auth.store';
 import { useTheme } from '../theme/ThemeProvider';
 import { Button } from './Button';
 import { Icon } from './Icon';
@@ -17,20 +18,40 @@ export function BiometricGate({ children }: { children: React.ReactNode }) {
   const [locked, setLocked] = useState(false);
   const [busy, setBusy] = useState(false);
   const autoTriedRef = useRef(false);
+  // Biometrik dialog ochiq paytini kuzatish — AppState 'active'ga qaytganda
+  // qayta-qulflash (cheksiz so'rov sikli) oldi olinadi.
+  const busyRef = useRef(false);
+  const lastUnlockAtRef = useRef(0);
 
   const tryUnlock = useCallback(async () => {
     setBusy(true);
+    busyRef.current = true;
     try {
       const res = await LocalAuthentication.authenticateAsync({
         promptMessage: 'Boyxon Oshxonasi',
         cancelLabel: 'Bekor qilish',
       });
-      if (res.success) setLocked(false);
+      if (res.success) {
+        lastUnlockAtRef.current = Date.now();
+        setLocked(false);
+      }
     } catch {
       /* jim */
     } finally {
+      busyRef.current = false;
       setBusy(false);
     }
+  }, []);
+
+  /** Qulfdan chiqib bo'lmasa — biometrikani o'chirib hisobdan chiqish yo'li. */
+  const handleSignOut = useCallback(async () => {
+    await AsyncStorage.removeItem(BIOMETRIC_KEY).catch(() => undefined);
+    try {
+      await useAuthStore.getState().logout();
+    } catch {
+      /* jim */
+    }
+    setLocked(false);
   }, []);
 
   // Ilova sovuq ochilganda tekshirish
@@ -46,6 +67,9 @@ export function BiometricGate({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const sub = AppState.addEventListener('change', (s) => {
       if (s !== 'active') return;
+      // Biometrik dialog yopilganda ilova yana 'active' bo'ladi — bu paytda
+      // qayta qulflamaymiz, aks holda so'rov cheksiz takrorlanadi.
+      if (busyRef.current || Date.now() - lastUnlockAtRef.current < 2000) return;
       AsyncStorage.getItem(BIOMETRIC_KEY)
         .then((v) => {
           if (v === '1') setLocked(true);
@@ -91,6 +115,15 @@ export function BiometricGate({ children }: { children: React.ReactNode }) {
             onPress={tryUnlock}
             style={{ marginTop: 24, paddingHorizontal: 32, backgroundColor: colors.primaryContainer }}
           />
+          <Text
+            onPress={() => void handleSignOut()}
+            style={[
+              theme.typography.bodySm,
+              { color: colors.onSurfaceVariant, marginTop: 16, textDecorationLine: 'underline' },
+            ]}
+          >
+            Chiqish
+          </Text>
         </View>
       ) : null}
     </View>

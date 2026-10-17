@@ -1,4 +1,4 @@
-import { create, post, type AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import axios, { create, type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { getRefreshToken, setRefreshToken } from '../lib/tokenStorage';
 import { useAuthStore } from '../store/auth.store';
 import type { AuthPayload } from './types';
@@ -93,7 +93,7 @@ export async function refreshSession(): Promise<string> {
   if (!refreshToken) throw new Error('Refresh token topilmadi');
 
   // ATAYIN xom axios — interceptor'lar refresh so'rovini qayta ishlamasligi uchun.
-  const { data } = await post(
+  const { data } = await axios.post(
     `${API_URL}/auth/refresh`,
     { refreshToken },
     { headers: { Accept: 'application/json', ...CLIENT_HEADERS }, timeout: 20000 },
