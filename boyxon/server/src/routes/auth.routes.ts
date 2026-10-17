@@ -30,19 +30,29 @@ authRouter.get('/me', requireAuth, c.me);
 
 // Google sozlanmagan bo'lsa — "Unknown strategy" xatosidan saqlab, frontendga xabar bilan qaytaramiz.
 authRouter.get('/google', (req, res, next) => {
+  const wantsNative = (req.query.native as string | undefined) === '1';
+  const base = wantsNative ? 'boyxon://auth' : primaryClientUrl();
   if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) {
-    return res.redirect(`${primaryClientUrl()}/auth?error=google_not_configured`);
+    return res.redirect(`${base}/auth?error=google_not_configured`);
   }
-  return passport.authenticate('google', { scope: ['profile', 'email'], session: false })(req, res, next);
+  // Native (APK) oqimi: `native=1` ni eslab qolamiz — callback'da deep-link qaytarish uchun.
+  // Passport Google'ga `state` orqali uzatadi (CSRF himoyasi ham shu).
+  const state = wantsNative ? 'native=1' : undefined;
+  return passport.authenticate('google', { scope: ['profile', 'email'], session: false, state })(req, res, next);
 });
 
 authRouter.get(
   '/google/callback',
   // Muvaffaqiyatsizlikda FRONTEND sahifasiga qaytish (backend'ning o'ziga emas).
-  passport.authenticate('google', {
-    session: false,
-    failureRedirect: `${primaryClientUrl()}/auth?error=google`,
-  }),
+  // Native oqimda state orqali deep-link bazani tanlaymiz (dynamic redirect).
+  (req, res, next) => {
+    const wantsNative = (req.query.state as string | undefined)?.includes('native=1') ?? false;
+    const base = wantsNative ? 'boyxon://auth' : primaryClientUrl();
+    return passport.authenticate('google', {
+      session: false,
+      failureRedirect: `${base}/auth?error=google`,
+    })(req, res, next);
+  },
   c.googleCallback,
 );
 
