@@ -2,7 +2,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import { completeGoogleLogin } from '../../lib/googleLogin';
+import { completeGoogleLogin, googleErrorMessage } from '../../lib/googleLogin';
 import { useToastStore } from '../../store/toast.store';
 import { useTheme } from '../../theme/ThemeProvider';
 
@@ -10,8 +10,9 @@ import { useTheme } from '../../theme/ThemeProvider';
  * Google OAuth'dan qaytish sahifasi (web'dagi AuthCallback'ning mobil analogi).
  *
  * Server native oqimda shu manzilga qaytaradi:
- *   boyxon://auth/callback?code=...   (yoki ?error=...)
- * expo-router bu deep-linkni /auth/callback yo'liga ulaydi.
+ *   boyxon://auth/callback?code=...   (yoki ?error=...)   — APK/dev build
+ *   exp://<host>/--/auth/callback?code=...                — Expo Go
+ * expo-router ikkala deep-linkni ham /auth/callback yo'liga ulaydi.
  */
 export default function GoogleCallbackScreen() {
   const theme = useTheme();
@@ -29,7 +30,7 @@ export default function GoogleCallbackScreen() {
       const error = typeof params.error === 'string' ? params.error : undefined;
 
       if (error) {
-        showToast(error === 'google_not_configured' ? 'Google hozircha sozlanmagan' : error, 'error');
+        showToast(googleErrorMessage(error), 'error');
         router.replace('/kirish');
         return;
       }

@@ -24,7 +24,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
           cache-dependency-path: boyxon/mobile/package-lock.json
 
@@ -71,7 +71,10 @@ jobs:
               keyPassword System.getenv('KEY_PASS')
           }"""
           s = s.replace('    signingConfigs {', block, 1)
-          s = s.replace('signingConfig signingConfigs.debug', 'signingConfig signingConfigs.release')
+          marker = 'signingConfig signingConfigs.debug'
+          i = s.rfind(marker)
+          if i != -1:
+              s = s[:i] + 'signingConfig signingConfigs.release' + s[i + len(marker):]
           p.write_text(s)
           print('build.gradle: release signing sozlandi.')
           PY

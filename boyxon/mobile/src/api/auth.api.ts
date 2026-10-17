@@ -11,8 +11,16 @@ export const authApi = {
   /** Barcha qurilmalardan chiqish — barcha sessiyalar bekor qilinadi. */
   logoutAll: () => api.post('/auth/logout-all').then((r) => r.data),
   me: () => api.get<ApiOk<User>>('/auth/me').then((r) => r.data),
-  /** Google OAuth sahifasi (native=1 → boyxon:// deep-link bilan qaytadi). */
-  googleUrl: () => `${api.defaults.baseURL?.replace(/\/api$/, '')}/api/auth/google?native=1`,
+  /**
+   * Google OAuth sahifasi (native=1 → ilova deep-link bilan qaytadi).
+   * `redirect` — ilovaning aniq qaytish manzili:
+   *  - Expo Go: `exp://<metro-host>/--/auth/callback`
+   *  - APK/dev build: `boyxon://auth/callback`
+   */
+  googleUrl: (redirect?: string) => {
+    const base = `${api.defaults.baseURL?.replace(/\/api$/, '')}/api/auth/google?native=1`;
+    return redirect ? `${base}&redirect=${encodeURIComponent(redirect)}` : base;
+  },
   /** Google'dan qaytgan bir martalik kodni tokenga almashtirish. */
   googleExchange: (code: string) =>
     api.post<ApiOk<AuthPayload>>('/auth/google/exchange', { code }).then((r) => r.data),

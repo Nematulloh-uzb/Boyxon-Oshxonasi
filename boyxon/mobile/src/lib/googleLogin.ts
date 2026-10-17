@@ -4,6 +4,21 @@ import { useAuthStore } from '../store/auth.store';
 import { useToastStore } from '../store/toast.store';
 
 /**
+ * Google'dan qaytgan xato kodini foydalanuvchiga tushunarli matnga aylantiradi.
+ * (Server cb'da `?error=<kod>` bilan qaytaradi: routes/auth.routes.ts, auth.controller.ts)
+ */
+const GOOGLE_ERROR_TEXT: Record<string, string> = {
+  google: 'Google orqali kirish amalga oshmadi',
+  google_not_configured: 'Google hozircha sozlanmagan',
+  blocked: 'Hisobingiz bloklangan',
+  admin_password_only: 'Admin panelga faqat parol bilan kiriladi',
+};
+
+export function googleErrorMessage(error: string): string {
+  return GOOGLE_ERROR_TEXT[error] ?? error;
+}
+
+/**
  * Google'dan qaytgan bir martalik kodni tokenga almashtirib, sessiyani o'rnatadi.
  *
  * Android'da kod ikki manbadan kelishi mumkin: WebBrowser promisi ham,

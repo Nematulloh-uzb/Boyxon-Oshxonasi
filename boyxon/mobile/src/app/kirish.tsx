@@ -1,4 +1,6 @@
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Linking from 'expo-linking';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as WebBrowser from 'expo-web-browser';
@@ -22,7 +24,7 @@ import { GoogleG } from '../components/GoogleG';
 import { Icon } from '../components/Icon';
 import { Input } from '../components/Input';
 import { SegmentedControl } from '../components/SegmentedControl';
-import { completeGoogleLogin } from '../lib/googleLogin';
+import { completeGoogleLogin, googleErrorMessage } from '../lib/googleLogin';
 import { setRefreshToken } from '../lib/tokenStorage';
 import { useAuthStore } from '../store/auth.store';
 import { useToastStore } from '../store/toast.store';
@@ -31,6 +33,20 @@ import { useTheme } from '../theme/ThemeProvider';
 type Mode = 'login' | 'register' | 'forgot';
 
 const EMAIL_RE = /^\S+@\S+\.\S+$/;
+
+/**
+ * Ilovaning Google'dan qaytish manzili.
+ *
+ * Expo Go faqat `exp://` sxemasini ochadi (`boyxon://` umuman ishlamaydi) —
+ * shuning uchun u yerda Metro hostiga bog'langan exp-URL kerak. APK/dev
+ * build'da esa o'z sxemamiz: `boyxon://auth/callback` (expo-router uni
+ * src/app/auth/callback.tsx sahifasiga ulaydi). Manzil serverga ham
+ * yuboriladi — server aynan shu yerga qaytaradi.
+ */
+const googleReturnUrl =
+  Constants.executionEnvironment === ExecutionEnvironment.StoreClient
+    ? Linking.createURL('auth/callback')
+    : 'boyxon://auth/callback';
 
 /** Hero fonidagi o'zbek naqshi (8% oq, 24px katak). */
 function HeroPattern() {
@@ -155,17 +171,21 @@ export default function KirishScreen() {
   const handleGoogle = async () => {
     try {
       setLoading(true);
-      const result = await WebBrowser.openAuthSessionAsync(authApi.googleUrl(), 'boyxon://auth');
-      // Android: qaytish deep-link (boyxon://auth/callback) router orqali
-      // auth/callback sahifasiga tushadi — kod almashinuvi o'sha yerda bo'ladi
-      // (promise ba'zan "dismiss" bo'lib qolishi mumkin, shunga ishonmaymiz).
+      const result = await WebBrowser.openAuthSessionAsync(
+        authApi.googleUrl(googleReturnUrl),
+        googleReturnUrl,
+      );
+      // Android: qaytish deep-link (APK'da boyxon://auth/callback, Expo Go'da
+      // exp://.../--/auth/callback) router orqali auth/callback sahifasiga
+      // tushadi — kod almashinuvi o'sha yerda bo'ladi (promise ba'zan "dismiss"
+      // bo'lib qolishi mumkin, shunga ishonmaymiz).
       if (Platform.OS === 'android') return;
       if (result.type !== 'success' || !result.url) return;
       const url = new URL(result.url);
       const code = url.searchParams.get('code');
       const error = url.searchParams.get('error');
       if (error) {
-        showToast(error === 'google_not_configured' ? 'Google hozircha sozlanmagan' : error, 'error');
+        showToast(googleErrorMessage(error), 'error');
         return;
       }
       if (!code) return;

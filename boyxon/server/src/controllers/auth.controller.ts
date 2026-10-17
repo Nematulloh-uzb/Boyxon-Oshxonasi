@@ -18,6 +18,7 @@ import {
 import { sendResetEmail, sendVerifyEmail } from '../services/email.service';
 import { env, primaryClientUrl } from '../config/env';
 import { logger } from '../utils/logger';
+import { parseGoogleState } from '../utils/googleRedirect';
 import type { AuthRequest } from '../types/express';
 
 function setRefreshCookie(res: Response, token: string): void {
@@ -313,33 +314,24 @@ export const googleCallback = asyncHandler(async (req: Request, res: Response) =
   const user = req.user as any;
   const userDoc = user?._id ? user : await User.findOne({ email: user?.email });
   if (!userDoc) throw ApiError.unauthorized('Google login xatosi');
-  // Native (APK) oqimi: `/google?native=1` → Google `state` orqali qaytaradi.
+  // Native (APK/Expo Go) oqimi: `/google?native=1` → Google `state` orqali qaytaradi.
   // Passport `state` ni req.query.state ga qo'yadi; query'da ham bo'lishi mumkin.
-  // Qaytish manzilini deep-link qilamiz (boyxon://auth/callback?code=...),
-  // brauzer oqimida esa web sahifa (CLIENT_URL).
-  const stateRaw = req.query.state;
-  const stateStr = Array.isArray(stateRaw) ? stateRaw.join('') : String(stateRaw ?? '');
-  let wantsNative = stateStr.includes('native=1');
-  if (!wantsNative) {
-    try {
-      const parsed = JSON.parse(stateStr) as { native?: string };
-      wantsNative = parsed.native === '1';
-    } catch {
-      /* state oddiy string — yuqorida tekshirildi */
-    }
-  }
-  if (!wantsNative) wantsNative = (req.query.native as string | undefined) === '1';
+  // Qaytish manzili: ilova yuborgan `redirect` (exp:// yoki boyxon://) bo'lsa —
+  // o'sha; aks holda boyxon://auth/callback (brauzer oqimida esa CLIENT_URL).
+  const { native: stateNative, redirect } = parseGoogleState(req.query.state);
+  const wantsNative = stateNative || (req.query.native as string | undefined) === '1';
   const base = wantsNative ? 'boyxon://auth' : primaryClientUrl();
   // Native (mobil) oqimda xato ham, muvaffaqiyat ham bitta sahifaga qaytadi:
   // boyxon://auth/callback (mobil app: src/app/auth/callback.tsx).
-  const errorPath = wantsNative ? '/callback' : '/auth';
+  const errorTarget = redirect ?? `${base}${wantsNative ? '/callback' : '/auth'}`;
+  const successTarget = redirect ?? `${base}${wantsNative ? '/callback' : '/auth/callback'}`;
   if (!userDoc.isActive) {
-    return res.redirect(`${base}${errorPath}?error=blocked`);
+    return res.redirect(`${errorTarget}?error=blocked`);
   }
   // TALAB: admin panel faqat admin@gmail.com + parol bilan kiradi — Google orqali emas.
   // Aks holda Google hisobi egasi parolisiz kira olardi.
   if (userDoc.role === 'admin') {
-    return res.redirect(`${base}${errorPath}?error=admin_password_only`);
+    return res.redirect(`${errorTarget}?error=admin_password_only`);
   }
   userDoc.lastLoginAt = new Date();
   await userDoc.save();
@@ -351,7 +343,7 @@ export const googleCallback = asyncHandler(async (req: Request, res: Response) =
     for (const [k, v] of googleCodes) if (v.expiresAt < Date.now()) googleCodes.delete(k);
   }
 
-  res.redirect(`${base}${wantsNative ? '/callback' : '/auth/callback'}?code=${code}`);
+  res.redirect(`${successTarget}?code=${code}`);
 });
 
 /**
