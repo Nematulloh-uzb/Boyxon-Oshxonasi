@@ -23,12 +23,6 @@ const qc = new QueryClient({
   },
 });
 
-// Capacitor (APK) ichida native ko'prik: status bar, klaviatura, splash, back tugma.
-// Web'da no-op — sayt harakati o'zgarmaydi.
-if (typeof window !== 'undefined' && (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.()) {
-  void import('./lib/native').then((m) => m.initNativeBridge());
-}
-
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={qc}>

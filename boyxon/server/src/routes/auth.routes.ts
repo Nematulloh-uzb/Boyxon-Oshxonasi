@@ -15,7 +15,6 @@ import {
   verifyEmailParamsSchema,
 } from '../validators/auth.validator';
 import { env, primaryClientUrl } from '../config/env';
-import { parseGoogleState, sanitizeAppRedirect } from '../utils/googleRedirect';
 import * as c from '../controllers/auth.controller';
 
 export const authRouter = Router();
@@ -31,41 +30,20 @@ authRouter.get('/me', requireAuth, c.me);
 
 // Google sozlanmagan bo'lsa — "Unknown strategy" xatosidan saqlab, frontendga xabar bilan qaytaramiz.
 authRouter.get('/google', (req, res, next) => {
-  const wantsNative = (req.query.native as string | undefined) === '1';
-  // Native oqimda barcha qaytishlar bitta sahifaga: boyxon://auth/callback
-  // (mobil app: src/app/auth/callback.tsx). Webda avvalgidek CLIENT_URL/auth.
-  const base = wantsNative ? 'boyxon://auth' : primaryClientUrl();
-  const errorPath = wantsNative ? '/callback' : '/auth';
-  // Ilova o'zining aniq qaytish manzilini yuborishi mumkin:
-  //  - Expo Go: exp://10.0.2.2:8081/--/auth/callback (boyxon:// ni umuman ochmaydi)
-  //  - APK: boyxon://auth/callback
-  // Faqat ilova sxemalari qabul qilinadi (open redirect himoyasi).
-  const appRedirect = wantsNative ? sanitizeAppRedirect(req.query.redirect) : null;
   if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) {
-    return res.redirect(`${appRedirect ?? `${base}${errorPath}`}?error=google_not_configured`);
+    return res.redirect(`${primaryClientUrl()}/auth?error=google_not_configured`);
   }
-  // Native (APK) oqimi: `native=1`ni eslab qolamiz — callback'da deep-link qaytarish uchun.
-  // Passport Google'ga `state` orqali uzatadi; ilova manzili ham shu yerda saqlanadi.
-  const state = wantsNative
-    ? appRedirect
-      ? JSON.stringify({ native: '1', redirect: appRedirect })
-      : 'native=1'
-    : undefined;
-  return passport.authenticate('google', { scope: ['profile', 'email'], session: false, state })(req, res, next);
+  return passport.authenticate('google', { scope: ['profile', 'email'], session: false })(req, res, next);
 });
 
 authRouter.get(
   '/google/callback',
   // Muvaffaqiyatsizlikda FRONTEND sahifasiga qaytish (backend'ning o'ziga emas).
-  // Native oqimda state orqali deep-link bazani tanlaymiz (dynamic redirect).
-  (req, res, next) => {
-    const { native, redirect } = parseGoogleState(req.query.state);
-    const target = redirect ?? (native ? 'boyxon://auth/callback' : `${primaryClientUrl()}/auth`);
-    return passport.authenticate('google', {
+  (req, res, next) =>
+    passport.authenticate('google', {
       session: false,
-      failureRedirect: `${target}?error=google`,
-    })(req, res, next);
-  },
+      failureRedirect: `${primaryClientUrl()}/auth?error=google`,
+    })(req, res, next),
   c.googleCallback,
 );
 

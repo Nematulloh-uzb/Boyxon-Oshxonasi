@@ -18,7 +18,6 @@ import {
 import { sendResetEmail, sendVerifyEmail } from '../services/email.service';
 import { env, primaryClientUrl } from '../config/env';
 import { logger } from '../utils/logger';
-import { parseGoogleState } from '../utils/googleRedirect';
 import type { AuthRequest } from '../types/express';
 
 function setRefreshCookie(res: Response, token: string): void {
@@ -33,15 +32,6 @@ function clearRefreshCookie(res: Response): void {
 /** So'rovdagi qurilma ma'lumoti (sessiyalarni ajratish uchun, max 255 belgi). */
 function userAgentOf(req: Request): string {
   return String(req.headers['user-agent'] ?? '').slice(0, 255);
-}
-
-/**
- * Mobil ilova (`x-client: mobile`) — httpOnly cookie o'rniga refreshToken
- * javob body'sida ham qaytariladi (ilova uni SecureStore'da saqlaydi).
- * Web oqimi o'zgarmaydi: cookie o'rnatiladi, body'da token bo'lmaydi.
- */
-function wantsMobileRefreshToken(req: Request): boolean {
-  return String(req.headers['x-client'] ?? '') === 'mobile';
 }
 
 /**
@@ -76,7 +66,6 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
       {
         accessToken: mustVerify ? null : accessToken,
         user,
-        ...(!mustVerify && wantsMobileRefreshToken(req) ? { refreshToken } : {}),
         verificationSent: sent,
         verificationRequired: mustVerify,
         // Xat yuborilmagan bo'lsa frontend aniq xabar ko'rsatadi.
@@ -175,7 +164,6 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
         {
           accessToken,
           user,
-          ...(wantsMobileRefreshToken(req) ? { refreshToken } : {}),
         },
         'Xush kelibsiz!',
       ),
@@ -197,9 +185,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 
 /** POST /api/auth/logout — faqat shu qurilma sessiyasini yopish (cookie ni ham tozalash). */
 export const logout = asyncHandler(async (req: Request, res: Response) => {
-  // Mobil ilova cookie yubormaydi — refreshToken body'da kelishi mumkin.
-  const bodyToken = typeof req.body?.refreshToken === 'string' ? (req.body.refreshToken as string) : undefined;
-  const token = (req.cookies?.refreshToken as string | undefined) ?? bodyToken;
+  const token = req.cookies?.refreshToken as string | undefined;
   if (token) {
     // Cookie buzilgan/imzosi noto'g'ri bo'lsa ham xato bermaymiz — baribir tozalanadi.
     try {
@@ -240,8 +226,7 @@ export const logoutAll = asyncHandler(async (req: Request, res: Response) => {
  * parol almashgan) — 401. `ver` mos kelsa ham sessiya majburiy.
  */
 export const refresh = asyncHandler(async (req: Request, res: Response) => {
-  const bodyToken = typeof req.body?.refreshToken === 'string' ? (req.body.refreshToken as string) : undefined;
-  const token = (req.cookies?.refreshToken as string | undefined) ?? bodyToken;
+  const token = req.cookies?.refreshToken as string | undefined;
   if (!token) throw ApiError.unauthorized('Refresh token topilmadi');
   let payload: { id: string; ver: number; sid: string };
   try {
@@ -277,7 +262,6 @@ export const refresh = asyncHandler(async (req: Request, res: Response) => {
       {
         accessToken: tokens.accessToken,
         user,
-        ...(wantsMobileRefreshToken(req) || bodyToken ? { refreshToken: tokens.refreshToken } : {}),
       },
       'Token yangilandi',
     ),
@@ -314,24 +298,14 @@ export const googleCallback = asyncHandler(async (req: Request, res: Response) =
   const user = req.user as any;
   const userDoc = user?._id ? user : await User.findOne({ email: user?.email });
   if (!userDoc) throw ApiError.unauthorized('Google login xatosi');
-  // Native (APK/Expo Go) oqimi: `/google?native=1` → Google `state` orqali qaytaradi.
-  // Passport `state` ni req.query.state ga qo'yadi; query'da ham bo'lishi mumkin.
-  // Qaytish manzili: ilova yuborgan `redirect` (exp:// yoki boyxon://) bo'lsa —
-  // o'sha; aks holda boyxon://auth/callback (brauzer oqimida esa CLIENT_URL).
-  const { native: stateNative, redirect } = parseGoogleState(req.query.state);
-  const wantsNative = stateNative || (req.query.native as string | undefined) === '1';
-  const base = wantsNative ? 'boyxon://auth' : primaryClientUrl();
-  // Native (mobil) oqimda xato ham, muvaffaqiyat ham bitta sahifaga qaytadi:
-  // boyxon://auth/callback (mobil app: src/app/auth/callback.tsx).
-  const errorTarget = redirect ?? `${base}${wantsNative ? '/callback' : '/auth'}`;
-  const successTarget = redirect ?? `${base}${wantsNative ? '/callback' : '/auth/callback'}`;
+  const base = `${primaryClientUrl()}/auth`;
   if (!userDoc.isActive) {
-    return res.redirect(`${errorTarget}?error=blocked`);
+    return res.redirect(`${base}?error=blocked`);
   }
   // TALAB: admin panel faqat admin@gmail.com + parol bilan kiradi — Google orqali emas.
   // Aks holda Google hisobi egasi parolisiz kira olardi.
   if (userDoc.role === 'admin') {
-    return res.redirect(`${errorTarget}?error=admin_password_only`);
+    return res.redirect(`${base}?error=admin_password_only`);
   }
   userDoc.lastLoginAt = new Date();
   await userDoc.save();
@@ -343,7 +317,7 @@ export const googleCallback = asyncHandler(async (req: Request, res: Response) =
     for (const [k, v] of googleCodes) if (v.expiresAt < Date.now()) googleCodes.delete(k);
   }
 
-  res.redirect(`${successTarget}?code=${code}`);
+  res.redirect(`${base}/callback?code=${code}`);
 });
 
 /**
@@ -365,7 +339,6 @@ export const googleExchange = asyncHandler(async (req: Request, res: Response) =
       {
         accessToken: tokens.accessToken,
         user,
-        ...(wantsMobileRefreshToken(req) ? { refreshToken: tokens.refreshToken } : {}),
       },
       'Kirdingiz',
     ),
@@ -476,7 +449,6 @@ export const changePassword = asyncHandler(async (req: Request, res: Response) =
     ok(
       {
         accessToken: tokens.accessToken,
-        ...(wantsMobileRefreshToken(req) ? { refreshToken: tokens.refreshToken } : {}),
       },
       'Parol o‘zgartirildi',
     ),

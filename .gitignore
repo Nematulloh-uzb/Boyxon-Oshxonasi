@@ -20,11 +20,6 @@ i18n-scan.txt
 # vite.config.ts ni soya qilib qo'ygan edi)
 *.tsbuildinfo
 
-# Ilovani imzolash kalitlari — HECH QACHON git'ga qo'shilmaydi (repo public!)
-*.jks
-*.keystore
-key.properties
-**/android/key.properties
 client.log
 client-dev.log
 server.log
@@ -40,10 +35,3 @@ boyxon/client/node_modules/
 boyxon/server/node_modules/
 boyxon/client/dist/
 boyxon/server/dist/
-
-# ---------------------------------------------------------
-# Eski loyiha (Expo mobile)
-# ---------------------------------------------------------
-
-boyxon-oshxona/
-boyxon-osxona/

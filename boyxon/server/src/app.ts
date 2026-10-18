@@ -48,13 +48,13 @@ export function createApp() {
     }),
   );
 
-  // CORS: faqat aniq ro'yxatdagi domenlar (CLIENT_URL + Capacitor ilova hosti).
+  // CORS: faqat aniq ro'yxatdagi domenlar (CLIENT_URL).
   // `*` hech qachon ishlatilmaydi, chunki credentials: true bilan birga xavfli.
   const allowedOrigins = corsOrigins();
   app.use(
     cors({
       origin: (origin, cb) => {
-        // Origin yo'q (server-to-server, curl, mobil) — ruxsat.
+        // Origin yo'q (server-to-server, curl) — ruxsat.
         if (!origin) return cb(null, true);
         if (allowedOrigins.includes(origin.replace(/\/$/, ''))) return cb(null, true);
         return cb(null, false);
