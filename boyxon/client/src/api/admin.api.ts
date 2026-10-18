@@ -36,6 +36,7 @@ export const adminApi = {
   createCategory: (body: Partial<Category>) => api.post<ApiOk<Category>>('/admin/categories', body).then((r) => r.data),
   updateCategory: (id: string, body: Partial<Category>) => api.patch<ApiOk<Category>>(`/admin/categories/${id}`, body).then((r) => r.data),
   deleteCategory: (id: string) => api.delete(`/admin/categories/${id}`).then((r) => r.data),
+  restoreCategory: (id: string) => api.post(`/admin/categories/${id}/restore`).then((r) => r.data),
 
   orders: (params: Record<string, unknown> = {}) =>
     api.get<Paginated<Order>>('/admin/orders', { params }).then((r) => r.data),
