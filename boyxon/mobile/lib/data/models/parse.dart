@@ -3,7 +3,7 @@
 /// qaytarishi mumkin — bularning barchasiga chidamli bo'lish kerak.
 library;
 
-String? asStr(dynamic v) => v == null ? null : v.toString();
+String? asStr(dynamic v) => v?.toString();
 
 int asInt(dynamic v, [int fallback = 0]) {
   if (v is num) return v.toInt();

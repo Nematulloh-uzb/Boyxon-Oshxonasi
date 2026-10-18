@@ -99,12 +99,12 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         widget.orderId,
         reason: reason.isEmpty ? null : reason,
       );
-      _snack(context.tr('app.cancelled_ok'));
+      if (mounted) _snack(context.tr('app.cancelled_ok'));
       await _load();
     } on ApiException catch (e) {
       _snack(e.message);
     } catch (_) {
-      _snack(context.tr('home.load_error'));
+      if (mounted) _snack(context.tr('home.load_error'));
     }
   }
 
@@ -172,11 +172,11 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         rating: rating,
         text: text.isEmpty ? null : text,
       );
-      _snack(context.tr('app.review_thanks'));
+      if (mounted) _snack(context.tr('app.review_thanks'));
     } on ApiException catch (e) {
       _snack(e.message);
     } catch (_) {
-      _snack(context.tr('home.load_error'));
+      if (mounted) _snack(context.tr('home.load_error'));
     }
   }
 

@@ -7,8 +7,8 @@ import 'app_text.dart';
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get light => _build(AppPalette.light);
-  static ThemeData get dark => _build(AppPalette.dark);
+  static ThemeData get light => _build(AppPalette.lightPalette);
+  static ThemeData get dark => _build(AppPalette.darkPalette);
 
   static ThemeData _build(AppPalette p) {
     final scheme = ColorScheme(
@@ -111,5 +111,5 @@ class AppTheme {
 /// `context.palette` — joriy mavzu tokenlari.
 extension PaletteContextX on BuildContext {
   AppPalette get palette =>
-      Theme.of(this).extension<AppPalette>() ?? AppPalette.light;
+      Theme.of(this).extension<AppPalette>() ?? AppPalette.lightPalette;
 }

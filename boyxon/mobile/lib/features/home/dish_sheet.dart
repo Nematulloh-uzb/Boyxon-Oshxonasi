@@ -73,7 +73,7 @@ class _DishSheetState extends State<_DishSheet> {
     } on ApiException catch (e) {
       _snack(e.message);
     } catch (_) {
-      _snack(context.tr('common.error'));
+      if (mounted) _snack(context.tr('common.error'));
     } finally {
       if (mounted) setState(() => _favBusy = false);
     }

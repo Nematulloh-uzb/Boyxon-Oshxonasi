@@ -119,7 +119,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
   AppPalette lerp(covariant AppPalette? other, double t) =>
       t < 0.5 ? this : (other ?? this);
 
-  static const light = AppPalette(
+  static const lightPalette = AppPalette(
     dark: false,
     bg: Color(0xFFFCF9F8),
     card: Color(0xFFFFFFFF),
@@ -153,7 +153,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     scrim: Color(0x73000000),
   );
 
-  static const dark = AppPalette(
+  static const darkPalette = AppPalette(
     dark: true,
     bg: Color(0xFF121212),
     card: Color(0xFF1E1E1E),

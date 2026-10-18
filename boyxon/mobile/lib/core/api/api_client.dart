@@ -151,7 +151,13 @@ class ApiClient {
       // 401 — access token eskirgan bo'lishi mumkin: bir marta refresh qilib qayta urinamiz.
       if (status == 401 && allowRefreshRetry && !_isAuthPath(path)) {
         if (await _refresh()) {
-          return _send(method, path, body: body, query: query, allowRefreshRetry: false);
+          return await _send(
+            method,
+            path,
+            body: body,
+            query: query,
+            allowRefreshRetry: false,
+          );
         }
       }
 

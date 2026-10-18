@@ -279,7 +279,7 @@ class _CartPageState extends State<CartPage> {
     } on ApiException catch (e) {
       _snack(e.message);
     } catch (_) {
-      _snack(context.tr('home.load_error'));
+      if (mounted) _snack(context.tr('home.load_error'));
     } finally {
       if (mounted) setState(() => _busy = false);
     }

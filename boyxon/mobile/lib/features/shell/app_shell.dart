@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/i18n/app_i18n.dart';
 import '../../core/session/session_controller.dart';
 import '../../theme/app_text.dart';
 import '../../theme/app_theme.dart';

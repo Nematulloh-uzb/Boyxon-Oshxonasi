@@ -5,6 +5,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api/api_client.dart';
+import '../../core/i18n/app_i18n.dart';
 import '../../core/session/session_controller.dart';
 import '../../data/services/auth_service.dart';
 import '../../theme/app_text.dart';
@@ -137,6 +138,7 @@ class _AuthPageState extends State<AuthPage> {
     if (email == null || email.isEmpty) return;
     try {
       await AuthService.I.forgotPassword(email);
+      if (!mounted) return;
       _snack(context.tr('auth.reset_sent'));
     } on ApiException catch (e) {
       _snack(e.message);
@@ -148,6 +150,7 @@ class _AuthPageState extends State<AuthPage> {
     if (email == null) return;
     try {
       await AuthService.I.resendVerification(email);
+      if (!mounted) return;
       _snack(context.tr('auth.verify_resent'));
     } on ApiException catch (e) {
       _snack(e.message);
@@ -531,10 +534,10 @@ class _AuthHeader extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(24, topPad + 40, 24, 72),
       child: Stack(
         children: [
-          Positioned.fill(
+          const Positioned.fill(
             child: IgnorePointer(
               child: ClipRect(
-                child: CustomPaint(painter: const _UzbekPatternPainter()),
+                child: CustomPaint(painter: _UzbekPatternPainter()),
               ),
             ),
           ),
@@ -837,7 +840,7 @@ class _GoogleLogo extends StatelessWidget {
     return SizedBox(
       width: size,
       height: size,
-      child: CustomPaint(painter: const _GoogleLogoPainter()),
+      child: const CustomPaint(painter: _GoogleLogoPainter()),
     );
   }
 }
