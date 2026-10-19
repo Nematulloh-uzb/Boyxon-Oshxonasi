@@ -65,6 +65,7 @@ class UserService {
   Future<bool> toggleFavorite(String dishId) async {
     final res = await _api.post('/api/users/me/favorites/$dishId');
     final d = res.dataMap;
+    if (d['favored'] is bool) return d['favored'] as bool;
     if (d['favorited'] is bool) return d['favorited'] as bool;
     if (d['added'] is bool) return d['added'] as bool;
     return true;

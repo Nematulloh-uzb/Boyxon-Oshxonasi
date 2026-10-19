@@ -20,8 +20,14 @@ class SessionController extends ChangeNotifier {
     final refreshed = await ApiClient.I.tryRefreshSession();
     if (refreshed) {
       try {
-        user = await AuthService.I.me();
-        status = SessionStatus.authed;
+        final u = await AuthService.I.me();
+        if (u.email.isEmpty) {
+          // Buzuq/bo'sh javob — sessiyani saqlab qolmaymiz.
+          status = SessionStatus.guest;
+        } else {
+          user = u;
+          status = SessionStatus.authed;
+        }
       } catch (_) {
         status = SessionStatus.guest;
       }
@@ -72,10 +78,15 @@ class SessionController extends ChangeNotifier {
   }
 
   /// Profil yangilangandan keyin qayta yuklash.
+  ///
+  /// Muhim: bo'sh javob kelsa mavjud userni O'CHIRMAYMIZ — aks holda
+  /// "avtorizatsiya bor, lekin user yo'q" holati paydo bo'ladi.
   Future<void> refreshUser() async {
     if (status != SessionStatus.authed) return;
     try {
-      user = await AuthService.I.me();
+      final u = await AuthService.I.me();
+      if (u.email.isEmpty) return;
+      user = u;
       notifyListeners();
     } catch (_) {}
   }

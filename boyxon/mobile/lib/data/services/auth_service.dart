@@ -96,8 +96,10 @@ class AuthService {
     return res.message;
   }
 
+  /// Ba'zi endpointlar `{ user: {...} }` (login/register), ba'zilari esa
+  /// to'g'ridan-to'g'ri userni (`GET /api/auth/me` → `data = user`) qaytaradi.
   Map<String, dynamic> _userMap(Map<String, dynamic> data) {
     final u = data['user'];
-    return u is Map<String, dynamic> ? u : const {};
+    return u is Map<String, dynamic> ? u : data;
   }
 }
