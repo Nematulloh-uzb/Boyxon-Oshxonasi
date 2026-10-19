@@ -56,7 +56,7 @@ export function CheckoutSheet() {
       return ordersApi.create({
         items: lines.map((l) => ({ dish: l.dishId, quantity: l.quantity })),
         deliveryType,
-        address: deliveryType === 'delivery' && addr ? { label: addr.label, address: addr.address } : undefined,
+        address: deliveryType === 'delivery' && addr ? { label: addr.label, address: addr.address, lat: addr.lat, lng: addr.lng } : undefined,
         paymentMethod: paymentMethod as 'payme' | 'click' | 'uzum' | 'cash',
         promoCode,
         notes: notes || undefined,

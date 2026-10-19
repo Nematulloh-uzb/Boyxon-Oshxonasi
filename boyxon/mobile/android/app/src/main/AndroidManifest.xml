@@ -1,6 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- API (sayt bilan bir xil backend) uchun internet ruxsati. -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- "Mening joylashuvim" — xaritada GPS orqali joyni aniqlash uchun. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <application
         android:label="Boyxon Oshxonasi"
         android:name="${applicationName}"

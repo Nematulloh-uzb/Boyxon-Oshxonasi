@@ -5,6 +5,9 @@ export interface Address {
   _id?: Types.ObjectId;
   label: string;
   address: string;
+  /** Xaritadan tanlangan koordinatalar (ixtiyoriy — eski manzillarda bo'lmasligi mumkin). */
+  lat?: number;
+  lng?: number;
   isDefault: boolean;
 }
 
@@ -59,6 +62,8 @@ const AddressSchema = new Schema<Address>(
   {
     label: { type: String, required: true, trim: true, maxlength: 30 },
     address: { type: String, required: true, trim: true, maxlength: 300 },
+    lat: { type: Number, min: -90, max: 90 },
+    lng: { type: Number, min: -180, max: 180 },
     isDefault: { type: Boolean, default: false },
   },
   { _id: true },

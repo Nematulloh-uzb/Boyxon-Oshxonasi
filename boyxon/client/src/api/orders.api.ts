@@ -4,7 +4,7 @@ import type { ApiOk, Order, Paginated } from '../types';
 export interface CreateOrderBody {
   items: { dish: string; quantity: number; customizations?: string }[];
   deliveryType: 'delivery' | 'pickup';
-  address?: { label?: string; address?: string };
+  address?: { label?: string; address?: string; lat?: number; lng?: number };
   paymentMethod: 'payme' | 'click' | 'uzum' | 'cash';
   promoCode?: string;
   notes?: string;

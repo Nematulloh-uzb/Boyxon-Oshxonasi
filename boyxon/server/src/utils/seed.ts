@@ -91,7 +91,7 @@ async function seedData(): Promise<void> {
     name: 'Aziz Karimov', email: 'aziz@example.com', phone: '+998 90 123 45 67',
     password: env.DEMO_PASSWORD || 'User123!',
     emailVerified: true,
-    addresses: [{ label: 'Uy', address: 'Toshkent, Yunusobod, 12-mavze, 5-uy', isDefault: true }],
+    addresses: [{ label: 'Uy', address: 'Toshkent, Yunusobod, 12-mavze, 5-uy', lat: 41.3555, lng: 69.288, isDefault: true }],
   });
 
   await Category.deleteMany({});

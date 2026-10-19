@@ -16,6 +16,7 @@ import '../../theme/app_text.dart';
 import '../../theme/app_theme.dart';
 import '../home/dish_card.dart';
 import '../orders/order_detail_page.dart';
+import '../address/map_picker_page.dart';
 import 'cart_controller.dart';
 
 /// Savat + checkout ekrani (dizayn 03-cart-checkout).
@@ -187,6 +188,7 @@ class _CartPageState extends State<CartPage> {
   Future<void> _addNewAddress() async {
     final labelCtrl = TextEditingController();
     final addrCtrl = TextEditingController();
+    MapPickResult? pick;
     final saved = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -209,6 +211,23 @@ class _CartPageState extends State<CartPage> {
               maxLines: 2,
               decoration: InputDecoration(
                 hintText: context.tr('settings.address_text_ph'),
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () async {
+                  final result = await Navigator.of(ctx).push<MapPickResult>(
+                    MaterialPageRoute(builder: (_) => const MapPickerPage()),
+                  );
+                  if (result != null) {
+                    pick = result;
+                    addrCtrl.text = result.address;
+                  }
+                },
+                icon: const Icon(Symbols.map, size: 18),
+                label: Text(context.tr('settings.pick_on_map')),
               ),
             ),
           ],
@@ -240,7 +259,7 @@ class _CartPageState extends State<CartPage> {
       final session = context.read<SessionController>();
       final isFirst = session.user?.addresses.isEmpty ?? true;
       await UserService.I.addAddress(
-        Address(label: label, address: text, isDefault: isFirst),
+        Address(label: label, address: text, isDefault: isFirst, lat: pick?.lat, lng: pick?.lng),
       );
       await session.refreshUser();
       if (!mounted) return;

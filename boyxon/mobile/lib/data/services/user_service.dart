@@ -48,10 +48,19 @@ class UserService {
   }
 
   /// PATCH /api/users/me/addresses/:id.
-  Future<void> updateAddress(String id, {String? label, String? address, bool? isDefault}) async {
+  Future<void> updateAddress(
+    String id, {
+    String? label,
+    String? address,
+    double? lat,
+    double? lng,
+    bool? isDefault,
+  }) async {
     final body = <String, dynamic>{};
     if (label != null) body['label'] = label;
     if (address != null) body['address'] = address;
+    if (lat != null) body['lat'] = lat;
+    if (lng != null) body['lng'] = lng;
     if (isDefault != null) body['isDefault'] = isDefault;
     await _api.patch('/api/users/me/addresses/$id', body: body);
   }

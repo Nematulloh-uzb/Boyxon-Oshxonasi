@@ -6,24 +6,35 @@ class Address {
     this.id,
     required this.label,
     required this.address,
+    this.lat,
+    this.lng,
     this.isDefault = false,
   });
 
   final String? id;
   final String label;
   final String address;
+
+  /// Xaritadan tanlangan koordinatalar (eski manzillarda bo'lmasligi mumkin).
+  final double? lat;
+  final double? lng;
+
   final bool isDefault;
 
   factory Address.fromJson(Map<String, dynamic> j) => Address(
         id: asStr(j['_id'] ?? j['id']),
         label: asStr(j['label']) ?? '',
         address: asStr(j['address']) ?? '',
+        lat: j['lat'] == null ? null : asDouble(j['lat']),
+        lng: j['lng'] == null ? null : asDouble(j['lng']),
         isDefault: asBool(j['isDefault']),
       );
 
   Map<String, dynamic> toJson() => {
         'label': label,
         'address': address,
+        if (lat != null) 'lat': lat,
+        if (lng != null) 'lng': lng,
         'isDefault': isDefault,
       };
 }

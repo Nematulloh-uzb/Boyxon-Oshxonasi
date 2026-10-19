@@ -48,6 +48,8 @@ export const updateNotifPrefsSchema = z.object({
 export const addressBodySchema = z.object({
   label: z.string().trim().min(1).max(30),
   address: z.string().trim().min(3).max(300),
+  lat: z.number().min(-90).max(90).optional(),
+  lng: z.number().min(-180).max(180).optional(),
   isDefault: z.boolean().optional(),
 });
 

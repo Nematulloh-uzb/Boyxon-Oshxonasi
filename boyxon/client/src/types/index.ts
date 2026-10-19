@@ -20,6 +20,9 @@ export interface Address {
   _id?: string;
   label: string;
   address: string;
+  /** Xaritadan tanlangan koordinatalar (ixtiyoriy). */
+  lat?: number;
+  lng?: number;
   isDefault: boolean;
 }
 
@@ -88,7 +91,7 @@ export interface Order {
   total: number;
   promoCode?: string;
   deliveryType: 'delivery' | 'pickup';
-  address?: { label?: string; address?: string };
+  address?: { label?: string; address?: string; lat?: number; lng?: number };
   paymentMethod: 'payme' | 'click' | 'uzum' | 'cash';
   paymentStatus: string;
   status: OrderStatus;

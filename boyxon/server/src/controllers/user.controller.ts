@@ -61,11 +61,17 @@ export const addAddress = asyncHandler(async (req: Request, res: Response) => {
   const user = await User.findById(uid(req));
   if (!user) throw ApiError.notFound('Foydalanuvchi topilmadi');
   if (user.addresses.length >= 20) throw ApiError.badRequest('Ko‘pi bilan 20 ta manzil saqlash mumkin');
-  const body = req.body as { label: string; address: string; isDefault?: boolean };
+  const body = req.body as { label: string; address: string; lat?: number; lng?: number; isDefault?: boolean };
   if (body.isDefault) {
     user.addresses.forEach((a) => { a.isDefault = false; });
   }
-  user.addresses.push({ label: body.label, address: body.address, isDefault: Boolean(body.isDefault) });
+  user.addresses.push({
+    label: body.label,
+    address: body.address,
+    lat: body.lat,
+    lng: body.lng,
+    isDefault: Boolean(body.isDefault),
+  });
   await user.save();
   res.status(201).json(ok(user.addresses, 'Manzil qo‘shildi'));
 });
@@ -76,9 +82,11 @@ export const updateAddress = asyncHandler(async (req: Request, res: Response) =>
   if (!user) throw ApiError.notFound('Foydalanuvchi topilmadi');
   const addr = user.addresses.find((a) => a._id?.toString() === req.params.id);
   if (!addr) throw ApiError.notFound('Manzil topilmadi');
-  const body = req.body as { label?: string; address?: string; isDefault?: boolean };
+  const body = req.body as { label?: string; address?: string; lat?: number; lng?: number; isDefault?: boolean };
   if (body.label !== undefined) addr.label = body.label;
   if (body.address !== undefined) addr.address = body.address;
+  if (body.lat !== undefined) addr.lat = body.lat;
+  if (body.lng !== undefined) addr.lng = body.lng;
   if (body.isDefault !== undefined) addr.isDefault = body.isDefault;
   if ((req.body as { isDefault?: boolean }).isDefault) {
     user.addresses.forEach((a) => { if (a._id?.toString() !== req.params.id) a.isDefault = false; });

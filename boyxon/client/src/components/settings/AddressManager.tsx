@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
+import { MapPicker, type MapPick } from '../map/MapPicker';
 import { usersApi } from '../../api/users.api';
 import { useAuthStore } from '../../store/auth.store';
 import type { Address } from '../../types';
@@ -22,6 +23,7 @@ export function AddressManager() {
 
   const [label, setLabel] = useState('');
   const [address, setAddress] = useState('');
+  const [coords, setCoords] = useState<MapPick | null>(null);
   const [isDefault, setIsDefault] = useState(false);
   const [adding, setAdding] = useState(false);
 
@@ -38,11 +40,18 @@ export function AddressManager() {
   };
 
   const addM = useMutation({
-    mutationFn: () => usersApi.addAddress({ label: label.trim(), address: address.trim(), isDefault }),
+    mutationFn: () =>
+      usersApi.addAddress({
+        label: label.trim(),
+        address: address.trim(),
+        isDefault,
+        ...(coords ? { lat: coords.lat, lng: coords.lng } : {}),
+      }),
     onSuccess: (r) => {
       applyAddresses(r.data);
       setLabel('');
       setAddress('');
+      setCoords(null);
       setIsDefault(false);
       setAdding(false);
       toast.success(t('settings.address_added'));
@@ -134,6 +143,13 @@ export function AddressManager() {
             maxLength={50}
             placeholder={t('settings.address_label_ph')}
             className="w-full rounded-xl border border-ink-line bg-surface px-3 py-2.5 text-sm outline-none focus:border-primary-500"
+          />
+          <MapPicker
+            value={coords}
+            onPick={(p, text) => {
+              setCoords(p);
+              if (text) setAddress(text);
+            }}
           />
           <textarea
             value={address}
