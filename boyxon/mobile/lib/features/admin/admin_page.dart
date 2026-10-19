@@ -16,10 +16,10 @@ class AdminPage extends StatefulWidget {
   const AdminPage({super.key});
 
   @override
-  State<AdminPage> createState() => _AdminPageState();
+  State<AdminPage> createState() => AdminPageState();
 }
 
-class _AdminPageState extends State<AdminPage> {
+class AdminPageState extends State<AdminPage> {
   static const _chips = [
     '',
     'pending',
@@ -70,6 +70,10 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   // ---- Amallar ----
+
+  /// AppShell admin tabiga o'tganda chaqiradi — "jonli" ro'yxat darhol
+  /// yangilanadi (IndexedStack sahifani bir marta yuklab, saqlab turadi).
+  Future<void> refresh() => _load();
 
   Future<void> _load() async {
     if (!mounted) return;

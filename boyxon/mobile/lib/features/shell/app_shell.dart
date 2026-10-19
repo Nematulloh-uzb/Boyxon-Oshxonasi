@@ -24,6 +24,9 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   int _index = 0;
 
+  /// Admin tabiga o'tilganda jonli ro'yxatni yangilash uchun.
+  final _adminKey = GlobalKey<AdminPageState>();
+
   @override
   Widget build(BuildContext context) {
     final session = context.watch<SessionController>();
@@ -40,7 +43,7 @@ class _AppShellState extends State<AppShell> {
         onOpenMenu: () => setState(() => _index = 0),
       ),
       const SettingsPage(),
-      if (session.isAdmin) const AdminPage(),
+      if (session.isAdmin) AdminPage(key: _adminKey),
     ];
 
     final items = <_NavData>[
@@ -68,7 +71,7 @@ class _AppShellState extends State<AppShell> {
         child: SafeArea(
           top: false,
           child: SizedBox(
-            height: 60,
+            height: 64,
             child: Row(
               children: [
                 for (var i = 0; i < items.length; i++)
@@ -76,7 +79,13 @@ class _AppShellState extends State<AppShell> {
                     child: _NavButton(
                       data: items[i],
                       active: i == idx,
-                      onTap: () => setState(() => _index = i),
+                      onTap: () {
+                        setState(() => _index = i);
+                        // Admin tabiga o'tilganda jonli ro'yxat yangilanadi.
+                        if (pages[i] is AdminPage) {
+                          _adminKey.currentState?.refresh();
+                        }
+                      },
                     ),
                   ),
               ],
