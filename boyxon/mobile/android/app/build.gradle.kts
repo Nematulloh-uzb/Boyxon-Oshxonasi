@@ -57,6 +57,8 @@ android {
             } else {
                 signingConfigs.getByName("debug")
             }
+            // JNIgen/plagin nomlarini R8 o'zgartirmasligi uchun keep qoidalari.
+            proguardFiles("proguard-rules.pro")
         }
     }
 }
