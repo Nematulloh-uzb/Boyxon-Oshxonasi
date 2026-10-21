@@ -186,7 +186,7 @@ export function MapPicker({ value, onPick, height = 220, className }: MapPickerP
           onClick={locateMe}
           title={t('map.my_location')}
           aria-label={t('map.my_location')}
-          className="absolute bottom-3 right-3 z-[500] grid h-9 w-9 place-items-center rounded-lg bg-surface text-secondary shadow-md hover:bg-surface-raised"
+          className="absolute bottom-3 right-3 z-[500] grid h-9 w-9 place-items-center rounded-lg bg-surface text-fg-muted shadow-md hover:bg-surface-raised"
         >
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <LocateFixed className="h-4 w-4" />}
         </button>

@@ -114,7 +114,7 @@ export function AddressManager() {
             <button
               onClick={() => a._id && defaultM.mutate(a._id)}
               disabled={defaultM.isPending}
-              className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-ink-300 hover:bg-surface-raised hover:text-secondary"
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-ink-300 hover:bg-surface-raised hover:text-fg-muted"
               aria-label={t('settings.address_set_default')}
               title={t('settings.address_set_default')}
             >
