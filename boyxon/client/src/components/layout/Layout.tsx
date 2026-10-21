@@ -37,8 +37,14 @@ export function Layout() {
   // Footer birinchi paintdan keyin mount bo'ladi: uning kategoriya so'rovi
   // LCP bannerini kutmaydi va dastlabki render og'irlashmaydi.
   useEffect(() => {
-    const raf = requestAnimationFrame(() => setFooterReady(true));
-    return () => cancelAnimationFrame(raf);
+    let second = 0;
+    const first = requestAnimationFrame(() => {
+      second = requestAnimationFrame(() => setFooterReady(true));
+    });
+    return () => {
+      cancelAnimationFrame(first);
+      cancelAnimationFrame(second);
+    };
   }, []);
 
   return (

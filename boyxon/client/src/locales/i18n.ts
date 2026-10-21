@@ -1,9 +1,52 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import uz from './uz.json';
-import ru from './ru.json';
-import en from './en.json';
-import { HTML_LANG, langFromPath, normalizeLang, withLang } from '../lib/seo';
+import { useSyncExternalStore } from 'react';
+import uzRaw from './uz.json';
+import { HTML_LANG, langFromPath, normalizeLang, withLang, type SeoLang } from '../lib/seo';
+
+/**
+ * Yengil i18n: i18next o'rniga faqat kerakli qism.
+ *
+ * - O'zbek tili sinxron (birinchi render uchun) bundle'da.
+ * - Rus/ingliz tillari alohida chunk sifatida faqat kerak bo'lganda yuklanadi.
+ * - `useTranslation` til o'zgarganda komponentlarni qayta render qiladi.
+ */
+type Dict = Record<string, unknown>;
+
+const dictionaries: Partial<Record<SeoLang, Dict>> = {};
+
+function normalizeBraces(dict: Dict): Dict {
+  const out: Dict = {};
+  for (const [k, v] of Object.entries(dict)) {
+    out[k] =
+      typeof v === 'string'
+        ? v.replace(/(?<!\{)\{([A-Za-z_][A-Za-z0-9_]*)\}(?!\})/g, '{{$1}}')
+        : v;
+  }
+  return out;
+}
+
+dictionaries.uz = normalizeBraces(uzRaw as Dict);
+
+const localeLoaders: Record<Exclude<SeoLang, 'uz'>, () => Promise<{ default: Dict }>> = {
+  ru: () => import('./ru.json'),
+  en: () => import('./en.json'),
+};
+const localeLoads = new Map<SeoLang, Promise<void>>();
+
+function ensureLocale(lang: SeoLang): Promise<void> {
+  if (dictionaries[lang]) return Promise.resolve();
+  if (lang === 'uz') return Promise.resolve();
+  const existing = localeLoads.get(lang);
+  if (existing) return existing;
+  const load = localeLoaders[lang]()
+    .then((mod) => {
+      dictionaries[lang] = normalizeBraces(mod.default);
+    })
+    .finally(() => {
+      localeLoads.delete(lang);
+    });
+  localeLoads.set(lang, load);
+  return load;
+}
 
 const urlLang = langFromPath();
 
@@ -11,24 +54,13 @@ function readStoredLang(): string | null {
   try {
     return localStorage.getItem('boyxon-lang');
   } catch {
-    // localStorage o'chirilgan/ruxsat berilmagan bo'lsa — URL tili ishlatiladi.
     return null;
   }
 }
 
-/**
- * URL'dagi til prefiksi ustuvor. Prefiks bo'lmasa — saqlangan tanlov.
- * Shunda Googlebot (localStorage'siz) har bir prefiksli URL'da
- * o'sha tildagi kontentni ko'radi.
- */
 const savedLang = normalizeLang(readStoredLang());
-const initialLang = urlLang ?? savedLang;
+export const initialLang: SeoLang = urlLang ?? savedLang;
 
-/**
- * Prefikssiz "/" ga kirgan RU/EN foydalanuvchisini o'z tilidagi URL'ga
- * yo'naltiramiz — shunda manzil satri, canonical va interfeys tili mos bo'ladi.
- * Shaxsiy/auth sahifalariga tegmaymiz (OAuth/email havolalari buzilmasin).
- */
 const PRIVATE_PREFIXES = [
   '/auth',
   '/verify-email',
@@ -50,55 +82,86 @@ if (!urlLang && !isPrivatePath && (savedLang === 'ru' || savedLang === 'en')) {
   }
 }
 
-// Eski build/localStorage'dagi '{count}' (bitta qavs) yozuvlar ham uchraydi —
-// ularni to'g'rilab olamiz, aks holda ekranda "{count} ta" xom matn chiqadi.
-function normalizeBraces(dict: Record<string, unknown>): Record<string, unknown> {
-  const out: Record<string, unknown> = {};
-  for (const [k, v] of Object.entries(dict)) {
-    out[k] =
-      typeof v === 'string'
-        ? v.replace(/(?<!\{)\{([A-Za-z_][A-Za-z0-9_]*)\}(?!\})/g, '{{$1}}')
-        : v;
-  }
-  return out;
+let currentLang: SeoLang = initialLang;
+let languageReady = false;
+const reactListeners = new Set<() => void>();
+const languageListeners = new Set<(lng: SeoLang) => void>();
+
+function emit(): void {
+  reactListeners.forEach((fn) => fn());
+  languageListeners.forEach((fn) => fn(currentLang));
 }
 
-let languageReady = false;
+const INTERPOLATION =
+  /\{\{\s*([A-Za-z_][A-Za-z0-9_]*)\s*\}\}|\{\s*([A-Za-z_][A-Za-z0-9_]*)\s*\}/g;
 
-void i18n
-  .use(initReactI18next)
-  .init({
-    resources: {
-      uz: { translation: normalizeBraces(uz as Record<string, unknown>) },
-      ru: { translation: normalizeBraces(ru as Record<string, unknown>) },
-      en: { translation: normalizeBraces(en as Record<string, unknown>) },
-    },
-    lng: initialLang,
-    fallbackLng: 'uz',
-    // Resurslar inline — sinxron init, birinchi renderdayoq to'g'ri til.
-    initImmediate: false,
-    // Flat dot-notation keys (e.g. "home.greeting") — do NOT split on "."
-    keySeparator: false,
-    nsSeparator: false,
-    interpolation: { escapeValue: false },
-  })
-  .then(() => {
-    languageReady = true;
-    document.documentElement.lang = HTML_LANG[normalizeLang(i18n.language)];
+function interpolate(template: string, values?: Record<string, unknown>): string {
+  if (!values) return template;
+  return template.replace(INTERPOLATION, (match, doubleKey, singleKey) => {
+    const key = (doubleKey ?? singleKey) as string;
+    const value = values[key];
+    return value === undefined || value === null ? match : String(value);
   });
+}
 
-document.documentElement.lang = HTML_LANG[normalizeLang(initialLang)];
+function translate(key: string, values?: Record<string, unknown>): string {
+  const current = dictionaries[currentLang];
+  const fallback = dictionaries.uz;
+  const raw = current?.[key] ?? fallback?.[key];
+  if (typeof raw !== 'string') return key;
+  return interpolate(raw, values);
+}
 
-i18n.on('languageChanged', (lng) => {
-  document.documentElement.lang = HTML_LANG[normalizeLang(lng)];
-  // URL'dan kelgan tilni "foydalanuvchi tanlovi" sifatida saqlamaymiz.
+async function init(): Promise<void> {
+  await ensureLocale(initialLang);
+  currentLang = initialLang;
+  document.documentElement.lang = HTML_LANG[initialLang];
+  languageReady = true;
+}
+
+async function changeLanguage(value: string): Promise<void> {
+  const lang = normalizeLang(value);
+  if (lang !== currentLang) {
+    await ensureLocale(lang);
+  }
+  currentLang = lang;
+  document.documentElement.lang = HTML_LANG[lang];
   if (languageReady) {
     try {
-      localStorage.setItem('boyxon-lang', normalizeLang(lng));
+      localStorage.setItem('boyxon-lang', lang);
     } catch {
       // localStorage yozib bo'lmasa — til faqat shu sessiyada ishlaydi.
     }
   }
-});
+  emit();
+}
+
+const i18n = {
+  get language(): SeoLang {
+    return currentLang;
+  },
+  t: translate,
+  changeLanguage,
+  init,
+  on(event: 'languageChanged', cb: (lng: SeoLang) => void): void {
+    if (event === 'languageChanged') languageListeners.add(cb);
+  },
+  off(event: 'languageChanged', cb: (lng: SeoLang) => void): void {
+    if (event === 'languageChanged') languageListeners.delete(cb);
+  },
+};
+
+function subscribe(cb: () => void): () => void {
+  reactListeners.add(cb);
+  return () => reactListeners.delete(cb);
+}
+
+export function useTranslation(): {
+  t: (key: string, values?: Record<string, unknown>) => string;
+  i18n: typeof i18n;
+} {
+  useSyncExternalStore(subscribe, () => currentLang, () => currentLang);
+  return { t: translate, i18n };
+}
 
 export default i18n;

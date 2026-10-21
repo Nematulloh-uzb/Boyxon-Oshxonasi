@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import { fileURLToPath } from 'node:url';
 
 /**
  * Build vaqtida robots.txt yozadi (public/ dan ko'chirilmaydi — API manzili
@@ -134,6 +135,13 @@ export default defineConfig(({ mode }) => {
       inlineCssPlugin(),
       fontPreloadPlugin(),
     ],
+    resolve: {
+      alias: {
+        // Runtime'da i18next o'rniga yengil implementatsiya ishlatiladi.
+        // TypeScript uchun haqiqiy paket tiplari qoladi (bundle'ga kirmaydi).
+        'react-i18next': fileURLToPath(new URL('./src/locales/react-i18next.ts', import.meta.url)),
+      },
+    },
     server: {
       port: 5173,
       proxy: {
@@ -147,7 +155,6 @@ export default defineConfig(({ mode }) => {
           manualChunks: {
             react: ['react', 'react-dom', 'react-router-dom'],
             vendor: ['@tanstack/react-query', 'zustand', 'axios'],
-            i18n: ['i18next', 'react-i18next'],
           },
         },
       },

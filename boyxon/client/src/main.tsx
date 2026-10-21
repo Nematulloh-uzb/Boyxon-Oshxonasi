@@ -18,7 +18,7 @@ import '@fontsource/inter/500.css';
 import '@fontsource/inter/600.css';
 import '@fontsource/inter/700.css';
 import './styles/globals.css';
-import './locales/i18n';
+import i18n from './locales/i18n';
 
 const qc = new QueryClient({
   defaultOptions: {
@@ -35,18 +35,30 @@ const qc = new QueryClient({
   },
 });
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <QueryClientProvider client={qc}>
-      <BrowserRouter
-        basename={BASENAME}
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ErrorBoundary>
-          <App />
-        </ErrorBoundary>
-        <Toaster position="top-center" richColors closeButton />
-      </BrowserRouter>
-    </QueryClientProvider>
-  </React.StrictMode>,
-);
+async function bootstrap(): Promise<void> {
+  // "/" uchun o'zbek tili allaqachon bundle'da; /ru va /en uchun kerakli
+  // tarjima chunki bir marta yuklanadi, keyin React render boshlanadi.
+  try {
+    await i18n.init();
+  } catch {
+    // Tarjima chunk'i yuklanmasa ham ilova o'zbek fallback bilan ochiladi.
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')!).render(
+    <React.StrictMode>
+      <QueryClientProvider client={qc}>
+        <BrowserRouter
+          basename={BASENAME}
+          future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+        >
+          <ErrorBoundary>
+            <App />
+          </ErrorBoundary>
+          <Toaster position="top-center" richColors closeButton />
+        </BrowserRouter>
+      </QueryClientProvider>
+    </React.StrictMode>,
+  );
+}
+
+void bootstrap();

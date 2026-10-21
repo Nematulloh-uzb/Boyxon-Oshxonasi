@@ -53,8 +53,17 @@ export default function HomePage() {
   }, [urlQuery]);
 
   useEffect(() => {
-    const raf = requestAnimationFrame(() => setBelowFoldReady(true));
-    return () => cancelAnimationFrame(raf);
+    // Ikki rAF: birinchi frame albatta paint bo'lsin, keyin pastki qism
+    // render qilinadi. Bitta rAF ichida setState React'ni paintdan oldin
+    // ishga tushirishi mumkin edi.
+    let second = 0;
+    const first = requestAnimationFrame(() => {
+      second = requestAnimationFrame(() => setBelowFoldReady(true));
+    });
+    return () => {
+      cancelAnimationFrame(first);
+      cancelAnimationFrame(second);
+    };
   }, []);
 
   const { data: cats, isLoading: catsLoading } = useQuery({
