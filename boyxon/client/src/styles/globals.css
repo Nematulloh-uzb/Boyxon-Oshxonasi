@@ -14,7 +14,7 @@
     --line-strong: 217 207 194;   /* #D9CFC2 */
     --fg: 44 44 44;               /* #2C2C2C */
     --fg-muted: 93 64 55;         /* #5D4037 */
-    --fg-subtle: 127 140 141;     /* #7F8C8D */
+    --fg-subtle: 95 99 104;       /* #5F6368 — WCAG AA 4.5:1+ vs bg (#FFF8F0) */
     --accent: 230 126 34;         /* #E67E22 */
     --accent-hover: 243 156 18;   /* #F39C12 */
     --accent-press: 211 84 0;     /* #D35400 */
