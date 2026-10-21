@@ -74,8 +74,10 @@ services:
         source: /*
         destination: /index.html
     # Xavfsizlik header'lari (Lighthouse Best Practices + real himoya).
-    # script/style uchun 'unsafe-inline' — inline theme script, JSON-LD va
-    # framer-motion/Leaflet inline style'lari uchun zarur.
+    # script-src'dan 'unsafe-inline' olib tashlandi — theme script alohida
+    # /theme-init.js fayliga chiqarib berildi. style-src 'unsafe-inline'
+    # framer-motion va Leaflet inline uslublariga kerak.
+    # Trusted Types — DOM-based XSS himoyasi uchun.
     headers:
       - path: /*
         name: X-Frame-Options
@@ -97,4 +99,4 @@ services:
         value: max-age=31536000; includeSubDomains
       - path: /*
         name: Content-Security-Policy
-        value: "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://res.cloudinary.com https://tile.openstreetmap.org; font-src 'self' data:; connect-src 'self' https://boyxon-server.onrender.com wss://boyxon-server.onrender.com https://nominatim.openstreetmap.org; manifest-src 'self'; worker-src 'self' blob:; upgrade-insecure-requests"
+        value: "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://res.cloudinary.com https://tile.openstreetmap.org; font-src 'self' data:; connect-src 'self' https://boyxon-server.onrender.com wss://boyxon-server.onrender.com https://nominatim.openstreetmap.org; manifest-src 'self'; worker-src 'self' blob:; upgrade-insecure-requests; trusted-types 'safe-script' 'safe-url' 'html'"
