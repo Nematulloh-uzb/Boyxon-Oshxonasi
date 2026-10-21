@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { Loader2 } from 'lucide-react';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { authApi } from '../../api/auth.api';
+import { ensureServerReady } from '../../api/health.api';
 import { useAuthStore } from '../../store/auth.store';
 import { loginValidator, registerValidator, type LoginForm, type RegisterForm } from '../../lib/validators';
 import type { User } from '../../types';
@@ -61,8 +63,61 @@ export default function AuthPage() {
 function AuthForm({ from, onDone }: { from: string; onDone: (token: string, u: User) => void }) {
   const { t } = useTranslation();
   const [tab, setTab] = useState<'signin' | 'signup'>('signin');
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const googleToastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isMounted = useRef(true);
   const googleUrl = authApi.googleUrl();
   const nav = useNavigate();
+
+  useEffect(() => {
+    isMounted.current = true;
+    // Sahifa ochilishida serverni jimgina uyg'otamiz: foydalanuvchi Google
+    // tugmasini bosguncha Render free-tier instance tayyor bo'lib qoladi.
+    void ensureServerReady().catch(() => {});
+    return () => {
+      isMounted.current = false;
+      if (googleToastTimer.current !== null) clearTimeout(googleToastTimer.current);
+      toast.dismiss('google-server-wake');
+    };
+  }, []);
+
+  /**
+   * Render free-tier server uxlab qolgan bo'lishi mumkin. To'g'ridan-to'g'ri
+   * API'ga o'tsak, foydalanuvchi Render'ning "Application loading" sahifasini
+   * ko'radi. Avval /health ni kutamiz, keyin Google OAuth'ga yo'naltiramiz.
+   */
+  const onGoogle = async () => {
+    if (googleLoading) return;
+    setGoogleLoading(true);
+
+    // Server tez uyg'onsa, ortiqcha toast ko'rsatmaymiz.
+    googleToastTimer.current = setTimeout(() => {
+      toast.loading(t('auth.server_waking'), { id: 'google-server-wake' });
+    }, 1200);
+
+    try {
+      await ensureServerReady();
+      // Foydalanuvchi kutish paytida sahifadan chiqib ketgan bo'lsa,
+      // uni kutilmaganda Google'ga yo'naltirmaymiz.
+      if (!isMounted.current) return;
+      if (googleToastTimer.current !== null) {
+        clearTimeout(googleToastTimer.current);
+        googleToastTimer.current = null;
+      }
+      toast.dismiss('google-server-wake');
+      window.location.assign(googleUrl);
+    } catch {
+      if (googleToastTimer.current !== null) {
+        clearTimeout(googleToastTimer.current);
+        googleToastTimer.current = null;
+      }
+      toast.dismiss('google-server-wake');
+      if (isMounted.current) {
+        toast.error(t('auth.server_unavailable'));
+        setGoogleLoading(false);
+      }
+    }
+  };
 
   const loginForm = useForm<LoginForm>({ resolver: zodResolver(loginValidator), defaultValues: { email: '', password: '' } });
   const regForm = useForm<RegisterForm>({ resolver: zodResolver(registerValidator), defaultValues: { name: '', email: '', password: '' } });
@@ -149,13 +204,20 @@ function AuthForm({ from, onDone }: { from: string; onDone: (token: string, u: U
       <div className="my-4 flex items-center gap-3 text-xs text-ink-300">
         <span className="h-px flex-1 bg-ink-line" /> {t('auth.or')} <span className="h-px flex-1 bg-ink-line" />
       </div>
-      <a
-        href={googleUrl}
-        className="flex h-12 w-full items-center justify-center gap-2 rounded-full border border-ink-line bg-surface text-[15px] font-medium"
+      <button
+        type="button"
+        onClick={onGoogle}
+        disabled={googleLoading}
+        aria-busy={googleLoading}
+        className="flex h-12 w-full items-center justify-center gap-2 rounded-full border border-ink-line bg-surface text-[15px] font-medium transition hover:bg-muted active:scale-[0.99] disabled:cursor-wait disabled:opacity-70"
       >
-        <svg className="h-5 w-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.76h3.56c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.56-2.76c-.98.66-2.23 1.06-3.72 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15A11 11 0 0 0 2.18 7.06L5.84 9.9c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
-        {t('auth.google')}
-      </a>
+        {googleLoading ? (
+          <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+        ) : (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.76h3.56c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.56-2.76c-.98.66-2.23 1.06-3.72 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15A11 11 0 0 0 2.18 7.06L5.84 9.9c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+        )}
+        {googleLoading ? t('auth.google_connecting') : t('auth.google')}
+      </button>
       <p className="mt-4 text-center text-xs text-ink-300">
         {import.meta.env.DEV ? `${t('auth.demo')}: aziz@example.com / User123!` : t('auth.demo_prod_hint')}
       </p>

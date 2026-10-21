@@ -1,4 +1,4 @@
-import { api } from './axios';
+import { api, API_ORIGIN } from './axios';
 import type { ApiOk, User } from '../types';
 
 export const authApi = {
@@ -24,7 +24,7 @@ export const authApi = {
   /** httpOnly refresh cookie orqali yangi access token (yangi tab / qayta ochish). */
   refresh: () =>
     api.post<ApiOk<{ accessToken: string; user: User }>>('/auth/refresh', {}).then((r) => r.data),
-  googleUrl: () => `${api.defaults.baseURL?.replace(/\/api$/, '')}/api/auth/google`,
+  googleUrl: () => `${API_ORIGIN}/api/auth/google`,
   /**
    * Google OAuth'dan qaytgan bir martalik kodni tokenga almashtiradi.
    * Access token URL'da yurmaydi (brauzer tarixi/log/Referer orqali oqib ketmasligi uchun).

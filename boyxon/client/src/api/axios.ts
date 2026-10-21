@@ -1,7 +1,15 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/auth.store';
+import { resolveRuntimeUrl } from '../lib/runtime-env';
 
-const API_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:5000/api';
+const API_URL = resolveRuntimeUrl(
+  import.meta.env.VITE_API_URL as string | undefined,
+  'http://localhost:5000/api',
+  'https://boyxon-server.onrender.com/api',
+);
+
+/** API origin (`/api` siz) — health check va OAuth redirect uchun. */
+export const API_ORIGIN = API_URL.replace(/\/api\/?$/, '');
 
 export const api = axios.create({ baseURL: API_URL, withCredentials: true });
 
