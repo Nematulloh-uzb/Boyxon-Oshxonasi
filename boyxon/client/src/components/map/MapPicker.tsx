@@ -13,27 +13,10 @@ export interface MapPick {
 export const TASHKENT_CENTER: [number, number] = [41.3111, 69.2797];
 
 /** Leaflet'ni faqat xarita kerak bo'lganda dynamically yuklaymiz (unused-JS kamaytirish uchun). */
-async function loadLeaflet() {
-  const L = (await import('leaflet')).default;
+async function loadLeaflet(): Promise<typeof import('leaflet')> {
+  const L = await import('leaflet');
   await import('leaflet/dist/leaflet.css');
   return L;
-}
-
-let PIN_ICON: ReturnType<typeof L.divIcon> | null = null;
-function getPinIcon(): ReturnType<typeof L.divIcon> {
-  if (!PIN_ICON) {
-    const L = (window as any).__leaflet;
-    PIN_ICON = L.divIcon({
-      className: 'bx-map-pin',
-      html:
-        '<svg width="36" height="36" viewBox="0 0 24 24" style="filter: drop-shadow(0 2px 3px rgba(0,0,0,.35))">' +
-        '<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#E67E22"/>' +
-        '<circle cx="12" cy="9" r="2.6" fill="#fff"/></svg>',
-      iconSize: [36, 36],
-      iconAnchor: [18, 34],
-    });
-  }
-  return PIN_ICON!;
 }
 
 /**
@@ -82,22 +65,37 @@ interface MapPickerProps {
 export function MapPicker({ value, onPick, height = 220, className }: MapPickerProps) {
   const { t, i18n } = useTranslation();
   const divRef = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<L.Map | null>(null);
-  const markerRef = useRef<L.Marker | null>(null);
+  const mapRef = useRef<any>(null);
+  const markerRef = useRef<any>(null);
   const timerRef = useRef<number | null>(null);
   const pickRef = useRef(onPick);
   pickRef.current = onPick;
   const langRef = useRef(i18n.language);
   langRef.current = i18n.language;
   const [busy, setBusy] = useState(false);
+  const [leaflet, setLeaflet] = useState<typeof import('leaflet') | null>(null);
+
+  // Leaflet'ni dinamik yuklash — shunchaki xarita ochilganda (Settings → Manzillarim → Qo'shish)
+  useEffect(() => {
+    let cancelled = false;
+    loadLeaflet()
+      .then((L) => {
+        if (!cancelled) setLeaflet(L);
+      })
+      .catch(() => {
+        // Leaflet yuklanmasa xarita qsiyramaydi — foydalanuvchi qo'shiga ko'rinaishi mumkin
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   /** Markerni joylashtirib, teskari geokodlashni (debounce bilan) boshlaydi. */
   const setPoint = (lat: number, lng: number, fly = false): void => {
-    const map = mapRef.current;
-    const marker = markerRef.current;
-    if (!map || !marker) return;
-    marker.setLatLng([lat, lng]);
-    if (fly) map.flyTo([lat, lng], 16, { duration: 0.6 });
+    const L = leaflet;
+    if (!L || !mapRef.current || !markerRef.current) return;
+    markerRef.current.setLatLng([lat, lng]);
+    if (fly) mapRef.current.flyTo([lat, lng], 16, { duration: 0.6 });
     if (timerRef.current) window.clearTimeout(timerRef.current);
     setBusy(true);
     timerRef.current = window.setTimeout(() => {
@@ -126,9 +124,10 @@ export function MapPicker({ value, onPick, height = 220, className }: MapPickerP
   };
 
   useEffect(() => {
+    const L = leaflet;
     const el = divRef.current;
-    if (!el || mapRef.current) return;
-    const start: L.LatLngTuple = value ? [value.lat, value.lng] : TASHKENT_CENTER;
+    if (!L || !el || mapRef.current) return;
+    const start: [number, number] = value ? [value.lat, value.lng] : TASHKENT_CENTER;
     const map = L.map(el, {
       center: start,
       zoom: value ? 16 : 13,
@@ -138,12 +137,21 @@ export function MapPicker({ value, onPick, height = 220, className }: MapPickerP
       maxZoom: 19,
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
-    const marker = L.marker(start, { icon: PIN_ICON, draggable: true }).addTo(map);
+    const pinIcon = L.divIcon({
+      className: 'bx-map-pin',
+      html:
+        '<svg width="36" height="36" viewBox="0 0 24 24" style="filter: drop-shadow(0 2px 3px rgba(0,0,0,.35))">' +
+        '<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#E67E22"/>' +
+        '<circle cx="12" cy="9" r="2.6" fill="#fff"/></svg>',
+      iconSize: [36, 36],
+      iconAnchor: [18, 34],
+    });
+    const marker = L.marker(start, { icon: pinIcon, draggable: true }).addTo(map);
     marker.on('dragend', () => {
       const p = marker.getLatLng();
       setPoint(p.lat, p.lng);
     });
-    map.on('click', (e: L.LeafletMouseEvent) => setPoint(e.latlng.lat, e.latlng.lng));
+    map.on('click', (e: any) => setPoint(e.latlng.lat, e.latlng.lng));
     mapRef.current = map;
     markerRef.current = marker;
     // Mount bo'lgach o'lchamni qayta hisoblash (layout kechikishlariga chidamli).
@@ -155,7 +163,19 @@ export function MapPicker({ value, onPick, height = 220, className }: MapPickerP
       markerRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [leaflet, value]);
+
+  if (!leaflet) {
+    // Hajr qoldirilgan joy — xarita yuklanmaganda o'rnini saqlaydi (CLS oldini olish)
+    return (
+      <div className={className}>
+        <div className="relative overflow-hidden rounded-xl border border-ink-line">
+          <div ref={divRef} style={{ height }} className="z-0 w-full bg-surface-raised" />
+        </div>
+        <p className="mt-1.5 text-[11px] text-ink-300">{t('map.pick_hint')}</p>
+      </div>
+    );
+  }
 
   return (
     <div className={className}>

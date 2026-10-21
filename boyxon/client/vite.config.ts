@@ -155,6 +155,8 @@ export default defineConfig(({ mode }) => {
           manualChunks: {
             react: ['react', 'react-dom', 'react-router-dom'],
             vendor: ['@tanstack/react-query', 'zustand', 'axios'],
+            // Leaflet faqat xarita kerak bo'lganda yuklanadi — asosiy bundle'dan ajratamiz.
+            leaflet: ['leaflet'],
           },
         },
       },
