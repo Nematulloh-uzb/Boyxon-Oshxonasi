@@ -97,11 +97,43 @@ function inlineCssPlugin(): Plugin {
   };
 }
 
+/**
+ * LCP matni Epilogue 800 bilan chiziladi. Brauzer @font-face'ni faqat React
+ * matnni chizgandan keyin so'raydi; preload bilan shrift HTML parse paytida
+ * yuklanadi va birinchi renderda tayyor bo'ladi.
+ */
+function fontPreloadPlugin(): Plugin {
+  return {
+    name: 'boyxon-font-preload',
+    apply: 'build',
+    enforce: 'post',
+    generateBundle(_options, bundle) {
+      const htmlAsset = bundle['index.html'];
+      if (!htmlAsset || htmlAsset.type !== 'asset' || typeof htmlAsset.source !== 'string') return;
+      const font = Object.keys(bundle).find((name) =>
+        /(?:^|\/)epilogue-latin-800-normal-[^/]+\.woff2$/.test(name),
+      );
+      if (!font) return;
+      const href = `/${font}`;
+      if (htmlAsset.source.includes(`href="${href}"`)) return;
+      htmlAsset.source = htmlAsset.source.replace(
+        '</head>',
+        `<link rel="preload" as="font" type="font/woff2" href="${href}" crossorigin>\n</head>`,
+      );
+    },
+  };
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
 
   return {
-    plugins: [react(), seoFilesPlugin(env, mode === 'production'), inlineCssPlugin()],
+    plugins: [
+      react(),
+      seoFilesPlugin(env, mode === 'production'),
+      inlineCssPlugin(),
+      fontPreloadPlugin(),
+    ],
     server: {
       port: 5173,
       proxy: {

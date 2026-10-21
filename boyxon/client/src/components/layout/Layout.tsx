@@ -24,6 +24,7 @@ export function Layout() {
   const token = useAuthStore((s) => s.accessToken);
   const [mobileLoaded, setMobileLoaded] = useState(false);
   const [notifLoaded, setNotifLoaded] = useState(false);
+  const [footerReady, setFooterReady] = useState(false);
 
   // Bir marta ochilgandan keyin komponent mounted qoladi — yopilish animatsiyasi
   // uchun (AnimatePresence exit). Birinchi ochilishgacha modul yuklanmaydi.
@@ -33,6 +34,12 @@ export function Layout() {
   useEffect(() => {
     if (notifOpen) setNotifLoaded(true);
   }, [notifOpen]);
+  // Footer birinchi paintdan keyin mount bo'ladi: uning kategoriya so'rovi
+  // LCP bannerini kutmaydi va dastlabki render og'irlashmaydi.
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setFooterReady(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col bg-bg">
@@ -56,7 +63,7 @@ export function Layout() {
       <main className="flex-1 pb-28 md:pb-8">
         <Outlet />
       </main>
-      <Footer />
+      {footerReady && <Footer />}
       <BottomNav />
       <PushPermissionPrompt />
     </div>

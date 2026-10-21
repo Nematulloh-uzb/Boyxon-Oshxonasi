@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
+﻿import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Search, SlidersHorizontal, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -33,6 +33,10 @@ export default function HomePage() {
   const [filterLoaded, setFilterLoaded] = useState(false);
   const [filters, setFilters] = useState<DishFilterValues>({});
   const [page, setPage] = useState(1);
+  // Birinchi paint faqat header + bannerdan iborat bo'lsin: pastdagi
+  // og'ir bo'limlar va API so'rovlari paintdan keyin boshlanadi. Bu LCP/FCP
+  // uchun React render va tarmoq raqobatini kamaytiradi.
+  const [belowFoldReady, setBelowFoldReady] = useState(false);
   const debounced = useDebounce(search, 400);
 
   // Filter oynasi birinchi marta ochilganda yuklanadi; keyin mounted qoladi,
@@ -48,10 +52,16 @@ export default function HomePage() {
     setPage(1);
   }, [urlQuery]);
 
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setBelowFoldReady(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
   const { data: cats, isLoading: catsLoading } = useQuery({
     queryKey: [QUERY_KEYS.categories],
     queryFn: () => categoriesApi.list().then((r) => r.data),
     staleTime: 10 * 60 * 1000,
+    enabled: belowFoldReady,
   });
 
   const params: DishFilters = useMemo(
@@ -72,12 +82,14 @@ export default function HomePage() {
   const { data, isLoading, isFetching, isError, refetch } = useQuery({
     queryKey: [QUERY_KEYS.dishes, params],
     queryFn: () => dishesApi.list(params),
+    enabled: belowFoldReady,
   });
 
   const { data: featured, isLoading: featLoading } = useQuery({
     queryKey: [QUERY_KEYS.featured],
     queryFn: () => dishesApi.featured().then((r) => r.data),
     staleTime: 5 * 60 * 1000,
+    enabled: belowFoldReady,
   });
 
   const setCat = (slug?: string): void => {
@@ -110,7 +122,7 @@ export default function HomePage() {
       image: absoluteUrl('/og-image.png'),
       logo: absoluteUrl('/icon-512.png'),
       telephone: '+998939588458',
-      priceRange: "4 000–65 000 so'm",
+      priceRange: "4 000â€“65 000 so'm",
       paymentAccepted: 'Cash, Payme, Click, Uzum Bank',
       currenciesAccepted: 'UZS',
       servesCuisine: ['Uzbek', 'Central Asian'],
@@ -197,7 +209,7 @@ export default function HomePage() {
 
       {/* Salom + qidiruv */}
       <div className="mb-4">
-        <p className="text-sm text-ink-300">{t('home.greeting')} 👋</p>
+        <p className="text-sm text-ink-300">{t('home.greeting')} ðŸ‘‹</p>
         <h1 className="font-display text-2xl font-extrabold text-ink-900">{t('seo.home.h1')}</h1>
         <p className="mt-1 max-w-2xl text-sm text-ink-300">{t('seo.home.subtitle')}</p>
       </div>
@@ -222,7 +234,7 @@ export default function HomePage() {
         </button>
       </div>
 
-      {/* Hero banner: "bepul" emas — mijozning cho'ntagida qoladigan pul */}
+      {/* Hero banner: "bepul" emas â€” mijozning cho'ntagida qoladigan pul */}
       <div className="mb-6 overflow-hidden rounded-card bg-gradient-to-r from-primary-700 to-primary-800 p-6 text-white">
         <p className="text-sm font-semibold text-white">{t('home.new_season')}</p>
         <p className="font-display text-2xl font-extrabold">{t('home.promo_title')}</p>
@@ -251,6 +263,8 @@ export default function HomePage() {
         </div>
       </div>
 
+      {belowFoldReady && (
+        <>
       {/* Kategoriyalar */}
       <div className="mb-6">
         {cats ? (
@@ -304,7 +318,7 @@ export default function HomePage() {
               onClick={() => setPage((p) => p - 1)}
               className="h-10 rounded-full border border-ink-line px-4 text-sm disabled:opacity-40"
             >
-              ← {t('common.prev')}
+              â† {t('common.prev')}
             </button>
             <span className="px-2 text-sm text-ink-300">{page} / {pages}</span>
             <button
@@ -312,7 +326,7 @@ export default function HomePage() {
               onClick={() => setPage((p) => p + 1)}
               className="h-10 rounded-full border border-ink-line px-4 text-sm disabled:opacity-40"
             >
-              {t('common.next')} →
+              {t('common.next')} â†’
             </button>
           </div>
         )}
@@ -349,6 +363,8 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+        </>
+      )}
 
       {filterLoaded && (
         <Suspense fallback={null}>
