@@ -38,7 +38,7 @@ services:
       - key: NODE_OPTIONS
         value: "--max-old-space-size=460"
       # --- Quyidagilar Dashboard → Environment'da `sync: false` bilan qo'shiladi ---
-      # CLIENT_URL            = https://boyxon-frontend.onrender.com
+      # CLIENT_URL            = https://boyxon-client.onrender.com
       # MONGODB_URI           = mongodb+srv://...
       # JWT_ACCESS_SECRET     = (48 hex)
       # JWT_REFRESH_SECRET    = (48 hex)
@@ -73,3 +73,28 @@ services:
       - type: rewrite
         source: /*
         destination: /index.html
+    # Xavfsizlik header'lari (Lighthouse Best Practices + real himoya).
+    # script/style uchun 'unsafe-inline' — inline theme script, JSON-LD va
+    # framer-motion/Leaflet inline style'lari uchun zarur.
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: Cross-Origin-Opener-Policy
+        value: same-origin
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: Permissions-Policy
+        value: camera=(), microphone=(), geolocation=(self)
+      - path: /*
+        name: Strict-Transport-Security
+        value: max-age=31536000; includeSubDomains
+      - path: /*
+        name: Content-Security-Policy
+        value: "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://res.cloudinary.com https://tile.openstreetmap.org; font-src 'self' data:; connect-src 'self' https://boyxon-server.onrender.com wss://boyxon-server.onrender.com https://nominatim.openstreetmap.org; manifest-src 'self'; worker-src 'self' blob:; upgrade-insecure-requests"

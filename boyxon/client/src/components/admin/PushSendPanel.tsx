@@ -55,7 +55,7 @@ export function PushSendPanel() {
             <button
               key={a.v}
               onClick={() => setAudience(a.v)}
-              className={`rounded-full border px-3 py-1.5 text-sm ${audience === a.v ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-ink-line'}`}
+              className={`rounded-full border px-3 py-1.5 text-sm ${audience === a.v ? 'border-primary-500 bg-primary-50 text-primary-800' : 'border-ink-line'}`}
             >
               {t(a.k)}
             </button>

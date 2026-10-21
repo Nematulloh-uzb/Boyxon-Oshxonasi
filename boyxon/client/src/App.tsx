@@ -4,6 +4,7 @@ import { useSocket } from './hooks/useSocket';
 import { useAuthStore } from './store/auth.store';
 import { usersApi } from './api/users.api';
 import { authApi } from './api/auth.api';
+import { langFromPath } from './lib/seo';
 import { useTranslation } from 'react-i18next';
 
 export default function App() {
@@ -44,6 +45,9 @@ export default function App() {
   }, [accessToken, user, setUser, logout]);
 
   useEffect(() => {
+    // URL'dagi til prefiksi (/ru, /en) ustuvor — foydalanuvchi tanlovi
+    // faqat prefikssiz (default uz) URL'da qo'llaniladi.
+    if (langFromPath()) return;
     const lang = user?.preferences?.language;
     if (lang && lang !== i18n.language) {
       void i18n.changeLanguage(lang);

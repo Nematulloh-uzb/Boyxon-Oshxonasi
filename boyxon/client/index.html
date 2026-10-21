@@ -2,15 +2,69 @@
 <html lang="uz" class="dark">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#121212" />
-    <meta name="description" content="Boyxon Oshxonasi — o'zbek milliy taomlari yetkazib berish" />
+
+    <!-- Asosiy SEO -->
+    <title>Toshkentda milliy taomlar yetkazib berish — Boyxon Oshxonasi</title>
+    <meta
+      name="description"
+      content="Palov, somsa, kabob va boshqa o'zbek milliy taomlari. Toshkent bo'ylab 30–45 daqiqada issiq yetkazib berish, har kuni 9:00–23:00. Buyurtma: +998 93 958-84-58."
+    />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+    <meta name="author" content="Boyxon Oshxonasi" />
+    <meta name="application-name" content="Boyxon Oshxonasi" />
+    <meta name="apple-mobile-web-app-title" content="Boyxon" />
+    <meta name="geo.region" content="UZ-TK" />
+    <meta name="geo.placename" content="Tashkent" />
+
+    <!-- Canonical + til alternativlari (JS ishlamasa ham asosiy holat) -->
+    <link rel="canonical" href="https://boyxon-client.onrender.com/" />
+    <link rel="alternate" hreflang="uz" href="https://boyxon-client.onrender.com/" />
+    <link rel="alternate" hreflang="ru" href="https://boyxon-client.onrender.com/ru" />
+    <link rel="alternate" hreflang="en" href="https://boyxon-client.onrender.com/en" />
+    <link rel="alternate" hreflang="x-default" href="https://boyxon-client.onrender.com/" />
+
+    <!-- Open Graph (ijtimoiy tarmoqlar uchun statik default) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Boyxon Oshxonasi" />
+    <meta property="og:title" content="Toshkentda milliy taomlar yetkazib berish — Boyxon Oshxonasi" />
+    <meta
+      property="og:description"
+      content="Palov, somsa, kabob va boshqa o'zbek milliy taomlari. Toshkent bo'ylab 30–45 daqiqada issiq yetkazib berish, har kuni 9:00–23:00."
+    />
+    <meta property="og:url" content="https://boyxon-client.onrender.com/" />
+    <meta property="og:image" content="https://boyxon-client.onrender.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:alt" content="Boyxon Oshxonasi — Toshkentda milliy taomlar yetkazib berish" />
+    <meta property="og:locale" content="uz_UZ" />
+    <meta property="og:locale:alternate" content="ru_RU" />
+    <meta property="og:locale:alternate" content="en_US" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Toshkentda milliy taomlar yetkazib berish — Boyxon Oshxonasi" />
+    <meta
+      name="twitter:description"
+      content="Palov, somsa, kabob va boshqa o'zbek milliy taomlari. Toshkent bo'ylab 30–45 daqiqada issiq yetkazib berish."
+    />
+    <meta name="twitter:image" content="https://boyxon-client.onrender.com/og-image.png" />
+    <meta name="twitter:image:alt" content="Boyxon Oshxonasi — Toshkentda milliy taomlar yetkazib berish" />
+
+    <!-- Ikonkalar / PWA -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.json" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <title>Boyxon Oshxonasi — Milliy taomlar yetkazib berish</title>
+
+    <!-- Tezlik: rasmlar uchun oldindan ulanish (shriftlar self-hosted) -->
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
+
     <script>
       // FOUC oldini olish: default DARK, faqat foydalanuvchi 'light' tanlasa yorug'
       (function () {
@@ -26,6 +80,31 @@
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <div
+        style="max-width:720px;margin:0 auto;padding:48px 20px;font-family:system-ui,-apple-system,sans-serif;line-height:1.6;color:#1f2937"
+      >
+        <h1>Boyxon Oshxonasi — Toshkentda milliy taomlar yetkazib berish</h1>
+        <p>
+          Palov, somsa, kabob va boshqa o'zbek milliy taomlari. Toshkent bo'ylab
+          30–45 daqiqada issiq yetkazib berish. Har kuni 9:00–23:00.
+        </p>
+        <p>
+          Buyurtma uchun qo'ng'iroq qiling:
+          <a href="tel:+998939588458">+998 (93) 958-84-58</a>
+        </p>
+        <p>Manzil: Toshkent, Yunusobod tumani.</p>
+        <hr />
+        <p lang="ru">
+          Доставка узбекской кухни по Ташкенту: плов, самса, шашлык. Ежедневно
+          с 9:00 до 23:00. Телефон: <a href="tel:+998939588458">+998 (93) 958-84-58</a>.
+        </p>
+        <p lang="en">
+          Uzbek food delivery across Tashkent: pilaf, samsa, kebab. Daily
+          9:00–23:00. Phone: <a href="tel:+998939588458">+998 (93) 958-84-58</a>.
+        </p>
+      </div>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

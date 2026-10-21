@@ -47,7 +47,7 @@ export function AdminSidebar() {
               className={({ isActive }) =>
                 cn(
                   'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium',
-                  isActive ? 'bg-primary-500 text-white' : 'text-white/70 hover:bg-white/10',
+                  isActive ? 'bg-primary-700 text-white' : 'text-white/70 hover:bg-white/10',
                 )
               }
             >
@@ -74,7 +74,7 @@ export function AdminSidebar() {
             className={({ isActive }) =>
               cn(
                 'flex shrink-0 items-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium',
-                isActive ? 'bg-primary-500 text-white' : 'text-white/70',
+                isActive ? 'bg-primary-700 text-white' : 'text-white/70',
               )
             }
           >

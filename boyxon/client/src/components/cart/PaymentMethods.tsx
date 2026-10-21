@@ -28,7 +28,7 @@ export function PaymentMethods({ value, onChange }: Props) {
             onClick={() => onChange(m.value)}
             className={cn(
               'flex items-center gap-2 rounded-2xl border px-3 py-3 text-sm font-medium transition',
-              active ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-ink-line bg-surface text-ink-700',
+              active ? 'border-primary-500 bg-primary-50 text-primary-800' : 'border-ink-line bg-surface text-ink-700',
             )}
           >
             <Icon className="h-4 w-4" />

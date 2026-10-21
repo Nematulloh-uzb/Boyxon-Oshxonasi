@@ -177,9 +177,9 @@ export default function OrderDetailPage() {
 function getStatusClass(status: string): string {
   switch (status) {
     case 'pending': return 'bg-surface-raised text-ink-700';
-    case 'confirmed': return 'bg-primary-100 text-primary-700';
-    case 'packing': return 'bg-primary-50 text-primary-700';
-    case 'handed_to_taxi': return 'bg-primary-100 text-primary-700';
+    case 'confirmed': return 'bg-primary-100 text-primary-800';
+    case 'packing': return 'bg-primary-50 text-primary-800';
+    case 'handed_to_taxi': return 'bg-primary-100 text-primary-800';
     case 'delivered': return 'bg-success/10 text-success';
     case 'cancelled': return 'bg-danger/10 text-danger';
     default: return 'bg-surface text-ink-700';

@@ -26,7 +26,7 @@ export function BottomNav() {
             <span className="relative">
               <Icon className="h-6 w-6" />
               {!!badge && badge > 0 && (
-                <span className="absolute -right-2 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-primary-500 px-1 text-[9px] font-bold text-white">
+                <span className="absolute -right-2 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-primary-700 px-1 text-[9px] font-bold text-white">
                   {badge}
                 </span>
               )}

@@ -1,11 +1,16 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { io, type Socket } from 'socket.io-client';
+import type { Socket } from 'socket.io-client';
 import { toast } from 'sonner';
 import { MessageCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/auth.store';
+import { resolveRuntimeUrl } from '../lib/runtime-env';
 
-const SOCKET_URL = (import.meta.env.VITE_SOCKET_URL as string | undefined) ?? 'http://localhost:5000';
+const SOCKET_URL = resolveRuntimeUrl(
+  import.meta.env.VITE_SOCKET_URL as string | undefined,
+  'http://localhost:5000',
+  'https://boyxon-server.onrender.com',
+);
 const SESSION_KEY = 'boyxon-chat-open';
 
 /** Chat oynasi (mijoz widget / admin panel) hozir ochiqmi — toast berishga qaror qilish uchun. */
@@ -51,22 +56,37 @@ export function useChatSocket(handlers: ChatHandlers, enabled = true): Socket | 
       socketRef.current = null;
       return;
     }
-    const socket = io(SOCKET_URL, { auth: { token } });
-    socketRef.current = socket;
+    socketRef.current?.disconnect();
+    socketRef.current = null;
 
-    socket.on('chat:message', (p) => {
-      hRef.current.onMessage?.(p as Parameters<NonNullable<ChatHandlers['onMessage']>>[0]);
-      // Ovoz + toast — faqat chat oynasi yopiq bo'lsa toast (aksi holda foydalanuvchi allaqachon ko'ryapti).
-      playChatSound();
-      if (!isChatOpen()) showChatToast((p as { message?: ChatMsgLike }).message, t);
-    });
-    socket.on('chat:typing', (p) => hRef.current.onTyping?.(p as Parameters<NonNullable<ChatHandlers['onTyping']>>[0]));
-    socket.on('chat:conversation-updated', () => hRef.current.onConversationUpdated?.());
-    socket.on('connect_error', () => undefined);
+    let disposed = false;
+    let socket: Socket | null = null;
+
+    // Chat ham socket.io'ni faqat login bo'lganda dinamik yuklaydi.
+    void import('socket.io-client')
+      .then(({ io }) => {
+        if (disposed) return;
+        socket = io(SOCKET_URL, { auth: { token } });
+        socketRef.current = socket;
+
+        socket.on('chat:message', (p) => {
+          hRef.current.onMessage?.(p as Parameters<NonNullable<ChatHandlers['onMessage']>>[0]);
+          // Ovoz + toast — faqat chat oynasi yopiq bo'lsa toast (aksi holda foydalanuvchi allaqachon ko'ryapti).
+          playChatSound();
+          if (!isChatOpen()) showChatToast((p as { message?: ChatMsgLike }).message, t);
+        });
+        socket.on('chat:typing', (p) => hRef.current.onTyping?.(p as Parameters<NonNullable<ChatHandlers['onTyping']>>[0]));
+        socket.on('chat:conversation-updated', () => hRef.current.onConversationUpdated?.());
+        socket.on('connect_error', () => undefined);
+      })
+      .catch(() => {
+        // Chunk yuklanmasa chat real-time ishlamaydi; REST orqali yozish mumkin.
+      });
 
     return () => {
-      socket.disconnect();
-      socketRef.current = null;
+      disposed = true;
+      socket?.disconnect();
+      if (socketRef.current === socket) socketRef.current = null;
     };
   }, [token, enabled, t]);
 

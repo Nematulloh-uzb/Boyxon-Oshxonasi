@@ -41,7 +41,7 @@ export function PushPermissionPrompt() {
                 const ok = await subscribe();
                 dismiss(ok);
               }}
-              className="h-9 flex-1 rounded-full bg-primary-500 text-sm font-semibold text-white hover:bg-primary-600"
+              className="h-9 flex-1 rounded-full bg-primary-700 text-sm font-semibold text-white hover:bg-primary-800"
             >
               {t('notifications.allow')}
             </button>

@@ -1,12 +1,19 @@
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, type ReactNode } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Layout } from '../components/layout/Layout';
+import { PrivateSeo } from '../components/seo/PrivateSeo';
 import { ProtectedRoute } from './ProtectedRoute';
 import { AdminRoute } from './AdminRoute';
 import { VerifiedRoute } from './VerifiedRoute';
+// Bosh sahifa eng ko'p tashrif buyuriladigan sahifa: uni alohida chunk qilib
+// yuborish LCP'ni ~250ms kechiktiradi (index → HomePage waterfall). Shuning
+// uchun to'g'ridan-to'g'ri import qilamiz — Vite uning statik bog'liqliklarini
+// HTML'da modulepreload qiladi.
+import HomePage from '../pages/home/HomePage';
 
-const HomePage = lazy(() => import('../pages/home/HomePage'));
 const DishPage = lazy(() => import('../pages/dish/DishPage'));
+const CategoryPage = lazy(() => import('../pages/category/CategoryPage'));
 const CartPage = lazy(() => import('../pages/cart/CartPage'));
 const SettingsPage = lazy(() => import('../pages/settings/SettingsPage'));
 const AuthPage = lazy(() => import('../pages/auth/AuthPage'));
@@ -30,26 +37,46 @@ function Fallback() {
   return <div className="min-h-screen grid place-items-center text-ink-300">...</div>;
 }
 
+/** Shaxsiy sahifalar uchun noindex meta + sarlavha. */
+function NoIndexRoute({
+  title,
+  path,
+  children,
+}: {
+  title: string;
+  path: string;
+  children: ReactNode;
+}) {
+  return (
+    <>
+      <PrivateSeo title={title} path={path} />
+      {children}
+    </>
+  );
+}
+
 export function AppRouter() {
+  const { t } = useTranslation();
   return (
     <Suspense fallback={<Fallback />}>
       <Routes>
-        <Route path="/auth" element={<AuthPage />} />
-        <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/auth" element={<NoIndexRoute title={t('auth.welcome')} path="/auth"><AuthPage /></NoIndexRoute>} />
+        <Route path="/auth/callback" element={<NoIndexRoute title={t('auth.signing_in')} path="/auth/callback"><AuthCallback /></NoIndexRoute>} />
         {/* Email tasdiqlash: token bilan (havoladan) yoki tokensiz (kutish ekrani). */}
-        <Route path="/verify-email" element={<VerifyEmailPage />} />
-        <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
+        <Route path="/verify-email" element={<NoIndexRoute title={t('auth.verify_title')} path="/verify-email"><VerifyEmailPage /></NoIndexRoute>} />
+        <Route path="/verify-email/:token" element={<NoIndexRoute title={t('auth.verify_title')} path="/verify-email"><VerifyEmailPage /></NoIndexRoute>} />
         {/* Parolni tiklash: email kiritish + havoladagi token bilan yangi parol. */}
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+        <Route path="/forgot-password" element={<NoIndexRoute title={t('auth.reset_title')} path="/forgot-password"><ForgotPasswordPage /></NoIndexRoute>} />
+        <Route path="/reset-password/:token" element={<NoIndexRoute title={t('auth.reset_new_title')} path="/reset-password"><ResetPasswordPage /></NoIndexRoute>} />
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/dish/:slug" element={<DishPage />} />
-          <Route path="/cart" element={<ProtectedRoute><VerifiedRoute><CartPage /></VerifiedRoute></ProtectedRoute>} />
-          <Route path="/settings" element={<ProtectedRoute><VerifiedRoute><SettingsPage /></VerifiedRoute></ProtectedRoute>} />
-          <Route path="/orders/:id" element={<ProtectedRoute><VerifiedRoute><OrderDetailPage /></VerifiedRoute></ProtectedRoute>} />
+          <Route path="/category/:slug" element={<CategoryPage />} />
+          <Route path="/cart" element={<NoIndexRoute title={t('cart.title')} path="/cart"><ProtectedRoute><VerifiedRoute><CartPage /></VerifiedRoute></ProtectedRoute></NoIndexRoute>} />
+          <Route path="/settings" element={<NoIndexRoute title={t('settings.title')} path="/settings"><ProtectedRoute><VerifiedRoute><SettingsPage /></VerifiedRoute></ProtectedRoute></NoIndexRoute>} />
+          <Route path="/orders/:id" element={<NoIndexRoute title={t('orders.detail_title')} path="/orders"><ProtectedRoute><VerifiedRoute><OrderDetailPage /></VerifiedRoute></ProtectedRoute></NoIndexRoute>} />
         </Route>
-        <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+        <Route path="/admin" element={<NoIndexRoute title={t('admin.title')} path="/admin"><AdminRoute><AdminLayout /></AdminRoute></NoIndexRoute>}>
           <Route index element={<AdminDashboard />} />
           <Route path="dishes" element={<AdminDishes />} />
           <Route path="orders" element={<AdminOrders />} />

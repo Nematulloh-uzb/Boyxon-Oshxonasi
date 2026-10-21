@@ -15,6 +15,7 @@ import { useAuthStore } from '../../store/auth.store';
 import { usersApi } from '../../api/users.api';
 import { ordersApi } from '../../api/orders.api';
 import { formatDate, formatPrice, tVal } from '../../lib/format';
+import { stripLang, withLang } from '../../lib/seo';
 
 const LANGS: { v: 'uz' | 'ru' | 'en'; l: string }[] = [
   { v: 'uz', l: "O'zbekcha" },
@@ -41,11 +42,19 @@ export default function SettingsPage() {
   if (!user) return <div className="grid min-h-[50vh] place-items-center text-ink-300">{t('common.loading')}</div>;
 
   const setLang = async (v: 'uz' | 'ru' | 'en'): Promise<void> => {
-    void i18n.changeLanguage(v);
-    localStorage.setItem('boyxon-lang', v);
-    const r = await usersApi.updatePrefs({ language: v });
-    setUser({ ...user, preferences: r.data });
-    toast.success(t('settings.language_updated'));
+    try {
+      const r = await usersApi.updatePrefs({ language: v });
+      setUser({ ...user, preferences: r.data });
+      localStorage.setItem('boyxon-lang', v);
+      // URL til prefiksi interfeys tiliga mos bo'lishi shart (SEO/canonical).
+      const target =
+        withLang(stripLang(window.location.pathname), v) +
+        window.location.search +
+        window.location.hash;
+      window.location.assign(target);
+    } catch {
+      toast.error(t('settings.save_error'));
+    }
   };
 
   const toggleTheme = async (): Promise<void> => {
@@ -141,7 +150,7 @@ export default function SettingsPage() {
                 <button
                   key={l.v}
                   onClick={() => void setLang(l.v)}
-                  className={`rounded-full px-2.5 py-1 text-xs font-semibold ${i18n.language === l.v ? 'bg-primary-500 text-white' : 'bg-surface-raised text-ink-700'}`}
+                  className={`rounded-full px-2.5 py-1 text-xs font-semibold ${i18n.language === l.v ? 'bg-primary-700 text-white' : 'bg-surface-raised text-ink-700'}`}
                 >
                   {l.v.toUpperCase()}
                 </button>

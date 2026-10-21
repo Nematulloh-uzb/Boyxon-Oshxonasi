@@ -17,6 +17,7 @@ import { notificationRouter } from './routes/notification.routes';
 import { pushRouter } from './routes/push.routes';
 import { chatRouter } from './routes/chat.routes';
 import { adminRouter } from './routes/admin.routes';
+import { apiRobots, sitemap } from './controllers/seo.controller';
 
 export function createApp() {
   const app = express();
@@ -76,10 +77,25 @@ export function createApp() {
   initPassport();
   app.use(passport.initialize());
 
+  /**
+   * Client Google OAuth'dan oldin shu endpoint orqali Render server
+   * uyg'onganini tekshiradi. Javob keshlanmasligi kerak — aks holda
+   * server uxlab qolgan bo'lsa ham eski 200 qaytishi mumkin.
+   */
   app.get('/health', (_req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('X-Robots-Tag', 'noindex, nofollow');
     res.json({ success: true, message: 'Boyxon API ishlayapti', data: { time: new Date().toISOString() } });
   });
 
+  // SEO: sitemap va API robots.txt (client robots.txt shu manzilga ishora qiladi).
+  app.get('/sitemap.xml', sitemap);
+  app.get('/robots.txt', apiRobots);
+
+  app.use('/api', (_req, res, next) => {
+    res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+    next();
+  });
   app.use('/api', apiLimiter);
   app.use('/api/auth', authRouter);
   app.use('/api/categories', categoryRouter);

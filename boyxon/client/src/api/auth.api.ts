@@ -23,7 +23,9 @@ export const authApi = {
   me: () => api.get<ApiOk<User>>('/auth/me').then((r) => r.data),
   /** httpOnly refresh cookie orqali yangi access token (yangi tab / qayta ochish). */
   refresh: () =>
-    api.post<ApiOk<{ accessToken: string; user: User }>>('/auth/refresh', {}).then((r) => r.data),
+    api
+      .post<ApiOk<{ accessToken: string | null; user: User | null }>>('/auth/refresh', {})
+      .then((r) => r.data),
   googleUrl: () => `${API_ORIGIN}/api/auth/google`,
   /**
    * Google OAuth'dan qaytgan bir martalik kodni tokenga almashtiradi.

@@ -1,27 +1,52 @@
-import { useMemo, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Search, SlidersHorizontal } from 'lucide-react';
+import { Search, SlidersHorizontal, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import { dishesApi, type DishFilters } from '../../api/dishes.api';
 import { categoriesApi } from '../../api/categories.api';
 import { CategoryChips } from '../../components/dish/CategoryChips';
+import { CategoryLinks } from '../../components/dish/CategoryLinks';
 import { DishGrid } from '../../components/dish/DishGrid';
 import { DishCard } from '../../components/dish/DishCard';
-import { DishFilterSheet, type DishFilterValues } from '../../components/dish/DishFilterSheet';
+import type { DishFilterValues } from '../../components/dish/DishFilterSheet';
+import { Seo } from '../../components/seo/Seo';
 import { useDebounce } from '../../hooks/useDebounce';
 import { useCartStore } from '../../store/cart.store';
 import { DELIVERY_FEE, FREE_DELIVERY_FROM, QUERY_KEYS } from '../../lib/constants';
-import { formatPrice, tVal } from '../../lib/format';
+import { formatPrice, localizedDishName, tVal } from '../../lib/format';
+import { absoluteUrl, canonicalFor, pathLang, SITE_URL, withLang } from '../../lib/seo';
+
+const DishFilterSheet = lazy(() =>
+  import('../../components/dish/DishFilterSheet').then((m) => ({ default: m.DishFilterSheet })),
+);
 
 export default function HomePage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = pathLang();
+  const [searchParams] = useSearchParams();
+  const urlQuery = searchParams.get('q') ?? '';
   const cartSubtotal = useCartStore((s) => s.lines.reduce((a, l) => a + l.price * l.quantity, 0));
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(urlQuery);
   const [category, setCategory] = useState<string | undefined>();
   const [filterOpen, setFilterOpen] = useState(false);
+  const [filterLoaded, setFilterLoaded] = useState(false);
   const [filters, setFilters] = useState<DishFilterValues>({});
   const [page, setPage] = useState(1);
   const debounced = useDebounce(search, 400);
+
+  // Filter oynasi birinchi marta ochilganda yuklanadi; keyin mounted qoladi,
+  // shunda yopilish animatsiyasi ishlaydi va framer-motion boshlang'ich
+  // bundle'ga tushmaydi.
+  useEffect(() => {
+    if (filterOpen) setFilterLoaded(true);
+  }, [filterOpen]);
+
+  // Sitelinks SearchBox / ulashilgan havola: /?q=palov
+  useEffect(() => {
+    setSearch(urlQuery);
+    setPage(1);
+  }, [urlQuery]);
 
   const { data: cats, isLoading: catsLoading } = useQuery({
     queryKey: [QUERY_KEYS.categories],
@@ -47,8 +72,6 @@ export default function HomePage() {
   const { data, isLoading, isFetching, isError, refetch } = useQuery({
     queryKey: [QUERY_KEYS.dishes, params],
     queryFn: () => dishesApi.list(params),
-    // Katalog tez-tez o'zgarishi mumkin (admin narx/taom) — global 60s yetarli.
-    // refetchOnWindowFocus global true bo'lgani uchun alohida sozlama shart emas.
   });
 
   const { data: featured, isLoading: featLoading } = useQuery({
@@ -68,12 +91,115 @@ export default function HomePage() {
 
   const pages = data?.pagination.pages ?? 1;
 
+  const faqItems = [1, 2, 3, 4, 5].map((index) => ({
+    q: t(`seo.faq.q${index}`),
+    a: t(`seo.faq.a${index}`),
+  }));
+
+  const homeUrl = canonicalFor('/', lang);
+  const restaurantId = `${SITE_URL}/#restaurant`;
+  const websiteId = `${SITE_URL}/#website`;
+
+  const jsonLd = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Restaurant',
+      '@id': restaurantId,
+      name: 'Boyxon Oshxonasi',
+      url: homeUrl,
+      image: absoluteUrl('/og-image.png'),
+      logo: absoluteUrl('/icon-512.png'),
+      telephone: '+998939588458',
+      priceRange: "4 000–65 000 so'm",
+      paymentAccepted: 'Cash, Payme, Click, Uzum Bank',
+      currenciesAccepted: 'UZS',
+      servesCuisine: ['Uzbek', 'Central Asian'],
+      areaServed: { '@type': 'City', name: 'Toshkent' },
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Yunusobod tumani',
+        addressLocality: 'Toshkent',
+        addressRegion: 'Toshkent',
+        addressCountry: 'UZ',
+      },
+      openingHoursSpecification: [
+        {
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: [
+            'Monday',
+            'Tuesday',
+            'Wednesday',
+            'Thursday',
+            'Friday',
+            'Saturday',
+            'Sunday',
+          ],
+          opens: '09:00',
+          closes: '23:00',
+        },
+      ],
+      hasMenu: homeUrl,
+      acceptsReservations: false,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      '@id': websiteId,
+      url: homeUrl,
+      name: 'Boyxon Oshxonasi',
+      inLanguage: lang,
+      publisher: { '@id': restaurantId },
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: `${homeUrl}?q={search_term_string}`,
+        },
+        'query-input': 'required name=search_term_string',
+      },
+    },
+    ...(featured && featured.length > 0
+      ? [
+          {
+            '@context': 'https://schema.org',
+            '@type': 'ItemList',
+            name: t('home.featured'),
+            itemListElement: featured.map((dish, index) => ({
+              '@type': 'ListItem',
+              position: index + 1,
+              name: localizedDishName(dish, i18n.language),
+              url: absoluteUrl(withLang(`/dish/${dish.slug || dish._id}`, lang)),
+            })),
+          },
+        ]
+      : []),
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faqItems.map(({ q, a }) => ({
+        '@type': 'Question',
+        name: q,
+        acceptedAnswer: { '@type': 'Answer', text: a },
+      })),
+    },
+  ];
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-5">
+      <Seo
+        title={t('seo.home.title')}
+        description={t('seo.home.description')}
+        path="/"
+        keywords={t('seo.home.keywords')}
+        noindex={Boolean(search.trim())}
+        jsonLd={jsonLd}
+      />
+
       {/* Salom + qidiruv */}
       <div className="mb-4">
         <p className="text-sm text-ink-300">{t('home.greeting')} 👋</p>
-        <h1 className="font-display text-2xl font-extrabold text-ink-900">{t('home.title')}</h1>
+        <h1 className="font-display text-2xl font-extrabold text-ink-900">{t('seo.home.h1')}</h1>
+        <p className="mt-1 max-w-2xl text-sm text-ink-300">{t('seo.home.subtitle')}</p>
       </div>
 
       <div className="mb-5 flex gap-2">
@@ -83,6 +209,7 @@ export default function HomePage() {
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             placeholder={t('home.search_placeholder')}
+            aria-label={t('nav.search')}
             className="h-12 w-full rounded-full border border-ink-line bg-surface pl-11 pr-4 text-[15px] outline-none focus:border-primary-500"
           />
         </div>
@@ -96,16 +223,16 @@ export default function HomePage() {
       </div>
 
       {/* Hero banner: "bepul" emas — mijozning cho'ntagida qoladigan pul */}
-      <div className="mb-6 overflow-hidden rounded-card bg-gradient-to-r from-primary-500 to-primary-700 p-6 text-white">
-        <p className="text-sm font-semibold text-white/80">{t('home.new_season')}</p>
+      <div className="mb-6 overflow-hidden rounded-card bg-gradient-to-r from-primary-700 to-primary-800 p-6 text-white">
+        <p className="text-sm font-semibold text-white">{t('home.new_season')}</p>
         <p className="font-display text-2xl font-extrabold">{t('home.promo_title')}</p>
-        <p className="mt-1 text-sm text-white/80">{t('home.promo_code')}</p>
+        <p className="mt-1 text-sm text-white">{t('home.promo_code')}</p>
         <div className="mt-4">
           {cartSubtotal >= FREE_DELIVERY_FROM ? (
             <p className="text-sm font-semibold text-white">{tVal(t('home.promo_unlocked'), { fee: formatPrice(DELIVERY_FEE) })}</p>
           ) : (
             <>
-              <p className="text-sm font-semibold text-white/90">
+              <p className="text-sm font-semibold text-white">
                 {tVal(t('home.promo_progress'), {
                   amount: formatPrice(cartSubtotal === 0 ? FREE_DELIVERY_FROM : FREE_DELIVERY_FROM - cartSubtotal),
                   fee: formatPrice(DELIVERY_FEE),
@@ -191,8 +318,43 @@ export default function HomePage() {
         )}
       </section>
 
-      <DishFilterSheet open={filterOpen} onClose={() => setFilterOpen(false)} value={filters} onApply={applyFilters} />
+      {/* SEO: kategoriya havolalari */}
+      <section className="mt-10">
+        <h2 className="font-display text-lg font-bold">{t('seo.home.categories_title')}</h2>
+        <p className="mt-1 text-sm text-ink-300">{t('seo.home.categories_desc')}</p>
+        <div className="mt-3">
+          <CategoryLinks categories={cats ?? []} />
+        </div>
+      </section>
+
+      {/* SEO: boyitilgan matn */}
+      <section className="mt-10 max-w-3xl">
+        <h2 className="font-display text-lg font-bold">{t('seo.home.content_title')}</h2>
+        <p className="mt-2 text-[15px] leading-relaxed text-ink-500">{t('seo.home.content')}</p>
+        <p className="mt-2 text-sm leading-relaxed text-ink-300">{t('seo.home.content_extra')}</p>
+      </section>
+
+      {/* SEO: FAQ (FAQPage schema bilan bir xil savollar) */}
+      <section className="mt-10">
+        <h2 className="mb-3 font-display text-lg font-bold">{t('seo.home.faq_title')}</h2>
+        <div className="divide-y divide-ink-line/60 rounded-card border border-ink-line/60 bg-surface">
+          {faqItems.map(({ q, a }) => (
+            <details key={q} className="group px-4 py-3">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-ink-900">
+                {q}
+                <ChevronDown className="h-4 w-4 shrink-0 text-ink-300 transition group-open:rotate-180" />
+              </summary>
+              <p className="mt-2 text-sm leading-relaxed text-ink-500">{a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      {filterLoaded && (
+        <Suspense fallback={null}>
+          <DishFilterSheet open={filterOpen} onClose={() => setFilterOpen(false)} value={filters} onApply={applyFilters} />
+        </Suspense>
+      )}
     </div>
   );
 }
-

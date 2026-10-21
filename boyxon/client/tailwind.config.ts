@@ -7,7 +7,15 @@ export default {
     extend: {
       screens: { sm: '480px', md: '768px', lg: '1024px', xl: '1280px', '2xl': '1440px' },
       colors: {
-        primary: { 50: '#FFF3E0', 100: '#FDEBD0', 500: '#E67E22', 600: '#D35400', 700: '#B85C00' },
+        primary: {
+          50: '#FFF3E0',
+          100: '#FDEBD0',
+          500: '#E67E22',
+          600: '#D35400',
+          700: '#B85C00',
+          // WCAG AA: oq matn uchun 4.6:1, primary-100 fonida 6.1:1
+          800: '#8A4500',
+        },
         // ── New semantic tokens ──
         bg: 'rgb(var(--bg) / <alpha-value>)',
         surface: 'rgb(var(--surface) / <alpha-value>)',

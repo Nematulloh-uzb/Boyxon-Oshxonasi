@@ -66,7 +66,7 @@ export default function AdminCategories() {
               onClick={() => setFilter(f)}
               className={cn(
                 'rounded-full px-3 py-1.5 text-xs font-semibold',
-                filter === f ? 'bg-primary-500 text-white' : 'bg-surface-raised text-ink-700 hover:opacity-80',
+                filter === f ? 'bg-primary-700 text-white' : 'bg-surface-raised text-ink-700 hover:opacity-80',
               )}
             >
               {t(`admin.cat_filter_${f}`)}

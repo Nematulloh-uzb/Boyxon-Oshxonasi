@@ -8,7 +8,7 @@ export function Badge({ children, tone = 'default' }: { children: React.ReactNod
         tone === 'default' && 'bg-surface-raised text-ink-700',
         tone === 'success' && 'bg-success/10 text-success',
         tone === 'danger' && 'bg-danger/10 text-danger',
-        tone === 'promo' && 'bg-primary-100 text-primary-700',
+        tone === 'promo' && 'bg-primary-100 text-primary-800',
       )}
     >
       {children}

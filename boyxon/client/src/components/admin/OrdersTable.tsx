@@ -9,9 +9,9 @@ const STATUSES: OrderStatus[] = ['pending', 'confirmed', 'packing', 'handed_to_t
 
 const tone: Record<OrderStatus, string> = {
   pending: 'bg-surface-raised text-ink-700',
-  confirmed: 'bg-primary-100 text-primary-700',
-  packing: 'bg-primary-50 text-primary-700',
-  handed_to_taxi: 'bg-primary-100 text-primary-700',
+  confirmed: 'bg-primary-100 text-primary-800',
+  packing: 'bg-primary-50 text-primary-800',
+  handed_to_taxi: 'bg-primary-100 text-primary-800',
   delivered: 'bg-success/10 text-success',
   cancelled: 'bg-danger/10 text-danger',
 };

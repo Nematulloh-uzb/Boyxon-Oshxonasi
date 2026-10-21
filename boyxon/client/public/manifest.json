@@ -1,13 +1,55 @@
 {
-  "name": "Boyxon Oshxonasi",
+  "id": "/",
+  "name": "Boyxon Oshxonasi — Milliy taomlar",
   "short_name": "Boyxon",
-  "description": "O'zbek milliy taomlari yetkazib berish",
+  "description": "Toshkentda o'zbek milliy taomlari yetkazib berish: palov, somsa, kabob. Har kuni 9:00-23:00.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#FFF8F0",
+  "orientation": "portrait",
+  "background_color": "#121212",
   "theme_color": "#E67E22",
   "lang": "uz",
+  "dir": "ltr",
+  "categories": ["food", "shopping"],
   "icons": [
-    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Menyu",
+      "short_name": "Menyu",
+      "url": "/",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Savat",
+      "short_name": "Savat",
+      "url": "/cart",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
   ]
 }

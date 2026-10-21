@@ -24,7 +24,7 @@ export function Sidebar() {
             className={({ isActive }) =>
               cn(
                 'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium',
-                isActive ? 'bg-primary-50 text-primary-700' : 'text-ink-700 hover:bg-surface-raised',
+                isActive ? 'bg-primary-50 text-primary-800' : 'text-ink-700 hover:bg-surface-raised',
               )
             }
           >

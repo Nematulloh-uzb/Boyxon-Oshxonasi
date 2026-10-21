@@ -88,7 +88,7 @@ export function ChatWidget() {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-20 right-5 z-40 grid h-12 w-12 place-items-center rounded-full bg-gradient-to-r from-[#E67E22] to-[#F39C12] text-white shadow-lg transition hover:scale-105 active:scale-95 sm:bottom-5"
+          className="fixed bottom-20 right-5 z-40 grid h-12 w-12 place-items-center rounded-full bg-gradient-to-r from-primary-700 to-primary-800 text-white shadow-lg transition hover:scale-105 active:scale-95 sm:bottom-5"
           aria-label={t('chat.open')}
         >
           <MessageCircle className="h-6 w-6" />
@@ -99,13 +99,13 @@ export function ChatWidget() {
       {open && (
         <div className="fixed bottom-0 right-0 z-40 flex h-[100dvh] w-full flex-col bg-surface shadow-2xl sm:bottom-5 sm:right-5 sm:h-[560px] sm:max-h-[85vh] sm:w-[380px] sm:rounded-3xl sm:border sm:border-ink-line">
           {/* Sarlavha */}
-          <div className="flex items-center gap-3 rounded-t-3xl bg-gradient-to-r from-[#E67E22] to-[#F39C12] px-4 py-3 text-white">
+          <div className="flex items-center gap-3 rounded-t-3xl bg-gradient-to-r from-primary-700 to-primary-800 px-4 py-3 text-white">
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/20">
               <MessageCircle className="h-5 w-5" />
             </span>
             <div className="min-w-0 flex-1">
               <p className="truncate font-semibold">{t('chat.support')}</p>
-              <p className="flex items-center gap-1.5 text-xs text-white/80">
+              <p className="flex items-center gap-1.5 text-xs text-white">
                 <span className="h-2 w-2 rounded-full bg-green-300" />
                 {t('chat.online')}
               </p>
@@ -136,12 +136,12 @@ export function ChatWidget() {
                     className={cn(
                       'max-w-[80%] rounded-2xl px-3.5 py-2 text-sm shadow-sm',
                       mine
-                        ? 'rounded-br-md bg-gradient-to-r from-[#E67E22] to-[#F39C12] text-white'
+                        ? 'rounded-br-md bg-gradient-to-r from-primary-700 to-primary-800 text-white'
                         : 'rounded-bl-md bg-surface-raised text-ink-800',
                     )}
                   >
                     <p className="whitespace-pre-wrap break-words">{m.text}</p>
-                    <p className={cn('mt-1 text-[10px]', mine ? 'text-white/70' : 'text-ink-300')}>{time(m.createdAt)}</p>
+                    <p className={cn('mt-1 text-[10px]', mine ? 'text-white' : 'text-ink-300')}>{time(m.createdAt)}</p>
                   </div>
                 </div>
               );
@@ -177,7 +177,7 @@ export function ChatWidget() {
             <button
               type="submit"
               disabled={!draft.trim()}
-              className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-r from-[#E67E22] to-[#F39C12] text-white transition disabled:opacity-40"
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-r from-primary-700 to-primary-800 text-white transition disabled:opacity-40"
               aria-label={t('chat.send')}
             >
               <Send className="h-5 w-5" />

@@ -31,6 +31,9 @@ export function DishCard({ dish }: { dish: Dish }) {
             src={dish.image}
             alt={name}
             loading="lazy"
+            decoding="async"
+            width={640}
+            height={480}
             onError={() => setImgFailed(true)}
             className="aspect-[4/3] w-full rounded-t-[20px] object-cover"
           />
@@ -65,7 +68,7 @@ export function DishCard({ dish }: { dish: Dish }) {
           <button
             onClick={addToCart}
             aria-label={t('dish.add')}
-            className="grid h-10 w-10 place-items-center rounded-full bg-primary-500 text-white transition hover:bg-primary-600 active:scale-95"
+            className="grid h-10 w-10 place-items-center rounded-full bg-primary-600 text-white transition hover:bg-primary-700 active:scale-95"
           >
             <Plus className="h-5 w-5" />
           </button>

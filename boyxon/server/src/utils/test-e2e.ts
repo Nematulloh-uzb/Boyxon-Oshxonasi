@@ -13,7 +13,7 @@ function check(name: string, cond: boolean, extra = ''): void {
   else { failed++; console.log(`  ❌ ${name} ${extra}`); }
 }
 
-interface ReqResult { status: number; body: any; cookie: string | null; }
+interface ReqResult { status: number; body: any; cookie: string | null; headers: http.IncomingHttpHeaders; }
 
 function request(base: string, method: string, path: string, body?: unknown, cookie?: string, token?: string): Promise<ReqResult> {
   return new Promise((resolve, reject) => {
@@ -33,7 +33,7 @@ function request(base: string, method: string, path: string, body?: unknown, coo
           try { parsed = JSON.parse(data); } catch { parsed = data; }
           const sc = res.headers['set-cookie'];
           const cookieVal = Array.isArray(sc) ? sc.map((c) => c.split(';')[0]).join('; ') : null;
-          resolve({ status: res.statusCode ?? 0, body: parsed, cookie: cookieVal });
+          resolve({ status: res.statusCode ?? 0, body: parsed, cookie: cookieVal, headers: res.headers });
         });
       },
     );
@@ -88,10 +88,46 @@ async function main(): Promise<void> {
   check('GET /dishes/featured → 200', (await request(base, 'GET', '/dishes/featured')).status === 200);
   check('GET /dishes?search=palov → 200', (await request(base, 'GET', '/dishes?search=palov')).status === 200);
 
+  // SEO: sitemap, robots, API noindex
+  const sitemapRes = await request(root, 'GET', '/sitemap.xml');
+  const sitemapBody = typeof sitemapRes.body === 'string' ? sitemapRes.body : '';
+  const sitemapUrls = (sitemapBody.match(/<url>/g) ?? []).length;
+  check(
+    'GET /sitemap.xml → 200 XML + barcha tillar',
+    sitemapRes.status === 200 &&
+      sitemapBody.includes('<urlset') &&
+      sitemapBody.includes('hreflang="uz"') &&
+      sitemapBody.includes('hreflang="ru"') &&
+      sitemapBody.includes('hreflang="en"') &&
+      sitemapBody.includes('hreflang="x-default"') &&
+      sitemapUrls >= 90,
+    `status ${sitemapRes.status} urls ${sitemapUrls}`,
+  );
+  const apiRobotsRes = await request(root, 'GET', '/robots.txt');
+  check(
+    'GET /robots.txt → 200 + API yopilgan',
+    apiRobotsRes.status === 200 && String(apiRobotsRes.body).includes('Disallow: /api/'),
+    `status ${apiRobotsRes.status}`,
+  );
+  check(
+    'API javobida X-Robots-Tag: noindex',
+    String(cats.headers['x-robots-tag'] ?? '').includes('noindex'),
+    String(cats.headers['x-robots-tag'] ?? ''),
+  );
+
   const login = await request(base, 'POST', '/auth/login', { email: 'aziz@example.com', password: 'User123!' });
   const accessToken = (login.body as { data: { accessToken: string } }).data?.accessToken;
   const cookie = login.cookie;
   check('POST /auth/login → 200 + token + cookie', login.status === 200 && Boolean(accessToken) && Boolean(cookie), `status ${login.status}`);
+
+  // Birinchi tashrif (cookie yo'q) — 401 emas, 200 + null. Konsolda xato bo'lmasligi uchun.
+  const guestRefresh = await request(base, 'POST', '/auth/refresh', {});
+  check(
+    'Cookie yo‘q refresh → 200 (mehmon)',
+    guestRefresh.status === 200 &&
+      (guestRefresh.body as { data?: { accessToken?: string | null } }).data?.accessToken === null,
+    `status ${guestRefresh.status} ${JSON.stringify(guestRefresh.body)}`,
+  );
 
   check('GET /auth/me (auth) → 200', (await request(base, 'GET', '/auth/me', undefined, cookie ?? undefined, accessToken)).status === 200);
   check('GET /auth/me (no token) → 401', (await request(base, 'GET', '/auth/me')).status === 401);

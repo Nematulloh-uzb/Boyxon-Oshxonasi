@@ -227,7 +227,13 @@ export const logoutAll = asyncHandler(async (req: Request, res: Response) => {
  */
 export const refresh = asyncHandler(async (req: Request, res: Response) => {
   const token = req.cookies?.refreshToken as string | undefined;
-  if (!token) throw ApiError.unauthorized('Refresh token topilmadi');
+  // Cookie yo'q — bu xato emas, shunchaki mehmon sessiyasi. 200 qaytaramiz:
+  // aks holda birinchi tashrifda brauzer konsolida 401 "xato" paydo bo'ladi
+  // (Lighthouse Best Practices: errors-in-console).
+  if (!token) {
+    res.json(ok({ accessToken: null, user: null }, 'Sessiya yo‘q'));
+    return;
+  }
   let payload: { id: string; ver: number; sid: string };
   try {
     payload = verifyRefreshToken(token);

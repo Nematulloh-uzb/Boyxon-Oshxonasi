@@ -48,7 +48,15 @@ api.interceptors.response.use(
       refreshing = true;
       try {
         const { data } = await axios.post(`${API_URL}/auth/refresh`, {}, { withCredentials: true });
-        const token = data.data.accessToken as string;
+        const token = data.data.accessToken as string | null;
+        // Cookie yo'q (mehmon) — 200 + null qaytadi; `Bearer null` bilan qayta
+        // urinmaymiz, sessiyani tozalab, asl xatoni qaytaramiz.
+        if (!token) {
+          queue.forEach((fn) => fn(null));
+          queue = [];
+          useAuthStore.getState().logout();
+          return Promise.reject(error);
+        }
         useAuthStore.getState().setToken(token);
         if (data.data.user) useAuthStore.getState().setUser(data.data.user);
         queue.forEach((fn) => fn(token));

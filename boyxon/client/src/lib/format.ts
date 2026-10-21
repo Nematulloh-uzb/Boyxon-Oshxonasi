@@ -1,4 +1,5 @@
 import i18n from '../locales/i18n';
+import { normalizeLang } from './seo';
 
 const LOCALE_MAP: Record<string, string> = {
   uz: 'uz-UZ',
@@ -34,8 +35,9 @@ export function localizedText(
   en: string | undefined,
   lang: string | undefined,
 ): string {
-  if (lang === 'ru' && ru?.trim()) return ru;
-  if (lang === 'en' && en?.trim()) return en;
+  const normalized = normalizeLang(lang);
+  if (normalized === 'ru' && ru?.trim()) return ru;
+  if (normalized === 'en' && en?.trim()) return en;
   return uz;
 }
 
@@ -50,11 +52,31 @@ export function localizedDishDescription(
   return localizedText(dish.description, dish.descriptionRu, dish.descriptionEn, lang);
 }
 
+const CATEGORY_NAME_FALLBACKS: Record<string, Partial<Record<Lang, string>>> = {
+  taomlar: { ru: 'Блюда', en: 'Dishes' },
+  shorvalar: { ru: 'Супы', en: 'Soups' },
+  palovlar: { ru: 'Плов', en: 'Pilaf' },
+  somsa: { ru: 'Самса', en: 'Samsa' },
+  kaboblar: { ru: 'Шашлык', en: 'Kebabs' },
+  salatlar: { ru: 'Салаты', en: 'Salads' },
+  shirinliklar: { ru: 'Десерты', en: 'Desserts' },
+  ichimliklar: { ru: 'Напитки', en: 'Drinks' },
+  non: { ru: 'Хлеб', en: 'Bread' },
+};
+
 export function localizedCategoryName(
-  cat: { name: string; nameRu?: string; nameEn?: string },
+  cat: { name: string; nameRu?: string; nameEn?: string; slug?: string },
   lang: string | undefined,
 ): string {
-  return localizedText(cat.name, cat.nameRu, cat.nameEn, lang);
+  const normalized = normalizeLang(lang);
+  const explicit = localizedText(cat.name, cat.nameRu, cat.nameEn, lang);
+  if (explicit !== cat.name) return explicit;
+  // DB'da tarjima bo'lmasa, mavjud kategoriya uchun qisqa nomdan foydalanamiz.
+  if (cat.slug) {
+    const fallback = CATEGORY_NAME_FALLBACKS[cat.slug]?.[normalized];
+    if (fallback) return fallback;
+  }
+  return cat.name;
 }
 
 /** Order status i18n key — translate in components via t(`status.${status}`). */

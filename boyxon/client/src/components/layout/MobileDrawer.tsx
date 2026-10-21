@@ -59,7 +59,7 @@ export function MobileDrawer() {
                   <LogOut className="h-5 w-5" />{t('auth.logout')}
                 </button>
               ) : (
-                <Link to="/auth" onClick={close} className="block rounded-full bg-primary-500 py-3 text-center font-semibold text-white">
+                <Link to="/auth" onClick={close} className="block rounded-full bg-primary-700 py-3 text-center font-semibold text-white">
                   {t('auth.signin')}
                 </Link>
               )}

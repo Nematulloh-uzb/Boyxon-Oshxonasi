@@ -68,7 +68,7 @@ export function DishFilterSheet({ open, onClose, value, onApply }: Props) {
               <button
                 key={r}
                 onClick={() => setDraft({ ...draft, rating: r === 0 ? undefined : r })}
-                className={`rounded-full border px-3 py-1.5 text-sm ${draft.rating === r || (r === 0 && !draft.rating) ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-ink-line'}`}
+                className={`rounded-full border px-3 py-1.5 text-sm ${draft.rating === r || (r === 0 && !draft.rating) ? 'border-primary-500 bg-primary-50 text-primary-800' : 'border-ink-line'}`}
               >
                 {r === 0 ? t('filter.all') : `${r}+`}
               </button>
@@ -89,7 +89,7 @@ export function DishFilterSheet({ open, onClose, value, onApply }: Props) {
                     on ? cur.delete(tag.v) : cur.add(tag.v);
                     setDraft({ ...draft, tags: [...cur].join(',') || undefined });
                   }}
-                  className={`rounded-full border px-3 py-1.5 text-sm ${on ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-ink-line'}`}
+                  className={`rounded-full border px-3 py-1.5 text-sm ${on ? 'border-primary-500 bg-primary-50 text-primary-800' : 'border-ink-line'}`}
                 >
                   {t(tag.k)}
                 </button>
@@ -105,7 +105,7 @@ export function DishFilterSheet({ open, onClose, value, onApply }: Props) {
               <button
                 key={s.v}
                 onClick={() => setDraft({ ...draft, sort: s.v })}
-                className={`rounded-full border px-3 py-1.5 text-sm ${draft.sort === s.v ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-ink-line'}`}
+                className={`rounded-full border px-3 py-1.5 text-sm ${draft.sort === s.v ? 'border-primary-500 bg-primary-50 text-primary-800' : 'border-ink-line'}`}
               >
                 {t(s.k)}
               </button>
