@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 import { Loader2, LocateFixed } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -14,15 +12,29 @@ export interface MapPick {
 /** Toshkent markazi — xarita standart ochiladigan nuqta. */
 export const TASHKENT_CENTER: [number, number] = [41.3111, 69.2797];
 
-const PIN_ICON = L.divIcon({
-  className: 'bx-map-pin',
-  html:
-    '<svg width="36" height="36" viewBox="0 0 24 24" style="filter: drop-shadow(0 2px 3px rgba(0,0,0,.35))">' +
-    '<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#E67E22"/>' +
-    '<circle cx="12" cy="9" r="2.6" fill="#fff"/></svg>',
-  iconSize: [36, 36],
-  iconAnchor: [18, 34],
-});
+/** Leaflet'ni faqat xarita kerak bo'lganda dynamically yuklaymiz (unused-JS kamaytirish uchun). */
+async function loadLeaflet() {
+  const L = (await import('leaflet')).default;
+  await import('leaflet/dist/leaflet.css');
+  return L;
+}
+
+let PIN_ICON: ReturnType<typeof L.divIcon> | null = null;
+function getPinIcon(): ReturnType<typeof L.divIcon> {
+  if (!PIN_ICON) {
+    const L = (window as any).__leaflet;
+    PIN_ICON = L.divIcon({
+      className: 'bx-map-pin',
+      html:
+        '<svg width="36" height="36" viewBox="0 0 24 24" style="filter: drop-shadow(0 2px 3px rgba(0,0,0,.35))">' +
+        '<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#E67E22"/>' +
+        '<circle cx="12" cy="9" r="2.6" fill="#fff"/></svg>',
+      iconSize: [36, 36],
+      iconAnchor: [18, 34],
+    });
+  }
+  return PIN_ICON!;
+}
 
 /**
  * Nominatim (OpenStreetMap) orqali teskari geokodlash — API kalitsiz.
