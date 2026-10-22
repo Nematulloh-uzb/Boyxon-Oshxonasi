@@ -307,6 +307,7 @@
   "payment.card_number": "Card number",
   "payment.card_holder": "Card holder",
   "payment.card_hint": "After ordering, transfer the amount to the card and send the receipt to the admin.",
+  "payment.card_demo_hint": "Demo details — enter the real card number in the admin panel.",
   "payment.card_settings": "Card details",
   "payment.card_settings_desc": "Card number and holder for bank transfers",
   "payment.copy": "Copy",

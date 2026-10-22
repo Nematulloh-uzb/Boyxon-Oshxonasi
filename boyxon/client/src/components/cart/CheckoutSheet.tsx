@@ -18,6 +18,10 @@ import { ordersApi } from '../../api/orders.api';
 import { DELIVERY_FEE, FREE_DELIVERY_FROM } from '../../lib/constants';
 import type { Order } from '../../types';
 
+/** Admin panelda haqiqiy rekvizitlar kiritilmaguncha demo uchun ko'rsatiladi. */
+const DEMO_CARD_NUMBER = '8600 1234 5678 9012';
+const DEMO_CARD_HOLDER = 'Demo karta';
+
 export function CheckoutSheet() {
   const { t } = useTranslation();
   const { checkoutOpen, set } = useUiStore();
@@ -27,8 +31,11 @@ export function CheckoutSheet() {
   const nav = useNavigate();
   const { data: kitchen, refetch: refetchKitchen } = useKitchenStatus();
   const kitchenClosed = kitchen?.kitchenOpen === false;
-  const cardNumber = kitchen?.cardNumber?.trim() ?? '';
-  const cardHolder = kitchen?.cardHolder?.trim() ?? '';
+  const configuredCardNumber = kitchen?.cardNumber?.trim() ?? '';
+  const configuredCardHolder = kitchen?.cardHolder?.trim() ?? '';
+  const cardNumber = configuredCardNumber || DEMO_CARD_NUMBER;
+  const cardHolder = configuredCardHolder || DEMO_CARD_HOLDER;
+  const cardIsDemo = !configuredCardNumber;
   const cardEnabled = Boolean(cardNumber);
 
   const [deliveryType, setDeliveryType] = useState<'delivery' | 'pickup'>('delivery');
@@ -209,6 +216,11 @@ export function CheckoutSheet() {
               </p>
             )}
             <p className="mt-2 text-xs leading-relaxed text-ink-300">{t('payment.card_hint')}</p>
+            {cardIsDemo && (
+              <p className="mt-2 rounded-lg bg-primary-50 px-2 py-1.5 text-[11px] font-semibold leading-snug text-primary-800">
+                {t('payment.card_demo_hint')}
+              </p>
+            )}
           </div>
         )}
 

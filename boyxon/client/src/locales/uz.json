@@ -307,6 +307,7 @@
   "payment.card_number": "Karta raqami",
   "payment.card_holder": "Karta egasi",
   "payment.card_hint": "Buyurtmadan so'ng kartaga o'tkazing va chekni adminga yuboring.",
+  "payment.card_demo_hint": "Demo rekvizitlar — admin panelda haqiqiy karta raqamini kiriting.",
   "payment.card_settings": "Karta rekvizitlari",
   "payment.card_settings_desc": "Karta o'tkazmasi uchun raqam va egasi",
   "payment.copy": "Nusxalash",

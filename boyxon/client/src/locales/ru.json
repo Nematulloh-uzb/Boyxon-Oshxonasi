@@ -307,6 +307,7 @@
   "payment.card_number": "Номер карты",
   "payment.card_holder": "Владелец карты",
   "payment.card_hint": "После заказа переведите сумму на карту и отправьте чек администратору.",
+  "payment.card_demo_hint": "Демо-реквизиты — укажите настоящий номер карты в админ-панели.",
   "payment.card_settings": "Реквизиты карты",
   "payment.card_settings_desc": "Номер карты и владелец для оплаты переводом",
   "payment.copy": "Копировать",
