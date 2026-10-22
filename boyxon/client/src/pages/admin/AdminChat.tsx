@@ -36,8 +36,13 @@ export default function AdminChat() {
 
   return (
     <div className="grid h-[calc(100vh-8rem)] grid-cols-1 gap-4 md:grid-cols-[320px_1fr]">
-      {/* Suhbatlar ro'yxati */}
-      <div className="flex flex-col overflow-hidden rounded-card bg-surface shadow-sm">
+      {/* Suhbatlar ro'yxati — mobilde suhbat tanlanganda to'liq oynaga o'tadi. */}
+      <div
+        className={cn(
+          'flex flex-col overflow-hidden rounded-card bg-surface shadow-sm',
+          selected && 'hidden md:flex',
+        )}
+      >
         <div className="border-b border-ink-line p-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-300" />
@@ -91,8 +96,13 @@ export default function AdminChat() {
         </div>
       </div>
 
-      {/* Xabar oynasi */}
-      <div className="overflow-hidden rounded-card bg-surface shadow-sm">
+      {/* Xabar oynasi — mobilde ro'yxat ustida emas, alohida to'liq oyna. */}
+      <div
+        className={cn(
+          'overflow-hidden rounded-card bg-surface shadow-sm',
+          !selected && 'hidden md:block',
+        )}
+      >
         {selected ? (
           <ChatThread conversationId={selected._id} onBack={() => setSelectedId(null)} />
         ) : (
