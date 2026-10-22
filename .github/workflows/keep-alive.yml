@@ -1,0 +1,60 @@
+# =============================================================================
+# Render free-tier keep-alive
+#
+# Render bepul web service 15 daqiqa harakatsizlikdan keyin uxlaydi va keyingi
+# so'rovda 30–60 soniya "Application loading" ko'rsatadi. Bu workflow ish
+# soatlarida har 5 daqiqada /health ni chaqirib, serverni uyg'oq tutadi.
+#
+# NEGA FAQAT ISH SOATLARI?
+# Render free plan oyiga 750 instance-hour beradi. 24/7 ping ≈ 744 soat —
+# deyarli butun limit, zaxira qolmaydi. Toshkent 09:00–23:00 ≈ 450 soat/oy,
+# ya'ni limitning ~60% i ishlatiladi.
+#
+# ESLATMA: GitHub scheduled workflow'larni bir necha daqiqaga kechiktirishi
+# mumkin (bu normal). 5 daqiqalik oraliq 15 daqiqalik uyqu chegarasidan ancha
+# kichik, shuning uchun kechikish muammo bo'lmaydi.
+# =============================================================================
+
+name: Server keep-alive
+
+on:
+  schedule:
+    # UTC. Toshkent = UTC+5 → 04:00–18:59 UTC = 09:00–23:59 mahalliy vaqt.
+    - cron: '*/5 4-18 * * *'
+  # Qo'lda sinash uchun: Actions → Server keep-alive → Run workflow.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Bir vaqtda faqat bitta ping ishlaydi (uyg'onish 60 soniyagacha cho'zilsa,
+# keyingi run navbatda kutadi).
+concurrency:
+  group: keep-alive
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Ping /health
+        run: |
+          set -u
+          url="https://boyxon-server.onrender.com/health"
+
+          for attempt in 1 2 3; do
+            # --max-time 75: cold start 30–60s, zaxira bilan.
+            code=$(curl -sS -o health.json -w '%{http_code}' --max-time 75 "$url?t=$(date +%s)" || echo 000)
+
+            if [ "$code" = "200" ] && grep -Eq '"success"[[:space:]]*:[[:space:]]*true' health.json; then
+              echo "Server uyg'oq (HTTP $code), urinish: $attempt"
+              exit 0
+            fi
+
+            echo "Urinish $attempt muvaffaqiyatsiz (HTTP $code) — 10s kutamiz"
+            sleep 10
+          done
+
+          echo "::error::Server 3 urinishda ham javob bermadi"
+          exit 1
