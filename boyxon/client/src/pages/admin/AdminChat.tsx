@@ -35,11 +35,11 @@ export default function AdminChat() {
   const selected = conversations.find((c) => c._id === selectedId) ?? null;
 
   return (
-    <div className="grid h-[calc(100vh-8rem)] grid-cols-1 gap-4 md:grid-cols-[320px_1fr]">
+    <div className="grid h-[calc(100dvh-9rem)] grid-cols-1 gap-4 overflow-hidden md:h-[calc(100vh-8rem)] md:grid-cols-[320px_1fr]">
       {/* Suhbatlar ro'yxati — mobilde suhbat tanlanganda to'liq oynaga o'tadi. */}
       <div
         className={cn(
-          'flex flex-col overflow-hidden rounded-card bg-surface shadow-sm',
+          'flex min-h-0 flex-col overflow-hidden rounded-card bg-surface shadow-sm',
           selected && 'hidden md:flex',
         )}
       >
@@ -54,7 +54,7 @@ export default function AdminChat() {
             />
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto">
+        <div className="min-h-0 flex-1 overflow-y-auto">
           {isLoading && <p className="p-6 text-center text-sm text-ink-300">{t('common.loading')}</p>}
           {!isLoading && !conversations.length && (
             <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -99,7 +99,7 @@ export default function AdminChat() {
       {/* Xabar oynasi — mobilde ro'yxat ustida emas, alohida to'liq oyna. */}
       <div
         className={cn(
-          'overflow-hidden rounded-card bg-surface shadow-sm',
+          'min-h-0 overflow-hidden rounded-card bg-surface shadow-sm',
           !selected && 'hidden md:block',
         )}
       >

@@ -85,8 +85,8 @@ export function ChatThread({ conversationId, onBack }: { conversationId: string;
       });
   };
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex items-center gap-3 border-b border-ink-line px-4 py-3">
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="flex shrink-0 items-center gap-3 border-b border-ink-line px-4 py-3">
         <button onClick={onBack} className="rounded-full p-1.5 hover:bg-surface-raised md:hidden" aria-label={t('common.back')}>
           <ArrowLeft className="h-5 w-5" />
         </button>
@@ -99,7 +99,10 @@ export function ChatThread({ conversationId, onBack }: { conversationId: string;
         </div>
       </div>
 
-      <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-bg p-4">
+      <div
+        ref={scrollRef}
+        className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain bg-bg p-4"
+      >
         {isLoading && (
           <div className="flex h-full items-center justify-center text-ink-300">
             <Loader2 className="h-6 w-6 animate-spin" />
@@ -135,7 +138,7 @@ export function ChatThread({ conversationId, onBack }: { conversationId: string;
       </div>
 
       <form
-        className="flex items-center gap-2 border-t border-ink-line bg-surface p-3"
+        className="sticky bottom-0 z-10 flex shrink-0 items-center gap-2 border-t border-ink-line bg-surface p-3"
         onSubmit={(e) => {
           e.preventDefault();
           send();
