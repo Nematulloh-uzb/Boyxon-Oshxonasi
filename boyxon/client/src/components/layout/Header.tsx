@@ -92,11 +92,19 @@ export function Header() {
             {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </button>
           <button
-            className="rounded-full p-2.5 hover:bg-surface-raised"
+            className={`rounded-full hover:bg-surface-raised ${user?.avatar ? 'p-1' : 'p-2.5'}`}
             onClick={() => nav(accessToken ? '/settings' : '/auth')}
             aria-label={t('nav.profile')}
           >
-            <User className="h-5 w-5" />
+            {user?.avatar ? (
+              <img
+                src={user.avatar}
+                alt=""
+                className="h-8 w-8 rounded-full border border-ink-line object-cover"
+              />
+            ) : (
+              <User className="h-5 w-5" />
+            )}
           </button>
         </div>
       </div>
