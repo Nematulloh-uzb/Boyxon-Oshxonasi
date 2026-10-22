@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { ArrowLeft, Send, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { chatApi } from '../../api/chat.api';
+import { UserAvatar } from '../ui/UserAvatar';
 import { useChatSocket, useChatTyping } from '../../hooks/useChatSocket';
 import { cn } from '../../lib/utils';
 import type { ChatMessage, ChatUser } from '../../types';
@@ -90,9 +91,7 @@ export function ChatThread({ conversationId, onBack }: { conversationId: string;
         <button onClick={onBack} className="rounded-full p-1.5 hover:bg-surface-raised md:hidden" aria-label={t('common.back')}>
           <ArrowLeft className="h-5 w-5" />
         </button>
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary-100 text-sm font-bold text-primary-700">
-          {(user?.name ?? '?').charAt(0).toUpperCase()}
-        </span>
+        <UserAvatar src={user?.avatar} name={user?.name} className="h-10 w-10" />
         <div className="min-w-0 flex-1">
           <p className="truncate font-semibold text-ink-800">{user?.name ?? t('chat.unknown_user')}</p>
           {user?.phone && <p className="truncate text-xs text-ink-300">{user.phone}</p>}
@@ -111,7 +110,13 @@ export function ChatThread({ conversationId, onBack }: { conversationId: string;
         {messages.map((m) => {
           const mine = m.senderRole === 'admin';
           return (
-            <div key={m._id} className={cn('flex', mine ? 'justify-end' : 'justify-start')}>
+            <div
+              key={m._id}
+              className={cn('flex items-end gap-2', mine ? 'justify-end' : 'justify-start')}
+            >
+              {!mine && (
+                <UserAvatar src={user?.avatar} name={user?.name} className="h-7 w-7 text-[10px]" />
+              )}
               <div
                 className={cn(
                   'max-w-[78%] rounded-2xl px-3.5 py-2 text-sm shadow-sm',
@@ -127,7 +132,8 @@ export function ChatThread({ conversationId, onBack }: { conversationId: string;
           );
         })}
         {userTyping && (
-          <div className="flex justify-start">
+          <div className="flex items-end justify-start gap-2">
+            <UserAvatar src={user?.avatar} name={user?.name} className="h-7 w-7 text-[10px]" />
             <div className="flex items-center gap-1 rounded-2xl rounded-bl-md bg-surface-raised px-4 py-3">
               <span className="h-2 w-2 animate-bounce rounded-full bg-ink-300 [animation-delay:-0.3s]" />
               <span className="h-2 w-2 animate-bounce rounded-full bg-ink-300 [animation-delay:-0.15s]" />

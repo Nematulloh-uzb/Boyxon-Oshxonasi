@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { chatApi } from '../../api/chat.api';
 import { ChatThread } from '../../components/admin/ChatThread';
+import { UserAvatar } from '../../components/ui/UserAvatar';
 import { useChatSocket } from '../../hooks/useChatSocket';
 import { cn } from '../../lib/utils';
 import type { ChatConversation, ChatUser } from '../../types';
@@ -73,9 +74,7 @@ export default function AdminChat() {
                   selectedId === c._id && 'bg-primary-50',
                 )}
               >
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary-100 text-sm font-bold text-primary-700">
-                  {(u?.name ?? '?').charAt(0).toUpperCase()}
-                </span>
+                <UserAvatar src={u?.avatar} name={u?.name} className="h-10 w-10" />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
                     <p className="truncate font-semibold text-ink-800">{u?.name ?? t('chat.unknown_user')}</p>
