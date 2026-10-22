@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useLocation } from 'react-router-dom';
 import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { chatApi } from '../../api/chat.api';
@@ -16,6 +17,7 @@ function time(iso: string): string {
 export function ChatWidget() {
   const { t } = useTranslation();
   const qc = useQueryClient();
+  const { pathname } = useLocation();
   const token = useAuthStore((s) => s.accessToken);
   const [open, setOpen] = useState(() => isChatOpen());
   const [draft, setDraft] = useState('');
@@ -84,11 +86,17 @@ export function ChatWidget() {
 
   return (
     <>
-      {/* Yopiq holat — floating tugma (mobil: pastki nav panelidan tepada) */}
+      {/* Yopiq holat — floating tugma (mobil: pastki nav panelidan tepada).
+          Savat sahifasida yopishqoq checkout paneli ham bor — uning ustiga
+          tushmasligi uchun qo'shimcha ofset. */}
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-20 right-5 z-40 grid h-12 w-12 place-items-center rounded-full bg-gradient-to-r from-primary-700 to-primary-800 text-white shadow-lg transition hover:scale-105 active:scale-95 sm:bottom-5"
+          className={`fixed right-5 z-40 grid h-12 w-12 place-items-center rounded-full bg-gradient-to-r from-primary-700 to-primary-800 text-white shadow-lg transition hover:scale-105 active:scale-95 sm:bottom-5 ${
+            pathname === '/cart'
+              ? 'bottom-[calc(9.5rem_+_env(safe-area-inset-bottom,0px))]'
+              : 'bottom-20'
+          }`}
           aria-label={t('chat.open')}
         >
           <MessageCircle className="h-6 w-6" />
@@ -97,9 +105,9 @@ export function ChatWidget() {
 
       {/* Ochiq chat oynasi */}
       {open && (
-        <div className="fixed bottom-0 right-0 z-40 flex h-[100dvh] w-full flex-col bg-surface shadow-2xl sm:bottom-5 sm:right-5 sm:h-[560px] sm:max-h-[85vh] sm:w-[380px] sm:rounded-3xl sm:border sm:border-ink-line">
+        <div className="fixed bottom-0 right-0 z-40 flex h-[100dvh] w-full flex-col bg-surface shadow-2xl sm:bottom-5 sm:right-5 sm:h-[560px] sm:max-h-[85vh] sm:w-[380px] sm:rounded-lg sm:border sm:border-ink-line">
           {/* Sarlavha */}
-          <div className="flex items-center gap-3 rounded-t-3xl bg-gradient-to-r from-primary-700 to-primary-800 px-4 py-3 text-white">
+          <div className="flex items-center gap-3 rounded-t-lg bg-gradient-to-r from-primary-700 to-primary-800 px-4 py-3 text-white">
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/20">
               <MessageCircle className="h-5 w-5" />
             </span>
