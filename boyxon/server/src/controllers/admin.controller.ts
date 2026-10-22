@@ -11,6 +11,7 @@ import { uploadBufferToCloudinary, deleteFromCloudinary } from '../services/clou
 import { Category } from '../models/Category.model';
 import { Promo } from '../models/Promo.model';
 import { Notification } from '../models/Notification.model';
+import { Setting } from '../models/Setting.model';
 import { sendPushToUsers } from '../services/push.service';
 import { notifyUser, emitNotification } from '../services/notify.service';
 import { getIo } from '../socket';
@@ -296,6 +297,17 @@ export const stats = asyncHandler(async (_req: Request, res: Response) => {
       'OK',
     ),
   );
+});
+
+/** PATCH /api/admin/settings — oshxona ochiq/yopiq holatini yangilash. */
+export const updateSettings = asyncHandler(async (req: Request, res: Response) => {
+  const { kitchenOpen } = req.body as { kitchenOpen: boolean };
+  const settings = await Setting.findOneAndUpdate(
+    { key: 'main' },
+    { $set: { kitchenOpen } },
+    { upsert: true, new: true, setDefaultsOnInsert: true, runValidators: true },
+  );
+  res.json(ok({ kitchenOpen: settings.kitchenOpen }, 'Oshxona holati yangilandi'));
 });
 
 /** GET /api/admin/dishes — barcha taomlar (filtr + pagination). */

@@ -520,5 +520,17 @@
   "seo.breadcrumb_home": "Asosiy",
   "auth.google_connecting": "Ulanmoqda...",
   "auth.server_waking": "Server uyg'onmoqda, iltimos kuting...",
-  "auth.server_unavailable": "Serverga ulanib bo'lmadi. Qayta urinib ko'ring."
+  "auth.server_unavailable": "Serverga ulanib bo'lmadi. Qayta urinib ko'ring.",
+  "kitchen.open": "Ochiq",
+  "kitchen.closed": "Yopiq",
+  "kitchen.title": "Oshxona holati",
+  "kitchen.desc_open": "Buyurtmalar qabul qilinmoqda",
+  "kitchen.desc_closed": "Hozircha buyurtma qabul qilinmaydi",
+  "kitchen.aria_open": "Oshxona ochiq",
+  "kitchen.aria_closed": "Oshxona yopiq",
+  "kitchen.aria_loading": "Oshxona holati yuklanmoqda",
+  "kitchen.hint_open": "Oshxona ochiq — buyurtmalar qabul qilinmoqda",
+  "kitchen.hint_closed": "Oshxona yopiq — hozircha buyurtma qabul qilinmaydi",
+  "kitchen.updated": "Oshxona holati yangilandi",
+  "kitchen.update_error": "Oshxona holatini yangilab bo'lmadi"
 }

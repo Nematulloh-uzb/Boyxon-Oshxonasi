@@ -14,6 +14,7 @@ import {
   toggleBlockSchema,
   categoryCreateSchema,
   categoryUpdateSchema,
+  updateSettingsSchema,
   sendPushSchema,
 } from '../validators/admin.validator';
 import * as c from '../controllers/admin.controller';
@@ -23,6 +24,7 @@ export const adminRouter = Router();
 adminRouter.use(requireAuth, requireAdmin);
 
 adminRouter.get('/stats', c.stats);
+adminRouter.patch('/settings', validate({ body: updateSettingsSchema }), c.updateSettings);
 
 adminRouter.get('/dishes', c.adminDishes);
 adminRouter.post('/dishes', uploadImage.single('image'), validate({ body: dishCreateSchema }), c.createDish);

@@ -520,5 +520,17 @@
   "seo.breadcrumb_home": "Главная",
   "auth.google_connecting": "Подключение...",
   "auth.server_waking": "Сервер просыпается, пожалуйста, подождите...",
-  "auth.server_unavailable": "Не удалось подключиться к серверу. Попробуйте ещё раз."
+  "auth.server_unavailable": "Не удалось подключиться к серверу. Попробуйте ещё раз.",
+  "kitchen.open": "Открыто",
+  "kitchen.closed": "Закрыто",
+  "kitchen.title": "Статус кухни",
+  "kitchen.desc_open": "Принимаем заказы",
+  "kitchen.desc_closed": "Сейчас заказы не принимаются",
+  "kitchen.aria_open": "Кухня открыта",
+  "kitchen.aria_closed": "Кухня закрыта",
+  "kitchen.aria_loading": "Статус кухни загружается",
+  "kitchen.hint_open": "Кухня открыта — принимаем заказы",
+  "kitchen.hint_closed": "Кухня закрыта — сейчас заказы не принимаются",
+  "kitchen.updated": "Статус кухни обновлён",
+  "kitchen.update_error": "Не удалось обновить статус кухни"
 }

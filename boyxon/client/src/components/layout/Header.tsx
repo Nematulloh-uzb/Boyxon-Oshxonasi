@@ -1,12 +1,12 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Bell, Menu, Moon, ShoppingBag, Sun, User } from 'lucide-react';
+import { Bell, Menu, Moon, Sun, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useCartStore } from '../../store/cart.store';
 import { useAuthStore } from '../../store/auth.store';
 import { useUiStore } from '../../store/ui.store';
 import { useQuery } from '@tanstack/react-query';
 import { notificationsApi } from '../../api/notifications.api';
+import { settingsApi } from '../../api/settings.api';
 
 type Theme = 'light' | 'dark';
 
@@ -16,7 +16,6 @@ function currentTheme(): Theme {
 
 export function Header() {
   const { t } = useTranslation();
-  const count = useCartStore((s) => s.lines.reduce((a, l) => a + l.quantity, 0));
   const { user, accessToken } = useAuthStore();
   const { set } = useUiStore();
   const nav = useNavigate();
@@ -26,6 +25,20 @@ export function Header() {
     enabled: Boolean(accessToken),
     refetchInterval: 60_000,
   });
+  const { data: kitchen } = useQuery({
+    queryKey: ['settings'],
+    queryFn: settingsApi.get,
+    refetchInterval: 60_000,
+  });
+  const kitchenOpen = kitchen?.kitchenOpen;
+  const kitchenTone =
+    kitchenOpen === undefined
+      ? 'border-ink-line bg-surface-raised text-ink-300'
+      : kitchenOpen
+        ? 'border-success/20 bg-success/10 text-success'
+        : 'border-danger/20 bg-danger/10 text-danger';
+  const kitchenDot =
+    kitchenOpen === undefined ? 'animate-pulse bg-ink-300' : kitchenOpen ? 'bg-success' : 'bg-danger';
 
   // Tema toggle — guest uchun ham ishlaydi (localStorage'da saqlanadi)
   const [theme, setTheme] = useState<Theme>(() => {
@@ -76,14 +89,28 @@ export function Header() {
               </button>
             </>
           )}
-          <button className="relative rounded-full p-2.5 hover:bg-surface-raised" onClick={() => nav('/cart')} aria-label={t('nav.cart')}>
-            <ShoppingBag className="h-5 w-5" />
-            {count > 0 && (
-              <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-primary-700 px-1 text-[10px] font-bold text-white">
-                {count}
-              </span>
-            )}
-          </button>
+          <span
+            role="status"
+            aria-live="polite"
+            aria-label={
+              kitchenOpen === undefined
+                ? t('kitchen.aria_loading')
+                : kitchenOpen
+                  ? t('kitchen.aria_open')
+                  : t('kitchen.aria_closed')
+            }
+            title={
+              kitchenOpen === undefined
+                ? t('kitchen.aria_loading')
+                : kitchenOpen
+                  ? t('kitchen.hint_open')
+                  : t('kitchen.hint_closed')
+            }
+            className={`flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1.5 text-[11px] font-semibold ${kitchenTone}`}
+          >
+            <span className={`h-2 w-2 rounded-full ${kitchenDot}`} />
+            {kitchenOpen === undefined ? '…' : kitchenOpen ? t('kitchen.open') : t('kitchen.closed')}
+          </span>
           <button
             className="rounded-full p-2.5 hover:bg-surface-raised"
             onClick={toggleTheme}

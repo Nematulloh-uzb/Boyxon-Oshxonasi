@@ -520,5 +520,17 @@
   "seo.breadcrumb_home": "Home",
   "auth.google_connecting": "Connecting...",
   "auth.server_waking": "Waking up the server, please wait...",
-  "auth.server_unavailable": "Could not connect to the server. Please try again."
+  "auth.server_unavailable": "Could not connect to the server. Please try again.",
+  "kitchen.open": "Open",
+  "kitchen.closed": "Closed",
+  "kitchen.title": "Kitchen status",
+  "kitchen.desc_open": "We're accepting orders",
+  "kitchen.desc_closed": "Not accepting orders right now",
+  "kitchen.aria_open": "Kitchen is open",
+  "kitchen.aria_closed": "Kitchen is closed",
+  "kitchen.aria_loading": "Kitchen status is loading",
+  "kitchen.hint_open": "Kitchen is open — accepting orders",
+  "kitchen.hint_closed": "Kitchen is closed — not accepting orders right now",
+  "kitchen.updated": "Kitchen status updated",
+  "kitchen.update_error": "Could not update kitchen status"
 }

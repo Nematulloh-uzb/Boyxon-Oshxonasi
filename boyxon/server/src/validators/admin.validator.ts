@@ -68,6 +68,11 @@ export const categoryCreateSchema = z.object({
 
 export const categoryUpdateSchema = categoryCreateSchema.partial();
 
+/** PATCH /api/admin/settings — oshxona holati faqat boolean. */
+export const updateSettingsSchema = z.object({
+  kitchenOpen: z.boolean(),
+});
+
 /** POST /api/admin/push/send — audience whitelist, matn chegarasi. */
 export const sendPushSchema = z.object({
   title: z.string().trim().min(1, 'Sarlavha kiriting').max(120),
