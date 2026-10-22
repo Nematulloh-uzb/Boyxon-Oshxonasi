@@ -91,7 +91,7 @@ export function ChatThread({ conversationId, onBack }: { conversationId: string;
         <button onClick={onBack} className="rounded-full p-1.5 hover:bg-surface-raised md:hidden" aria-label={t('common.back')}>
           <ArrowLeft className="h-5 w-5" />
         </button>
-        <UserAvatar src={user?.avatar} name={user?.name} className="h-10 w-10" />
+        <UserAvatar src={user?.avatar} name={user?.name} className="h-10 w-10" viewable />
         <div className="min-w-0 flex-1">
           <p className="truncate font-semibold text-ink-800">{user?.name ?? t('chat.unknown_user')}</p>
           {user?.phone && <p className="truncate text-xs text-ink-300">{user.phone}</p>}
@@ -115,7 +115,12 @@ export function ChatThread({ conversationId, onBack }: { conversationId: string;
               className={cn('flex items-end gap-2', mine ? 'justify-end' : 'justify-start')}
             >
               {!mine && (
-                <UserAvatar src={user?.avatar} name={user?.name} className="h-7 w-7 text-[10px]" />
+                <UserAvatar
+                  src={user?.avatar}
+                  name={user?.name}
+                  className="h-7 w-7 text-[10px]"
+                  viewable
+                />
               )}
               <div
                 className={cn(
