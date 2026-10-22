@@ -7,6 +7,7 @@ import { chatApi } from '../../api/chat.api';
 import { useChatSocket, useChatTyping, setChatOpen, isChatOpen } from '../../hooks/useChatSocket';
 import { cn } from '../../lib/utils';
 import { useAuthStore } from '../../store/auth.store';
+import { useCartStore } from '../../store/cart.store';
 import type { ChatMessage } from '../../types';
 
 function time(iso: string): string {
@@ -19,6 +20,10 @@ export function ChatWidget() {
   const qc = useQueryClient();
   const { pathname } = useLocation();
   const token = useAuthStore((s) => s.accessToken);
+  // Savat sahifasidagi checkout paneli faqat savat bo'sh bo'lmaganda chiziladi.
+  // Shunga mos ravishda chat tugmasi ham panel ustiga ko'tariladi.
+  const hasCartLines = useCartStore((s) => s.lines.length > 0);
+  const aboveCartPanel = pathname === '/cart' && hasCartLines;
   const [open, setOpen] = useState(() => isChatOpen());
   const [draft, setDraft] = useState('');
   const [adminTyping, setAdminTyping] = useState(false);
@@ -87,15 +92,16 @@ export function ChatWidget() {
   return (
     <>
       {/* Yopiq holat — floating tugma (mobil: pastki nav panelidan tepada).
-          Savat sahifasida yopishqoq checkout paneli ham bor — uning ustiga
-          tushmasligi uchun qo'shimcha ofset. */}
+          Savatda checkout paneli ochiq bo'lsa, uning ustiga tushmasligi uchun
+          qo'shimcha ofset; savat bo'sh bo'lsa panel chizilmaydi va tugma
+          nav panelining tepasida turadi. */}
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className={`fixed right-5 z-40 grid h-12 w-12 place-items-center rounded-full bg-gradient-to-r from-primary-700 to-primary-800 text-white shadow-lg transition hover:scale-105 active:scale-95 sm:bottom-5 ${
-            pathname === '/cart'
+          className={`fixed right-5 z-40 grid h-12 w-12 place-items-center rounded-full bg-gradient-to-r from-primary-700 to-primary-800 text-white shadow-lg transition hover:scale-105 active:scale-95 md:bottom-5 ${
+            aboveCartPanel
               ? 'bottom-[calc(9.5rem_+_env(safe-area-inset-bottom,0px))]'
-              : 'bottom-20'
+              : 'bottom-[calc(5rem_+_env(safe-area-inset-bottom,0px))]'
           }`}
           aria-label={t('chat.open')}
         >
