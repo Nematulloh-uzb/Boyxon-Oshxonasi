@@ -47,11 +47,19 @@ export default function SettingsPage() {
       setUser({ ...user, preferences: r.data });
       localStorage.setItem('boyxon-lang', v);
       // URL til prefiksi interfeys tiliga mos bo'lishi shart (SEO/canonical).
+      // Reloadsiz: avval URL'ni almashtiramiz, keyin tilni — `Root`dagi
+      // `basename` URL'dan olinadi va router yangi prefiks bilan qayta quriladi.
       const target =
         withLang(stripLang(window.location.pathname), v) +
         window.location.search +
         window.location.hash;
-      window.location.assign(target);
+      window.history.replaceState(window.history.state, '', target);
+      try {
+        await i18n.changeLanguage(v);
+      } catch {
+        // Tarjima chunk'i yuklanmasa — to'liq navigatsiya bilan tiklanadi.
+        window.location.assign(target);
+      }
     } catch {
       toast.error(t('settings.save_error'));
     }

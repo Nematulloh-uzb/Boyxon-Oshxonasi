@@ -48,16 +48,6 @@ export function pathLang(pathname: string = window.location.pathname): SeoLang {
   return langFromPath(pathname) ?? 'uz';
 }
 
-/**
- * React Router basename: "/ru", "/en" yoki "/".
- * Shu sababli mavjud <Link to="/..."> larning barchasi avtomatik
- * til prefiksini saqlaydi — har bir sahifada linklarni o'zgartirish shart emas.
- */
-export const BASENAME: string = (() => {
-  const lang = langFromPath();
-  return lang ? `/${lang}` : '/';
-})();
-
 /** "/ru/dish/palov" -> "/dish/palov"; "/ru" -> "/". */
 export function stripLang(pathname: string): string {
   const lang = langFromPath(pathname);

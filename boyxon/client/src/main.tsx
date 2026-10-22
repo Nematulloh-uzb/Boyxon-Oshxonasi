@@ -8,7 +8,8 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { ServerWakeNotice } from './components/system/ServerWakeNotice';
 import { installWakeRetry } from './api/wake-retry';
 import { hydrateQueryCache, persistQueryCache } from './lib/query-cache';
-import { BASENAME } from './lib/seo';
+import { langFromPath } from './lib/seo';
+import { useTranslation } from 'react-i18next';
 // Shriftlar self-hosted (Google Fonts CSS render-blocking so'rovi yo'q).
 // To'liq subset CSS ishlatiladi: unda unicode-range bor, shuning uchun
 // o'zbekcha sahifada faqat latin, ruscha sahifada esa kerakli cyrillic
@@ -46,6 +47,38 @@ installWakeRetry();
 hydrateQueryCache(qc);
 persistQueryCache(qc);
 
+/**
+ * Router `basename`i joriy URL prefiksidan olinadi (`/ru`, `/en` yoki `/`).
+ *
+ * Til almashtirilganda `SettingsPage` avval URL'ni `replaceState` bilan
+ * yangilaydi, keyin tilni o'zgartiradi. Shu paytda `basename` (va `key`)
+ * o'zgaradi — router yangi prefiks bilan qayta quriladi, lekin sahifa
+ * to'liq reload bo'lmaydi (JS qayta yuklanmaydi, kesh saqlanadi).
+ */
+function Root() {
+  // Til o'zgarishiga obuna: `basename` qayta hisoblanishi uchun re-render.
+  useTranslation();
+
+  const urlLang = langFromPath();
+  const basename = urlLang ? `/${urlLang}` : '/';
+
+  return (
+    <>
+      <BrowserRouter
+        key={basename}
+        basename={basename}
+        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+      >
+        <ErrorBoundary>
+          <App />
+        </ErrorBoundary>
+      </BrowserRouter>
+      <ServerWakeNotice />
+      <Toaster position="top-center" richColors closeButton />
+    </>
+  );
+}
+
 async function bootstrap(): Promise<void> {
   // "/" uchun o'zbek tili allaqachon bundle'da; /ru va /en uchun kerakli
   // tarjima chunki bir marta yuklanadi, keyin React render boshlanadi.
@@ -58,16 +91,7 @@ async function bootstrap(): Promise<void> {
   ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
       <QueryClientProvider client={qc}>
-        <BrowserRouter
-          basename={BASENAME}
-          future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-        >
-          <ErrorBoundary>
-            <App />
-          </ErrorBoundary>
-          <ServerWakeNotice />
-          <Toaster position="top-center" richColors closeButton />
-        </BrowserRouter>
+        <Root />
       </QueryClientProvider>
     </React.StrictMode>,
   );

@@ -78,7 +78,10 @@ const isPrivatePath = PRIVATE_PREFIXES.some(
 if (!urlLang && !isPrivatePath && (savedLang === 'ru' || savedLang === 'en')) {
   const target = withLang(pathname, savedLang) + window.location.search + window.location.hash;
   if (target !== pathname + window.location.search + window.location.hash) {
-    window.location.replace(target);
+    // Reloadsiz: `location.replace` butun sahifani qayta yuklardi.
+    // React mount bo'lishidan oldin URL'ni almashtiramiz — `Root` basename'ni
+    // shu URL'dan oladi, shuning uchun qo'shimcha navigatsiya kerak emas.
+    window.history.replaceState(window.history.state, '', target);
   }
 }
 
