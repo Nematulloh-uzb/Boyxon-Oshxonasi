@@ -6,7 +6,12 @@ import { env } from '../config/env';
  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction): void {
   if (err instanceof ApiError) {
-    res.status(err.statusCode).json({ success: false, message: err.message, data: null });
+    res.status(err.statusCode).json({
+      success: false,
+      message: err.message,
+      ...(err.code ? { code: err.code } : {}),
+      data: null,
+    });
     return;
   }
   // Multer xatolari (fayl hajmi, formati, kutilmagan maydon)

@@ -11,6 +11,7 @@ import { PaymentMethods } from './PaymentMethods';
 import { PromoInput } from './PromoInput';
 import { CartSummary } from './CartSummary';
 import { useCart } from '../../hooks/useCart';
+import { useKitchenStatus } from '../../hooks/useKitchenStatus';
 import { useAuthStore } from '../../store/auth.store';
 import { useUiStore } from '../../store/ui.store';
 import { ordersApi } from '../../api/orders.api';
@@ -24,6 +25,8 @@ export function CheckoutSheet() {
   const user = useAuthStore((s) => s.user);
   const qc = useQueryClient();
   const nav = useNavigate();
+  const { data: kitchen, refetch: refetchKitchen } = useKitchenStatus();
+  const kitchenClosed = kitchen?.kitchenOpen === false;
 
   const [deliveryType, setDeliveryType] = useState<'delivery' | 'pickup'>('delivery');
   const [paymentMethod, setPaymentMethod] = useState('cash');
@@ -47,6 +50,13 @@ export function CheckoutSheet() {
     const fallback = addresses.find((a) => a.isDefault)?._id ?? addresses[0]?._id;
     if (fallback) setAddressId(fallback);
   }, [checkoutOpen, addresses, addressId]);
+
+  // Checkout ochilganda holatni yangilaymiz: admin oshxonani yaqinda yopgan
+  // bo'lsa, foydalanuvchi eskirgan "ochiq" holat bilan formani to'ldirmasin.
+  useEffect(() => {
+    if (checkoutOpen) void refetchKitchen();
+  }, [checkoutOpen, refetchKitchen]);
+
   const deliveryFee = deliveryType === 'pickup' || subtotal >= FREE_DELIVERY_FROM ? 0 : DELIVERY_FEE;
   const total = Math.max(0, subtotal + deliveryFee - discount);
 
@@ -71,8 +81,15 @@ export function CheckoutSheet() {
       toast.success(t('cart.order_placed'));
     },
     onError: (e) => {
-      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('common.error');
-      toast.error(msg);
+      const err = e as { response?: { data?: { message?: string; code?: string } } };
+      // Server oshxona yopilganini aytdi (holat shu orada o'zgargan bo'lishi mumkin).
+      // Umumiy xato o'rniga tushunarli xabar + holatni qayta yuklaymiz.
+      if (err?.response?.data?.code === 'KITCHEN_CLOSED') {
+        void qc.invalidateQueries({ queryKey: ['settings'] });
+        toast.error(t('kitchen.hint_closed'));
+        return;
+      }
+      toast.error(err?.response?.data?.message ?? t('common.error'));
     },
   });
 
@@ -115,6 +132,13 @@ export function CheckoutSheet() {
   return (
     <Sheet open={checkoutOpen} onClose={() => set({ checkoutOpen: false })} title={t('cart.place_order')}>
       <div className="space-y-5">
+        {kitchenClosed && (
+          <div role="alert" className="rounded-2xl border border-danger/20 bg-danger/10 px-3 py-3 text-sm text-danger">
+            <p className="font-semibold">{t('kitchen.closed')}</p>
+            <p className="mt-0.5">{t('kitchen.desc_closed')}</p>
+          </div>
+        )}
+
         <DeliveryToggle value={deliveryType} onChange={setDeliveryType} />
 
         {deliveryType === 'delivery' && (
@@ -164,10 +188,10 @@ export function CheckoutSheet() {
         <Button
           className="w-full"
           size="lg"
-          disabled={!lines.length || mutation.isPending || (deliveryType === 'delivery' && !addressId)}
+          disabled={!lines.length || mutation.isPending || kitchenClosed || (deliveryType === 'delivery' && !addressId)}
           onClick={() => mutation.mutate()}
         >
-          {mutation.isPending ? t('cart.processing') : t('cart.checkout')}
+          {mutation.isPending ? t('cart.processing') : kitchenClosed ? t('kitchen.closed') : t('cart.checkout')}
         </Button>
       </div>
     </Sheet>

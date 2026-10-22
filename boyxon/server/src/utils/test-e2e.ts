@@ -243,6 +243,40 @@ async function main(): Promise<void> {
       const regexSearch = await request(base, 'GET', '/chat/conversations?search=%28%3F%5B', undefined, adminCookie ?? undefined, adminToken);
       check('Chat maxsus regex qidiruv (? * [) → 200', regexSearch.status === 200, `status ${regexSearch.status}`);
     }
+
+    // 11) Oshxona yopiq bo'lsa yangi buyurtma server tomondan rad etiladi.
+    // Client UI'ni chetlab o'tish ham mumkin emas — bu haqiqiy operatsion qoida.
+    if (adminToken && firstDish?._id) {
+      const closed = await request(base, 'PATCH', '/admin/settings', { kitchenOpen: false }, adminCookie ?? undefined, adminToken);
+      check('PATCH /admin/settings kitchenOpen=false → 200', closed.status === 200, `status ${closed.status}`);
+
+      const publicClosed = await request(base, 'GET', '/settings');
+      check(
+        'GET /settings yopiq holatni qaytaradi (no-store)',
+        publicClosed.status === 200 &&
+          (publicClosed.body as { data?: { kitchenOpen?: boolean } }).data?.kitchenOpen === false &&
+          String(publicClosed.headers['cache-control'] ?? '').includes('no-store'),
+        `status ${publicClosed.status} ${JSON.stringify(publicClosed.body)}`,
+      );
+
+      const closedOrder = await request(base, 'POST', '/orders',
+        { items: [{ dish: firstDish._id, quantity: 1 }], deliveryType: 'pickup', paymentMethod: 'cash' },
+        cookie ?? undefined, accessToken);
+      check(
+        'Oshxona yopiq → POST /orders 409 + KITCHEN_CLOSED',
+        closedOrder.status === 409 && (closedOrder.body as { code?: string }).code === 'KITCHEN_CLOSED',
+        `status ${closedOrder.status} ${JSON.stringify(closedOrder.body)}`,
+      );
+
+      const reopened = await request(base, 'PATCH', '/admin/settings', { kitchenOpen: true }, adminCookie ?? undefined, adminToken);
+      const publicOpen = await request(base, 'GET', '/settings');
+      check(
+        'Oshxona qayta ochildi → GET /settings kitchenOpen=true',
+        reopened.status === 200 &&
+          (publicOpen.body as { data?: { kitchenOpen?: boolean } }).data?.kitchenOpen === true,
+        `status ${reopened.status} ${JSON.stringify(publicOpen.body)}`,
+      );
+    }
   }
 
   // ── Avatar yuklash (data-URL) — regressiya testi ──

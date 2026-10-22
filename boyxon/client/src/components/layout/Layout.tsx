@@ -1,6 +1,7 @@
 import { Suspense, lazy, useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Header } from './Header';
+import { KitchenClosedBanner } from './KitchenClosedBanner';
 import { BottomNav } from './BottomNav';
 import { Footer } from './Footer';
 import { PushPermissionPrompt } from '../notification/PushPermissionPrompt';
@@ -50,6 +51,7 @@ export function Layout() {
   return (
     <div className="flex min-h-screen flex-col bg-bg">
       <Header />
+      <KitchenClosedBanner />
       {mobileLoaded && (
         <Suspense fallback={null}>
           <MobileDrawer />

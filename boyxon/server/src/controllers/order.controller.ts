@@ -5,6 +5,7 @@ import { ApiError } from '../utils/ApiError';
 import { Order } from '../models/Order.model';
 import { Dish } from '../models/Dish.model';
 import { Promo, type PromoDoc } from '../models/Promo.model';
+import { Setting } from '../models/Setting.model';
 import { User } from '../models/User.model';
 import { sendOrderEmail } from '../services/email.service';
 import { notifyUser } from '../services/notify.service';
@@ -126,6 +127,11 @@ type CreateBody = {
 export const createOrder = asyncHandler(async (req: Request, res: Response) => {
   const userId = (req as AuthRequest).user!.id;
   const { items, deliveryType, address, paymentMethod, promoCode, notes } = req.body as CreateBody;
+
+  // Oshxona yopiq bo'lsa yangi buyurtma yaratilmaydi. Bu tekshiruv serverda —
+  // client UI'ni chetlab o'tish yoki eskirgan holat bilan buyurtma berish mumkin emas.
+  const settings = await Setting.findOne({ key: 'main' }).select('kitchenOpen').lean();
+  if (settings?.kitchenOpen === false) throw ApiError.kitchenClosed();
 
   const dishIds = items.map((i) => i.dish);
   const dishes = await Dish.find({ _id: { $in: dishIds }, isActive: true });

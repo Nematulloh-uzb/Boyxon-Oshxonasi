@@ -6,7 +6,7 @@ import { useAuthStore } from '../../store/auth.store';
 import { useUiStore } from '../../store/ui.store';
 import { useQuery } from '@tanstack/react-query';
 import { notificationsApi } from '../../api/notifications.api';
-import { settingsApi } from '../../api/settings.api';
+import { useKitchenStatus } from '../../hooks/useKitchenStatus';
 
 type Theme = 'light' | 'dark';
 
@@ -25,11 +25,7 @@ export function Header() {
     enabled: Boolean(accessToken),
     refetchInterval: 60_000,
   });
-  const { data: kitchen } = useQuery({
-    queryKey: ['settings'],
-    queryFn: settingsApi.get,
-    refetchInterval: 60_000,
-  });
+  const { data: kitchen } = useKitchenStatus();
   const kitchenOpen = kitchen?.kitchenOpen;
   const kitchenTone =
     kitchenOpen === undefined
