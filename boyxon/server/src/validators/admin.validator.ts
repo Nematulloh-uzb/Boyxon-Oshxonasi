@@ -68,10 +68,21 @@ export const categoryCreateSchema = z.object({
 
 export const categoryUpdateSchema = categoryCreateSchema.partial();
 
-/** PATCH /api/admin/settings — oshxona holati faqat boolean. */
-export const updateSettingsSchema = z.object({
-  kitchenOpen: z.boolean(),
-});
+/** PATCH /api/admin/settings — oshxona holati va karta rekvizitlari. */
+export const updateSettingsSchema = z
+  .object({
+    kitchenOpen: z.boolean().optional(),
+    cardNumber: z
+      .string()
+      .trim()
+      .max(32)
+      .regex(/^[0-9 ]*$/, 'Karta raqami faqat raqam va bo‘sh joydan iborat bo‘lsin')
+      .optional(),
+    cardHolder: z.string().trim().max(80).optional(),
+  })
+  .refine((data) => Object.values(data).some((value) => value !== undefined), {
+    message: 'Kamida bitta sozlama kiriting',
+  });
 
 /** POST /api/admin/push/send — audience whitelist, matn chegarasi. */
 export const sendPushSchema = z.object({

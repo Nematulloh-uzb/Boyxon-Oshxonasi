@@ -1,12 +1,17 @@
+import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ChefHat, Clock, IndianRupee, Users } from 'lucide-react';
+import { ChefHat, Clock, CreditCard, IndianRupee, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { adminApi } from '../../api/admin.api';
 import { settingsApi } from '../../api/settings.api';
 import { KpiCard } from '../../components/admin/KpiCard';
+import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { formatDate, formatPrice } from '../../lib/format';
+
+const inputCls =
+  'h-11 w-full rounded-xl border border-ink-line bg-surface px-3 text-sm outline-none focus:border-primary-500';
 
 export default function AdminDashboard() {
   const { t } = useTranslation();
@@ -22,6 +27,14 @@ export default function AdminDashboard() {
     refetchInterval: 60_000,
   });
   const kitchenOpen = kitchen?.kitchenOpen;
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardHolder, setCardHolder] = useState('');
+
+  useEffect(() => {
+    setCardNumber(kitchen?.cardNumber ?? '');
+    setCardHolder(kitchen?.cardHolder ?? '');
+  }, [kitchen?.cardNumber, kitchen?.cardHolder]);
+
   const toggleKitchen = useMutation({
     mutationFn: (next: boolean) => adminApi.updateSettings({ kitchenOpen: next }),
     onSuccess: (r) => {
@@ -29,6 +42,22 @@ export default function AdminDashboard() {
       toast.success(t('kitchen.updated'));
     },
     onError: () => toast.error(t('kitchen.update_error')),
+  });
+
+  const saveCard = useMutation({
+    mutationFn: () =>
+      adminApi.updateSettings({
+        cardNumber: cardNumber.replace(/\s+/g, ' ').trim(),
+        cardHolder: cardHolder.trim(),
+      }),
+    onSuccess: (r) => {
+      qc.setQueryData(['settings'], r.data);
+      toast.success(t('common.success'));
+    },
+    onError: (e) => {
+      const err = e as { response?: { data?: { message?: string } } };
+      toast.error(err?.response?.data?.message ?? t('common.error'));
+    },
   });
   const s = data?.data;
   const kitchenTone =
@@ -84,6 +113,48 @@ export default function AdminDashboard() {
               }`}
             />
           </button>
+        </div>
+      </Card>
+
+      <Card className="p-4">
+        <div className="flex items-start gap-3">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-primary-50 text-primary-700">
+            <CreditCard className="h-5 w-5" />
+          </span>
+          <div className="min-w-0">
+            <p className="font-display font-bold">{t('payment.card_settings')}</p>
+            <p className="text-sm text-ink-300">{t('payment.card_settings_desc')}</p>
+          </div>
+        </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <label className="block text-sm">
+            <span className="mb-1.5 block font-semibold text-ink-700">{t('payment.card_number')}</span>
+            <input
+              className={inputCls}
+              value={cardNumber}
+              onChange={(e) => setCardNumber(e.target.value.replace(/[^0-9 ]/g, ''))}
+              inputMode="numeric"
+              maxLength={32}
+              autoComplete="off"
+              placeholder="8600 0000 0000 0000"
+            />
+          </label>
+          <label className="block text-sm">
+            <span className="mb-1.5 block font-semibold text-ink-700">{t('payment.card_holder')}</span>
+            <input
+              className={inputCls}
+              value={cardHolder}
+              onChange={(e) => setCardHolder(e.target.value)}
+              autoComplete="off"
+              placeholder="Boyxon Oshxonasi"
+            />
+          </label>
+        </div>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-xs text-ink-300">{t('payment.card_hint')}</p>
+          <Button size="sm" disabled={saveCard.isPending} onClick={() => saveCard.mutate()}>
+            {saveCard.isPending ? t('common.saving') : t('common.save')}
+          </Button>
         </div>
       </Card>
 

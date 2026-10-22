@@ -32,7 +32,7 @@ export const createOrderSchema = z
         lng: z.number().min(-180).max(180).optional(),
       })
       .optional(),
-    paymentMethod: z.enum(['payme', 'click', 'uzum', 'cash']),
+    paymentMethod: z.enum(['payme', 'click', 'uzum', 'cash', 'card']),
     promoCode: z.string().trim().min(1).max(30).optional(),
     notes: z.string().trim().max(500).optional(),
   })

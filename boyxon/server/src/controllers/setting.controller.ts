@@ -12,5 +12,14 @@ export const getSettings = asyncHandler(async (_req: Request, res: Response) => 
   const settings = await Setting.findOne({ key: 'main' });
   // Holat tez o'zgaradi — brauzer keshiga tushmasin.
   res.setHeader('Cache-Control', 'no-store');
-  res.json(ok({ kitchenOpen: settings?.kitchenOpen ?? true }, 'OK'));
+  res.json(
+    ok(
+      {
+        kitchenOpen: settings?.kitchenOpen ?? true,
+        cardNumber: settings?.cardNumber ?? '',
+        cardHolder: settings?.cardHolder ?? '',
+      },
+      'OK',
+    ),
+  );
 });

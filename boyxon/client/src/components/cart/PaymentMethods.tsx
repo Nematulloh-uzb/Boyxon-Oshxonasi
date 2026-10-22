@@ -1,30 +1,31 @@
-import { Banknote, MousePointerClick, Smartphone, Wallet } from 'lucide-react';
+import { Banknote, CreditCard, Wallet } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { PAYMENT_METHODS } from '../../lib/constants';
 import { cn } from '../../lib/utils';
 
-const icons: Record<string, typeof Smartphone> = {
-  payme: Smartphone,
-  click: MousePointerClick,
-  uzum: Wallet,
+const icons: Record<string, typeof Wallet> = {
   cash: Banknote,
+  card: CreditCard,
 };
 
 interface Props {
   value: string;
   onChange: (v: string) => void;
+  /** Karta raqami admin panelda kiritilmagan bo'lsa, karta usuli ko'rsatilmaydi. */
+  cardEnabled?: boolean;
 }
 
-export function PaymentMethods({ value, onChange }: Props) {
+export function PaymentMethods({ value, onChange, cardEnabled = true }: Props) {
   const { t } = useTranslation();
   return (
     <div className="grid grid-cols-2 gap-2">
-      {PAYMENT_METHODS.map((m) => {
+      {PAYMENT_METHODS.filter((m) => m.value !== 'card' || cardEnabled).map((m) => {
         const Icon = icons[m.value] ?? Wallet;
         const active = value === m.value;
         return (
           <button
             key={m.value}
+            type="button"
             onClick={() => onChange(m.value)}
             className={cn(
               'flex items-center gap-2 rounded-2xl border px-3 py-3 text-sm font-medium transition',

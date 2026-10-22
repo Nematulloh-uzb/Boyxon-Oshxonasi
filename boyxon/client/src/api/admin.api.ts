@@ -1,6 +1,6 @@
 import { api } from './axios';
 import type { ApiOk, Category, Dish, Order, Paginated, Promo, User } from '../types';
-import type { KitchenStatus } from './settings.api';
+import type { PublicSettings } from './settings.api';
 
 export interface AdminStats {
   users: number;
@@ -24,8 +24,9 @@ function toFormData(obj: Record<string, unknown>, file?: File | null): FormData 
 export const adminApi = {
   stats: () => api.get<ApiOk<AdminStats>>('/admin/stats').then((r) => r.data),
 
-  updateSettings: (body: { kitchenOpen: boolean }) =>
-    api.patch<ApiOk<KitchenStatus>>('/admin/settings', body).then((r) => r.data),
+  updateSettings: (
+    body: Partial<Pick<PublicSettings, 'kitchenOpen' | 'cardNumber' | 'cardHolder'>>,
+  ) => api.patch<ApiOk<PublicSettings>>('/admin/settings', body).then((r) => r.data),
 
   dishes: (params: Record<string, unknown> = {}) =>
     api.get<Paginated<Dish>>('/admin/dishes', { params }).then((r) => r.data),

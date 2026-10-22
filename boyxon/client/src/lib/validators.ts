@@ -15,7 +15,7 @@ export const registerValidator = z.object({
 export const checkoutValidator = z.object({
   deliveryType: z.enum(['delivery', 'pickup']),
   addressId: z.string().optional(),
-  paymentMethod: z.enum(['payme', 'click', 'uzum', 'cash']),
+  paymentMethod: z.enum(['cash', 'card']),
   promoCode: z.string().optional(),
   notes: z.string().max(500).optional(),
 });

@@ -23,7 +23,7 @@ export interface OrderDoc extends Document {
   promoCode?: string;
   deliveryType: 'delivery' | 'pickup';
   address?: { label?: string; address?: string; lat?: number; lng?: number };
-  paymentMethod: 'payme' | 'click' | 'uzum' | 'cash';
+  paymentMethod: 'payme' | 'click' | 'uzum' | 'cash' | 'card';
   paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
   status: OrderStatus;
   statusHistory: { status: string; timestamp: Date; note?: string }[];
@@ -66,7 +66,7 @@ const OrderSchema = new Schema<OrderDoc>(
       lat: Number,
       lng: Number,
     },
-    paymentMethod: { type: String, enum: ['payme', 'click', 'uzum', 'cash'], required: true },
+    paymentMethod: { type: String, enum: ['payme', 'click', 'uzum', 'cash', 'card'], required: true },
     paymentStatus: {
       type: String,
       enum: ['pending', 'paid', 'failed', 'refunded'],

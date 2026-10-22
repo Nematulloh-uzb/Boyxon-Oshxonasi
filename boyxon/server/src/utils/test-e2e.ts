@@ -268,6 +268,43 @@ async function main(): Promise<void> {
         `status ${closedOrder.status} ${JSON.stringify(closedOrder.body)}`,
       );
 
+      const cardSaved = await request(
+        base,
+        'PATCH',
+        '/admin/settings',
+        { cardNumber: '8600 1234 5678 9012', cardHolder: 'Boyxon Test' },
+        adminCookie ?? undefined,
+        adminToken,
+      );
+      check(
+        'PATCH /admin/settings karta rekvizitlari → 200',
+        cardSaved.status === 200 &&
+          (cardSaved.body as { data?: { cardNumber?: string; cardHolder?: string } }).data?.cardNumber ===
+            '8600 1234 5678 9012' &&
+          (cardSaved.body as { data?: { cardHolder?: string } }).data?.cardHolder === 'Boyxon Test',
+        `status ${cardSaved.status} ${JSON.stringify(cardSaved.body)}`,
+      );
+
+      const badCard = await request(
+        base,
+        'PATCH',
+        '/admin/settings',
+        { cardNumber: '8600-1234' },
+        adminCookie ?? undefined,
+        adminToken,
+      );
+      check('PATCH /admin/settings noto‘g‘ri karta raqami → 400', badCard.status === 400, `status ${badCard.status}`);
+
+      const publicCard = await request(base, 'GET', '/settings');
+      check(
+        'GET /settings karta rekvizitlarini qaytaradi',
+        publicCard.status === 200 &&
+          (publicCard.body as { data?: { cardNumber?: string; cardHolder?: string } }).data?.cardNumber ===
+            '8600 1234 5678 9012' &&
+          (publicCard.body as { data?: { cardHolder?: string } }).data?.cardHolder === 'Boyxon Test',
+        `status ${publicCard.status} ${JSON.stringify(publicCard.body)}`,
+      );
+
       const reopened = await request(base, 'PATCH', '/admin/settings', { kitchenOpen: true }, adminCookie ?? undefined, adminToken);
       const publicOpen = await request(base, 'GET', '/settings');
       check(
@@ -275,6 +312,27 @@ async function main(): Promise<void> {
         reopened.status === 200 &&
           (publicOpen.body as { data?: { kitchenOpen?: boolean } }).data?.kitchenOpen === true,
         `status ${reopened.status} ${JSON.stringify(publicOpen.body)}`,
+      );
+
+      const cardOrder = await request(
+        base,
+        'POST',
+        '/orders',
+        {
+          items: [{ dish: firstDish._id, quantity: 1 }],
+          deliveryType: 'pickup',
+          paymentMethod: 'card',
+        },
+        cookie ?? undefined,
+        accessToken,
+      );
+      check(
+        'POST /orders karta o‘tkazmasi → 201 + pending',
+        cardOrder.status === 201 &&
+          (cardOrder.body as { data?: { paymentMethod?: string; paymentStatus?: string } }).data?.paymentMethod ===
+            'card' &&
+          (cardOrder.body as { data?: { paymentStatus?: string } }).data?.paymentStatus === 'pending',
+        `status ${cardOrder.status} ${JSON.stringify(cardOrder.body)}`,
       );
     }
   }

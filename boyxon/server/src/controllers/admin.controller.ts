@@ -299,15 +299,33 @@ export const stats = asyncHandler(async (_req: Request, res: Response) => {
   );
 });
 
-/** PATCH /api/admin/settings — oshxona ochiq/yopiq holatini yangilash. */
+/** PATCH /api/admin/settings — oshxona holati va karta rekvizitlarini yangilash. */
 export const updateSettings = asyncHandler(async (req: Request, res: Response) => {
-  const { kitchenOpen } = req.body as { kitchenOpen: boolean };
+  const { kitchenOpen, cardNumber, cardHolder } = req.body as {
+    kitchenOpen?: boolean;
+    cardNumber?: string;
+    cardHolder?: string;
+  };
+  const update: Record<string, unknown> = {};
+  if (kitchenOpen !== undefined) update.kitchenOpen = kitchenOpen;
+  if (cardNumber !== undefined) update.cardNumber = cardNumber.replace(/\s+/g, ' ').trim();
+  if (cardHolder !== undefined) update.cardHolder = cardHolder.trim();
+
   const settings = await Setting.findOneAndUpdate(
     { key: 'main' },
-    { $set: { kitchenOpen } },
+    { $set: update },
     { upsert: true, new: true, setDefaultsOnInsert: true, runValidators: true },
   );
-  res.json(ok({ kitchenOpen: settings.kitchenOpen }, 'Oshxona holati yangilandi'));
+  res.json(
+    ok(
+      {
+        kitchenOpen: settings.kitchenOpen,
+        cardNumber: settings.cardNumber ?? '',
+        cardHolder: settings.cardHolder ?? '',
+      },
+      'Sozlamalar yangilandi',
+    ),
+  );
 });
 
 /** GET /api/admin/dishes — barcha taomlar (filtr + pagination). */

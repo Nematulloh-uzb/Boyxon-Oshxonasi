@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { CheckCircle2 } from 'lucide-react';
+import { Check, CheckCircle2, Copy } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { Sheet } from '../ui/Sheet';
@@ -27,9 +27,13 @@ export function CheckoutSheet() {
   const nav = useNavigate();
   const { data: kitchen, refetch: refetchKitchen } = useKitchenStatus();
   const kitchenClosed = kitchen?.kitchenOpen === false;
+  const cardNumber = kitchen?.cardNumber?.trim() ?? '';
+  const cardHolder = kitchen?.cardHolder?.trim() ?? '';
+  const cardEnabled = Boolean(cardNumber);
 
   const [deliveryType, setDeliveryType] = useState<'delivery' | 'pickup'>('delivery');
   const [paymentMethod, setPaymentMethod] = useState('cash');
+  const [copied, setCopied] = useState(false);
   const [addressId, setAddressId] = useState<string>(
     user?.addresses?.find((a) => a.isDefault)?._id ?? user?.addresses?.[0]?._id ?? '',
   );
@@ -57,6 +61,11 @@ export function CheckoutSheet() {
     if (checkoutOpen) void refetchKitchen();
   }, [checkoutOpen, refetchKitchen]);
 
+  // Karta rekvizitlari o'chirilgan bo'lsa, tanlangan karta usulini naqdga qaytaramiz.
+  useEffect(() => {
+    if (!cardEnabled && paymentMethod === 'card') setPaymentMethod('cash');
+  }, [cardEnabled, paymentMethod]);
+
   const deliveryFee = deliveryType === 'pickup' || subtotal >= FREE_DELIVERY_FROM ? 0 : DELIVERY_FEE;
   const total = Math.max(0, subtotal + deliveryFee - discount);
 
@@ -67,7 +76,7 @@ export function CheckoutSheet() {
         items: lines.map((l) => ({ dish: l.dishId, quantity: l.quantity })),
         deliveryType,
         address: deliveryType === 'delivery' && addr ? { label: addr.label, address: addr.address, lat: addr.lat, lng: addr.lng } : undefined,
-        paymentMethod: paymentMethod as 'payme' | 'click' | 'uzum' | 'cash',
+        paymentMethod: paymentMethod as 'cash' | 'card',
         promoCode,
         notes: notes || undefined,
       });
@@ -167,8 +176,41 @@ export function CheckoutSheet() {
 
         <div>
           <label className="mb-1.5 block text-sm font-semibold text-ink-700">{t('cart.payment_method')}</label>
-          <PaymentMethods value={paymentMethod} onChange={setPaymentMethod} />
+          <PaymentMethods value={paymentMethod} onChange={setPaymentMethod} cardEnabled={cardEnabled} />
         </div>
+
+        {paymentMethod === 'card' && cardEnabled && (
+          <div className="rounded-2xl border border-ink-line bg-surface-raised px-3.5 py-3.5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-ink-300">
+              {t('payment.card_number')}
+            </p>
+            <div className="mt-1 flex items-center justify-between gap-3">
+              <p className="font-mono text-base font-bold tracking-wide text-ink-900">{cardNumber}</p>
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(cardNumber);
+                    setCopied(true);
+                    window.setTimeout(() => setCopied(false), 2000);
+                  } catch {
+                    toast.error(t('common.error'));
+                  }
+                }}
+                className="inline-flex shrink-0 items-center gap-1 rounded-full border border-ink-line bg-surface px-2.5 py-1.5 text-xs font-semibold text-ink-700 transition hover:border-primary-500"
+              >
+                {copied ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5" />}
+                {copied ? t('payment.copied') : t('payment.copy')}
+              </button>
+            </div>
+            {cardHolder && (
+              <p className="mt-1 text-xs text-ink-300">
+                {t('payment.card_holder')}: <span className="font-medium text-ink-700">{cardHolder}</span>
+              </p>
+            )}
+            <p className="mt-2 text-xs leading-relaxed text-ink-300">{t('payment.card_hint')}</p>
+          </div>
+        )}
 
         <PromoInput />
 

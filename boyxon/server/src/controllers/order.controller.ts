@@ -115,7 +115,7 @@ type CreateBody = {
   items: { dish: string; quantity: number; customizations?: string }[];
   deliveryType: 'delivery' | 'pickup';
   address?: { label?: string; address?: string; lat?: number; lng?: number };
-  paymentMethod: 'payme' | 'click' | 'uzum' | 'cash';
+  paymentMethod: 'payme' | 'click' | 'uzum' | 'cash' | 'card';
   promoCode?: string;
   notes?: string;
 };

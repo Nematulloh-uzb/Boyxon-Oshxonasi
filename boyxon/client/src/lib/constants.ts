@@ -3,10 +3,8 @@ export const DELIVERY_FEE = 12000;
 
 /** Payment method keys — translate in components via t(`payment.${value}`). */
 export const PAYMENT_METHODS = [
-  { value: 'payme' },
-  { value: 'click' },
-  { value: 'uzum' },
   { value: 'cash' },
+  { value: 'card' },
 ] as const;
 
 export const QUERY_KEYS = {
