@@ -67,6 +67,8 @@ export function useSocket(): void {
         socket.on('order:status', (p: { message?: string }) => {
           if (toastAllowed('order')) toast.info(p.message ?? 'Buyurtma holati yangilandi');
           qc.invalidateQueries({ queryKey: ['orders'] });
+          // Ochiq turgan buyurtma sahifasi ham jonli yangilanadi.
+          qc.invalidateQueries({ queryKey: ['order'] });
           qc.invalidateQueries({ queryKey: ['notifications'] });
           qc.invalidateQueries({ queryKey: ['unread-count'] });
         });

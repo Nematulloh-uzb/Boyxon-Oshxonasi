@@ -11,19 +11,41 @@ function currentLocale(): string {
   return LOCALE_MAP[i18n.language ?? 'uz'] ?? 'uz-UZ';
 }
 
-/** 45000 -> "45 000 so'm" (currency comes from locale key "common.currency") */
+/**
+ * 45000 -> "45 000 UZS" (currency comes from locale key "common.currency").
+ * uz-UZ uchun Intl ba'zi brauzerlarda vergul bilan formatlaydi ("45,000") —
+ * dizayn talabi bo'yicha bo'shliqli guruhlashga keltiramiz.
+ */
 export function formatPrice(value: number): string {
   const n = Math.round(value);
+  const lang = normalizeLang(i18n.language);
   const formatted = new Intl.NumberFormat(currentLocale()).format(n);
+  const grouped = lang === 'uz' ? formatted.replace(/,/g, ' ') : formatted;
   // i18n hali yuklanmagan yoki kalit o'chgan bo'lsa — bo'sh joy qolmasin.
   const currency = i18n.t('common.currency') || "so'm";
-  return `${formatted} ${currency}`;
+  return `${grouped} ${currency}`;
 }
 
-/** ISO sana -> "9 okt, 14:30" (locale-aware) */
+/**
+ * ISO sana -> "9 okt, 14:30".
+ * `toLocaleString('uz-UZ', { month: 'short' })` Chrome'da "M10" kabi
+ * ma'nosiz qiymat qaytaradi — shuning uchun oy nomlari qo'lda.
+ */
+const MONTHS_SHORT: Record<Lang, string[]> = {
+  uz: ['yan', 'fev', 'mar', 'apr', 'may', 'iyun', 'iyul', 'avg', 'sen', 'okt', 'noy', 'dek'],
+  ru: ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'],
+  en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+};
+
 export function formatDate(iso: string): string {
   const d = new Date(iso);
-  return d.toLocaleString(currentLocale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  if (Number.isNaN(d.getTime())) return '—';
+  const lang = normalizeLang(i18n.language);
+  const month = MONTHS_SHORT[lang][d.getMonth()];
+  const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  return lang === 'en'
+    ? `${month} ${d.getDate()}, ${time}`
+    : `${d.getDate()} ${month}, ${time}`;
 }
 
 /** DB dagi ko'p tilli matnni joriy tilga moslab qaytaradi (fallback: uz). */

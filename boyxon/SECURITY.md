@@ -181,7 +181,7 @@ SEED_FORCE=true npm run seed
 cd boyxon/server
 npm run lint         # TypeScript xatolar yo'q
 npm audit --omit=dev # 0 vulnerabilities bo'lishi kerak
-npm test             # 59 ta tekshiruv (ko'p qurilma sessiyalari, avatar,
+npm test             # 63 ta tekshiruv (ko'p qurilma sessiyalari, avatar,
                      # injection, poyga, duplicate himoya ham kiradi)
 ```
 

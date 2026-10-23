@@ -131,7 +131,7 @@ export default function HomePage() {
       image: absoluteUrl('/og-image.png'),
       logo: absoluteUrl('/icon-512.png'),
       telephone: '+998939588458',
-      priceRange: "4 000â€“65 000 so'm",
+      priceRange: "4 000–65 000 so'm",
       paymentAccepted: 'Cash, Payme, Click, Uzum Bank',
       currenciesAccepted: 'UZS',
       servesCuisine: ['Uzbek', 'Central Asian'],
@@ -218,7 +218,7 @@ export default function HomePage() {
 
       {/* Salom + qidiruv */}
       <div className="mb-4">
-        <p className="text-sm text-ink-300">{t('home.greeting')} ðŸ‘‹</p>
+        <p className="text-sm text-ink-300">{t('home.greeting')} 👋</p>
         <h1 className="font-display text-2xl font-extrabold text-ink-900">{t('seo.home.h1')}</h1>
         <p className="mt-1 max-w-2xl text-sm text-ink-300">{t('seo.home.subtitle')}</p>
       </div>
@@ -243,7 +243,7 @@ export default function HomePage() {
         </button>
       </div>
 
-      {/* Hero banner: "bepul" emas â€” mijozning cho'ntagida qoladigan pul */}
+      {/* Hero banner: "bepul" emas — mijozning cho'ntagida qoladigan pul */}
       <div className="mb-6 overflow-hidden rounded-card bg-gradient-to-r from-primary-700 to-primary-800 p-6 text-white">
         <p className="text-sm font-semibold text-white">{t('home.new_season')}</p>
         <p className="font-display text-2xl font-extrabold">{t('home.promo_title')}</p>
@@ -327,7 +327,7 @@ export default function HomePage() {
               onClick={() => setPage((p) => p - 1)}
               className="h-10 rounded-full border border-ink-line px-4 text-sm disabled:opacity-40"
             >
-              â† {t('common.prev')}
+              ← {t('common.prev')}
             </button>
             <span className="px-2 text-sm text-ink-300">{page} / {pages}</span>
             <button
@@ -335,7 +335,7 @@ export default function HomePage() {
               onClick={() => setPage((p) => p + 1)}
               className="h-10 rounded-full border border-ink-line px-4 text-sm disabled:opacity-40"
             >
-              {t('common.next')} â†’
+              {t('common.next')} →
             </button>
           </div>
         )}

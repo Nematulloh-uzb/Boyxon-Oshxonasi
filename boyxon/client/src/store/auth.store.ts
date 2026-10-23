@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { API_URL } from '../lib/api-url';
 import type { User } from '../types';
 
 interface AuthState {
@@ -57,10 +58,7 @@ export const useAuthStore = create<AuthState>()(
             const reg = await navigator.serviceWorker.ready.catch(() => null);
             const sub = await reg?.pushManager.getSubscription().catch(() => null);
             if (sub?.endpoint) {
-              const base =
-                (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') ??
-                'http://localhost:5000/api';
-              await fetch(`${base}/push/unsubscribe`, {
+              await fetch(`${API_URL}/push/unsubscribe`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -76,10 +74,7 @@ export const useAuthStore = create<AuthState>()(
           // Push tozalash ixtiyoriy — xato logout'ni to'xtatmaydi.
         }
         try {
-          const base =
-            (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') ??
-            'http://localhost:5000/api';
-          await fetch(`${base}/auth/logout`, { method: 'POST', credentials: 'include' });
+          await fetch(`${API_URL}/auth/logout`, { method: 'POST', credentials: 'include' });
         } catch {
           // Server o'chiq bo'lsa ham local tozalanadi
         }

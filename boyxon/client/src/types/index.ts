@@ -73,7 +73,8 @@ export interface Dish {
 export type OrderStatus = 'pending' | 'confirmed' | 'packing' | 'handed_to_taxi' | 'delivered' | 'cancelled';
 
 export interface OrderItem {
-  dish: string;
+  /** Buyurtma yaratilganda ObjectId; GET /orders/:id da `image`/`slug` bilan populate qilinadi. */
+  dish: string | { _id: string; image?: string | null; slug?: string };
   name: string;
   price: number;
   quantity: number;

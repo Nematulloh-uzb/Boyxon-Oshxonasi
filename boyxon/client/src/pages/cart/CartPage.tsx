@@ -18,24 +18,26 @@ export default function CartPage() {
   const total = Math.max(0, subtotal + deliveryFee - discount);
   const toFree = Math.max(0, FREE_DELIVERY_FROM - subtotal);
 
-  if (!lines.length) {
-    return (
-      <div className="mx-auto flex max-w-6xl flex-col items-center px-4 py-20 text-center">
-        <span className="grid h-20 w-20 place-items-center rounded-full bg-muted">
-          <ShoppingBag className="h-9 w-9 text-ink-300" />
-        </span>
-        <h1 className="mt-4 font-display text-xl font-bold">{t('cart.empty')}</h1>
-        <p className="mt-1 text-sm text-ink-300">{t('cart.empty_desc')}</p>
-        <Link to="/">
-          <Button className="mt-6">{t('cart.go_menu')}</Button>
-        </Link>
-      </div>
-    );
-  }
+  const contentClass = lines.length
+    ? 'mx-auto max-w-6xl px-4 pt-5 pb-44 md:pb-8'
+    : 'mx-auto flex max-w-6xl flex-col items-center px-4 py-20 text-center';
 
   return (
-    <div className="mx-auto max-w-6xl px-4 pt-5 pb-44 md:pb-8">
-      <h1 className="mb-4 font-display text-2xl font-extrabold">{t('cart.title')}</h1>
+    <div className={contentClass}>
+      {!lines.length ? (
+        <>
+          <span className="grid h-20 w-20 place-items-center rounded-full bg-muted">
+            <ShoppingBag className="h-9 w-9 text-ink-300" />
+          </span>
+          <h1 className="mt-4 font-display text-xl font-bold">{t('cart.empty')}</h1>
+          <p className="mt-1 text-sm text-ink-300">{t('cart.empty_desc')}</p>
+          <Link to="/">
+            <Button className="mt-6">{t('cart.go_menu')}</Button>
+          </Link>
+        </>
+      ) : (
+        <>
+          <h1 className="mb-4 font-display text-2xl font-extrabold">{t('cart.title')}</h1>
       <div className="mb-4 rounded-xl bg-primary-50 px-3 py-2.5 text-sm font-semibold text-primary-700">
         {toFree > 0
           ? tVal(t('cart.free_delivery_hint'), { amount: formatPrice(toFree), fee: formatPrice(DELIVERY_FEE) })
@@ -71,6 +73,8 @@ export default function CartPage() {
           <Button onClick={() => set({ checkoutOpen: true })}>{t('cart.checkout')}</Button>
         </div>
       </div>
+        </>
+      )}
 
       <CheckoutSheet />
     </div>
