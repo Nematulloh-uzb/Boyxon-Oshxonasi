@@ -1,0 +1,28 @@
+{
+  "name": "boyxon-oshxonasi",
+  "version": "1.0.0",
+  "private": true,
+  "description": "O'zbek milliy taomlarini yetkazib berish platformasi — full-stack (React + Vite + TS / Express + Mongo + Socket.IO / Flutter)",
+  "scripts": {
+    "dev": "concurrently \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:server": "cd boyxon/server && npm run dev:local",
+    "dev:client": "cd boyxon/client && npm run dev",
+    "build:server": "cd boyxon/server && npm run build",
+    "build:client": "cd boyxon/client && npm run build",
+    "build": "npm run build:server && npm run build:client",
+    "preview:client": "cd boyxon/client && npm run preview",
+    "seed": "cd boyxon/server && npm run seed",
+    "test": "cd boyxon/server && npm test",
+    "lint:server": "cd boyxon/server && npm run lint",
+    "lint:client": "cd boyxon/client && npm run lint",
+    "lint": "npm run lint:server && npm run lint:client",
+    "postinstall": "cd boyxon/server && npm install && cd ../client && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}

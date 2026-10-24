@@ -1,0 +1,68 @@
+name: CI — Boyxon Oshxonasi
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      # CI uchun xotirada MongoDB (mongodb-memory-server o'zi basqaradi)
+      # Yoki agar локал Mongo kerak bo'lsa — docker service qo'shish mumkin
+
+    steps:
+      - name: Reponi yuklash
+        uses: actions/checkout@v4
+
+      - name: Node.js o'rnatish
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Bog'liqliklarni o'rnatish (root + server + client)
+        run: |
+          npm install
+          cd boyxon/server && npm install
+          cd ../client && npm install
+
+      - name: Server TypeScript tekshiruv (lint)
+        run: cd boyxon/server && npm run lint
+
+      - name: Client TypeScript tekshiruv (lint)
+        run: cd boyxon/client && npm run lint
+
+      - name: Server testlari (63 ta e2e tekshiruv)
+        run: cd boyxon/server && npm test
+
+      - name: Client build tekshiruv
+        run: cd boyxon/client && npm run build
+
+  security-audit:
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - name: Reponi yuklash
+        uses: actions/checkout@v4
+
+      - name: Node.js o'rnatish
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Server audit
+        run: |
+          cd boyxon/server
+          npm install
+          npm audit --omit=dev --audit-level=critical || true
