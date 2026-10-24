@@ -143,6 +143,11 @@ export default function HomePage() {
         addressRegion: 'Toshkent',
         addressCountry: 'UZ',
       },
+      geo: {
+        '@type': 'GeoCoordinates',
+        latitude: 41.0048,
+        longitude: 71.6806,
+      },
       openingHoursSpecification: [
         {
           '@type': 'OpeningHoursSpecification',

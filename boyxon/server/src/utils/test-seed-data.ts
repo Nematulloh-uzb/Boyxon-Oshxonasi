@@ -54,7 +54,7 @@ function slugify(name: string): string {
 export async function seedTestData(): Promise<void> {
   await Promise.all([User.deleteMany({}), Category.deleteMany({}), Dish.deleteMany({}), Promo.deleteMany({}), Order.deleteMany({})]);
   await User.create({ name: 'Admin', email: 'admin@boyxon.uz', password: 'Admin123!', role: 'admin', emailVerified: true });
-  const demo = await User.create({ name: 'Aziz Karimov', email: 'aziz@example.com', password: 'User123!', emailVerified: true, addresses: [{ label: 'Uy', address: 'Toshkent, Yunusobod', lat: 41.3555, lng: 69.288, isDefault: true }] });
+  const demo = await User.create({ name: 'Aziz Karimov', email: 'aziz@example.com', password: 'User123!', emailVerified: true, addresses: [{ label: 'Uy', address: 'Toshkent, Yunusobod tumani', lat: 41.0048, lng: 71.6806, isDefault: true }] });
   const cats = await Category.insertMany(CATS);
   const catId = (slug: string) => cats.find((c) => c.slug === slug)!._id;
   await Dish.insertMany(DISHES.map((d, i) => ({ name: d.name, slug: `${slugify(d.name)}-${i}`, description: d.desc, price: d.price, category: catId(d.cat), image: null, rating: d.rating, reviewCount: 50 + i, isFeatured: d.featured ?? false, isActive: true })));
