@@ -158,12 +158,13 @@ class _NavButton extends StatelessWidget {
                   ),
               ],
             ),
-            const SizedBox(height: 3),
+            const SizedBox(height: 4),
             Text(
               data.label,
               style: AppText.labelSm.copyWith(
                 color: color,
-                fontWeight: active ? FontWeight.w600 : FontWeight.w500,
+                fontSize: 12,
+                fontWeight: active ? FontWeight.w700 : FontWeight.w600,
               ),
             ),
           ],
