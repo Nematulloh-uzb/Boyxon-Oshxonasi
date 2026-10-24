@@ -71,21 +71,24 @@ class _AppShellState extends State<AppShell> {
         child: SafeArea(
           top: false,
           child: SizedBox(
-            height: 64,
+            height: 56,
             child: Row(
               children: [
                 for (var i = 0; i < items.length; i++)
                   Expanded(
-                    child: _NavButton(
-                      data: items[i],
-                      active: i == idx,
-                      onTap: () {
-                        setState(() => _index = i);
-                        // Admin tabiga o'tilganda jonli ro'yxat yangilanadi.
-                        if (pages[i] is AdminPage) {
-                          _adminKey.currentState?.refresh();
-                        }
-                      },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: _NavButton(
+                        data: items[i],
+                        active: i == idx,
+                        onTap: () {
+                          setState(() => _index = i);
+                          // Admin tabiga o'tilganda jonli ro'yxat yangilanadi.
+                          if (pages[i] is AdminPage) {
+                            _adminKey.currentState?.refresh();
+                          }
+                        },
+                      ),
                     ),
                   ),
               ],
@@ -130,7 +133,7 @@ class _NavButton extends StatelessWidget {
             Stack(
               clipBehavior: Clip.none,
               children: [
-                Icon(data.icon, size: 24, color: color),
+                Icon(data.icon, size: 28, color: color),
                 if (data.badge > 0)
                   Positioned(
                     top: -7,
