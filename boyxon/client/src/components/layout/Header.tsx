@@ -59,26 +59,26 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-30 border-b border-ink-line/60 bg-cream/90 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
+    <header className="sticky top-0 z-30 border-b border-ink-line/40 bg-cream/50 backdrop-blur-md shadow-sm">
+      <div className="mx-auto flex h-12 max-w-6xl items-center gap-2 px-4">
         <button className="rounded-full p-2 hover:bg-surface-raised md:hidden" onClick={() => set({ mobileDrawer: true })} aria-label={t('nav.menu')}>
-          <Menu className="h-6 w-6" />
+          <Menu className="h-5 w-5" />
         </button>
-        <Link to="/" className="font-display text-xl font-extrabold text-primary-600">
+        <Link to="/" className="font-display text-lg font-extrabold text-primary-600 tracking-tight">
           Boyxon
         </Link>
-        <nav className="ml-6 hidden items-center gap-5 text-[15px] font-medium md:flex">
+        <nav className="ml-5 hidden items-center gap-4 text-sm font-medium md:flex">
           <Link to="/" className="hover:text-primary-600">{t('nav.menu')}</Link>
           <Link to="/cart" className="hover:text-primary-600">{t('nav.cart')}</Link>
           {user?.role === 'admin' && <Link to="/admin" className="hover:text-primary-600">{t('nav.admin')}</Link>}
         </nav>
-        <div className="ml-auto flex items-center gap-1">
+        <div className="ml-auto flex items-center gap-2">
           {accessToken && (
             <>
-              <button className="relative rounded-full p-2.5 hover:bg-surface-raised" onClick={() => set({ notifOpen: true })} aria-label={t('nav.notifications')}>
-                <Bell className="h-5 w-5" />
+              <button className="relative rounded-full p-2 hover:bg-surface-raised" onClick={() => set({ notifOpen: true })} aria-label={t('nav.notifications')}>
+                <Bell className="h-4 w-4" />
                 {(data ?? 0) > 0 && (
-                  <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-danger px-1 text-[10px] font-bold text-white">
+                  <span className="absolute right-1 top-1 grid h-3 min-w-3 place-items-center rounded-full bg-danger px-1 text-[9px] font-bold text-white">
                     {(data ?? 0) > 99 ? '99+' : data}
                   </span>
                 )}
@@ -102,20 +102,20 @@ export function Header() {
                   ? t('kitchen.hint_open')
                   : t('kitchen.hint_closed')
             }
-            className={`flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1.5 text-[11px] font-semibold ${kitchenTone}`}
+            className={`flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2 py-1 text-[10px] font-semibold ${kitchenTone}`}
           >
             <span className={`h-2 w-2 rounded-full ${kitchenDot}`} />
             {kitchenOpen === undefined ? '…' : kitchenOpen ? t('kitchen.open') : t('kitchen.closed')}
           </span>
           <button
-            className="rounded-full p-2.5 hover:bg-surface-raised"
+            className="rounded-full p-2 hover:bg-surface-raised"
             onClick={toggleTheme}
             aria-label={theme === 'dark' ? t('theme.light') : t('theme.dark')}
           >
-            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
           <button
-            className={`rounded-full hover:bg-surface-raised ${user?.avatar ? 'p-1' : 'p-2.5'}`}
+            className={`rounded-full hover:bg-surface-raised ${user?.avatar ? 'p-1' : 'p-2'}`}
             onClick={() => nav(accessToken ? '/settings' : '/auth')}
             aria-label={t('nav.profile')}
           >
@@ -123,10 +123,10 @@ export function Header() {
               <img
                 src={user.avatar}
                 alt=""
-                className="h-8 w-8 rounded-full border border-ink-line object-cover"
+                className="h-7 w-7 rounded-full border border-ink-line object-cover"
               />
             ) : (
-              <User className="h-5 w-5" />
+              <User className="h-4 w-4" />
             )}
           </button>
         </div>
