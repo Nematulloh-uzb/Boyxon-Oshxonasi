@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocation } from 'react-router-dom';
 import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { motion, AnimatePresence } from 'framer-motion';
 import { chatApi } from '../../api/chat.api';
 import { useChatSocket, useChatTyping, setChatOpen, isChatOpen } from '../../hooks/useChatSocket';
 import { cn } from '../../lib/utils';
