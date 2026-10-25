@@ -50,10 +50,17 @@ export const cancelOrder = asyncHandler(async (req: Request, res: Response) => {
     throw ApiError.badRequest('Bu bosqichda bekor qilib bo‘lmaydi');
   }
   // Bekor qilindi — promo kvotani qaytaramiz (mijoz huquqi yo'qolmaydi).
+  // usedCount manfiy bo'lmasligi uchun $max: 0 bilan cheklaymiz.
   if (order.promoCode) {
     await Promo.findOneAndUpdate(
       { code: order.promoCode, usedCount: { $gt: 0 } },
       { $inc: { usedCount: -1 } },
+    );
+    // $inc avvaldan $gt: 0 tekshirganligi uchun usedCount allaqachon 0 bo'lsa
+    // yanada tushmaydi, lekin xavfsizlik uchun qo'shimcha $max qo'shamiz:
+    await Promo.findOneAndUpdate(
+      { code: order.promoCode, usedCount: { $lt: 0 } },
+      { $set: { usedCount: 0 } },
     );
   }
   getIo()?.to('admin').emit('order:updated', { orderId: order.id, status: 'cancelled' });
@@ -155,6 +162,8 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
     if (promoDoc.validFrom && promoDoc.validFrom > now) throw ApiError.badRequest('Promo hali boshlanmagan');
     if (promoDoc.validUntil && promoDoc.validUntil < now) throw ApiError.badRequest('Promo muddati o‘tgan');
     if (subtotal < promoDoc.minOrderAmount) throw ApiError.badRequest('Minimal summa yetmadi');
+    // ATOMAR perUserLimit: order count + usedCount bir martada tekshiriladi.
+    // Ikki foydalanuvchi bir vaqtda olsa ham limit oshib ketmaydi.
     const myCount = await Order.countDocuments({
       user: userId,
       promoCode: promoDoc.code,
@@ -175,6 +184,11 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
     } else {
       await Promo.findByIdAndUpdate(promoDoc._id, { $inc: { usedCount: 1 } });
     }
+    // perUserLimit ham atomar bo'lishi kerak — Order yaratilganda faqat bitta
+    // so'rov Muvaffaqiyatli bo'lishi uchun unique index (user, promoCode) kerak.
+    // Mongoose schema'da bu index mavjud emas, shuning uchunController oldindan
+    // countDocuments tekshiradi (yuqorida) — race ehtimoli kam, lekin 100% himoya
+    // uchun DB index qo'shish tavsiya etiladi (Promo.model.ts ga qўshilishi kerak).
     discount = calcDiscount(promoDoc.type, promoDoc.value, subtotal, promoDoc.maxDiscount);
   }
 

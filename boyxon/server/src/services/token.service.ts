@@ -84,19 +84,24 @@ export function verifyResetToken(token: string): { id: string; ver: number } {
 
 /**
  * Email tasdiqlash tokeni — 24 soat amal qiladi.
+ * Alohida kalit (JWT_EMAIL_VERIFY_SECRET) bilan imzolanadi — reset tokenidan
+ * mustaqil bo'lishi uchun.
  *
  * Nega `ver` (tokenVersion) ham kiradi: parol almashsa yoki hisob bloklansa,
  * eski tasdiqlash havolasi ham avtomatik kuchini yo'qotadi.
  */
 export function signEmailVerifyToken(userId: string, tokenVersion: number): string {
-  return jwt.sign({ id: userId, ver: tokenVersion, purpose: 'verify-email' }, env.JWT_RESET_SECRET, {
-    algorithm: 'HS256',
-    expiresIn: '24h',
-  });
+  return jwt.sign(
+    { id: userId, ver: tokenVersion, purpose: 'verify-email' },
+    env.JWT_EMAIL_VERIFY_SECRET,
+    { algorithm: 'HS256', expiresIn: '24h' },
+  );
 }
 
 export function verifyEmailVerifyToken(token: string): { id: string; ver: number } {
-  const decoded = jwt.verify(token, env.JWT_RESET_SECRET, { algorithms: ['HS256'] }) as {
+  const decoded = jwt.verify(token, env.JWT_EMAIL_VERIFY_SECRET, {
+    algorithms: ['HS256'],
+  }) as {
     id?: string;
     ver?: number;
     purpose?: string;

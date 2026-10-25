@@ -9,7 +9,7 @@ export const registerValidator = z.object({
   name: z.string().min(2, 'Ism kamida 2 harf'),
   email: z.string().email('Email noto‘g‘ri'),
   phone: z.string().optional(),
-  password: z.string().min(6, 'Parol kamida 6 belgi'),
+  password: z.string().min(8, 'Parol kamida 8 belgi bo‘lishi kerak').refine((v) => /[a-zA-Z]/.test(v), 'Parolda kamida bitta harf bo‘lishi kerak').refine((v) => /[0-9]/.test(v), 'Parolda kamida bitta raqam bo‘lishi kerak'),
 });
 
 export const checkoutValidator = z.object({
