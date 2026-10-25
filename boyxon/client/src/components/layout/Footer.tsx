@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { Check, Clock, Copy, MapPin, Phone } from 'lucide-react';
+import { Check, Clock, Copy, Download, MapPin, Phone } from 'lucide-react';
 import { categoriesApi } from '../../api/categories.api';
 import { QUERY_KEYS } from '../../lib/constants';
 import { localizedCategoryName } from '../../lib/format';
@@ -104,6 +104,19 @@ export function Footer() {
               <Clock className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
               <span>{t('footer.hours_value')}</span>
             </p>
+          </div>
+
+          <div>
+            <p className="font-semibold text-ink-700">{t('footer.download_app')}</p>
+            <a
+              href="/boyxon-mobile.apk"
+              download
+              className="mt-2 flex items-center gap-2 rounded-xl border border-ink-line bg-bg px-3 py-2 font-semibold text-ink-700 transition hover:border-primary-500/50 hover:text-primary-600"
+            >
+              <Download className="h-4 w-4" aria-hidden="true" />
+              <span>{t('footer.download_app_desc')}</span>
+            </a>
+            <p className="mt-1 text-xs text-ink-300">APK • Android 7.0+</p>
           </div>
         </div>
 
