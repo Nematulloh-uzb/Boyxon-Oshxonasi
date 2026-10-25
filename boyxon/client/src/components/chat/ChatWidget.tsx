@@ -8,6 +8,7 @@ import { useChatSocket, useChatTyping, setChatOpen, isChatOpen } from '../../hoo
 import { cn } from '../../lib/utils';
 import { useAuthStore } from '../../store/auth.store';
 import { useCartStore } from '../../store/cart.store';
+import { useUiStore } from '../../store/ui.store';
 import type { ChatMessage } from '../../types';
 
 function time(iso: string): string {
@@ -24,7 +25,9 @@ export function ChatWidget() {
   // Shunga mos ravishda chat tugmasi ham panel ustiga ko'tariladi.
   const hasCartLines = useCartStore((s) => s.lines.length > 0);
   const aboveCartPanel = pathname === '/cart' && hasCartLines;
-  const [open, setOpen] = useState(() => isChatOpen());
+  const { chatOpen, set } = useUiStore();
+  const open = chatOpen;
+  const setOpen = (v: boolean) => set({ chatOpen: v });
   const [draft, setDraft] = useState('');
   const [adminTyping, setAdminTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -98,11 +101,7 @@ export function ChatWidget() {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className={`fixed right-5 z-40 grid h-12 w-12 place-items-center rounded-full bg-gradient-to-r from-primary-700 to-primary-800 text-white shadow-lg transition hover:scale-105 active:scale-95 md:bottom-5 ${
-            aboveCartPanel
-              ? 'bottom-[calc(9.5rem_+_env(safe-area-inset-bottom,0px))]'
-              : 'bottom-[calc(5rem_+_env(safe-area-inset-bottom,0px))]'
-          }`}
+          className="fixed right-5 z-40 hidden md:grid h-12 w-12 place-items-center rounded-full bg-gradient-to-r from-primary-700 to-primary-800 text-white shadow-lg transition hover:scale-105 active:scale-95 md:bottom-5"
           aria-label={t('chat.open')}
         >
           <MessageCircle className="h-6 w-6" />
