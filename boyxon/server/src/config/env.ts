@@ -167,6 +167,7 @@ function loadEnv(): Env {
     e.JWT_REFRESH_SECRET ||= devSecret('JWT_REFRESH_SECRET');
     e.JWT_RESET_SECRET ||= devSecret('JWT_RESET_SECRET');
     if (!e.ADMIN_PASSWORD) e.ADMIN_PASSWORD = devSecret('ADMIN_PASSWORD').slice(0, 20);
+    if (process.env.NODE_ENV === 'development') { console.log('[env] ADMIN_PASSWORD len =', e.ADMIN_PASSWORD?.length); }
 
     /**
      * Dev'da SMTP ko'pincha sozlanmagan bo'ladi, ya'ni tasdiqlash xati yuborilmaydi.
