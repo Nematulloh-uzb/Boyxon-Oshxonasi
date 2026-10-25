@@ -34,6 +34,8 @@ const envSchema = z.object({
   JWT_REFRESH_SECRET: z.string().default(''),
   /** Parolni tiklash tokenlari uchun alohida kalit (refresh kaliti bilan aralashmasin). */
   JWT_RESET_SECRET: z.string().default(''),
+  /** Email tasdiqlash tokeni uchun alohida kalit (reset tokenidan mustaqil). */
+  JWT_EMAIL_VERIFY_SECRET: z.string().default(''),
   JWT_ACCESS_EXPIRES: z.string().default('15m'),
   JWT_REFRESH_EXPIRES: z.string().default('7d'),
 
