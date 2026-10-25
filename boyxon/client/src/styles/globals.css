@@ -68,6 +68,18 @@
   input, textarea, select { color: rgb(var(--fg)); }
   select option { background-color: rgb(var(--surface)); color: rgb(var(--fg)); }
   input::placeholder, textarea::placeholder { color: rgb(var(--fg-subtle)); opacity: 1; }
+
+  /* Universal silliq interaktiv tebranishlar */
+  button, a {
+    transition: color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.2s ease,
+                transform 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.2s ease;
+  }
+  button:active:not(:disabled) {
+    transform: scale(0.96);
+  }
 }
 
 /* Silliq rejim almashinuvi */
@@ -76,9 +88,77 @@
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
+/* ===== Animatsiya kalitlari ===== */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.88; transform: scale(1.02); }
+}
+
+@keyframes shimmer-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.93);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
   .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+
+  /* Animatsiya sinflari */
+  .animate-float { animation: float 3s ease-in-out infinite; }
+  .animate-pulse-subtle { animation: pulse-subtle 2.5s ease-in-out infinite; }
+  .animate-fade-in-up { animation: fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .animate-scale-in { animation: scale-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+  /* Premium nur oqimi (shimmer effect) */
+  .shimmer-card {
+    position: relative;
+    overflow: hidden;
+  }
+  .shimmer-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+    transform: translateX(-100%);
+    animation: shimmer-sweep 3.5s infinite;
+    pointer-events: none;
+  }
+
+  /* Kartalar interaktiv ko'tarilishi */
+  .card-hover-lift {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+  }
+  .card-hover-lift:hover {
+    transform: translateY(-4px);
+  }
 }
+

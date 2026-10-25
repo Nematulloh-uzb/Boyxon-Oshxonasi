@@ -24,8 +24,8 @@ export function DishCard({ dish }: { dish: Dish }) {
   };
 
   return (
-    <article className="group overflow-hidden rounded-card border border-ink-line/60 bg-surface shadow-sm transition hover:shadow-md">
-      <Link to={`/dish/${dish.slug || dish._id}`} className="block">
+    <article className="card-hover-lift group overflow-hidden rounded-card border border-ink-line/60 bg-surface shadow-sm transition-all duration-300 hover:shadow-xl hover:border-primary-500/40">
+      <Link to={`/dish/${dish.slug || dish._id}`} className="block overflow-hidden">
         {dish.image && !imgFailed ? (
           <img
             src={dish.image}
@@ -35,7 +35,7 @@ export function DishCard({ dish }: { dish: Dish }) {
             width={640}
             height={480}
             onError={() => setImgFailed(true)}
-            className="aspect-[4/3] w-full rounded-t-[20px] object-cover"
+            className="aspect-[4/3] w-full rounded-t-[20px] object-cover transition-transform duration-500 ease-out group-hover:scale-105"
           />
         ) : (
           <DishPlaceholder />
@@ -43,9 +43,9 @@ export function DishCard({ dish }: { dish: Dish }) {
       </Link>
       <div className="flex flex-col gap-2 p-3">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="line-clamp-1 font-display font-semibold text-ink-900">{name}</h3>
+          <h3 className="line-clamp-1 font-display font-semibold text-ink-900 transition-colors group-hover:text-primary-600">{name}</h3>
           <span className="flex shrink-0 items-center gap-1 text-xs font-semibold text-ink-700">
-            <Star className="h-3.5 w-3.5 fill-[#FDAB12] text-[#FDAB12]" />
+            <Star className="h-3.5 w-3.5 fill-[#FDAB12] text-[#FDAB12] transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" />
             {dish.rating.toFixed(1)}
           </span>
         </div>
@@ -68,9 +68,9 @@ export function DishCard({ dish }: { dish: Dish }) {
           <button
             onClick={addToCart}
             aria-label={t('dish.add')}
-            className="grid h-10 w-10 place-items-center rounded-full bg-primary-600 text-white transition hover:bg-primary-700 active:scale-95"
+            className="grid h-10 w-10 place-items-center rounded-full bg-primary-600 text-white shadow-sm transition-all duration-200 hover:bg-primary-700 hover:scale-110 hover:shadow-glow active:scale-90"
           >
-            <Plus className="h-5 w-5" />
+            <Plus className="h-5 w-5 transition-transform duration-200 group-hover/btn:rotate-90" />
           </button>
         </div>
       </div>

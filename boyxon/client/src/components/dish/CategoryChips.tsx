@@ -58,13 +58,13 @@ export function CategoryChips({ categories, active, onChange }: Props) {
             key={c._id}
             onClick={() => onChange(c.slug || undefined)}
             className={cn(
-              'flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition',
+              'flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 active:scale-95 hover:scale-[1.04]',
               isActive
-                ? 'border-primary-700 bg-primary-700 text-white'
-                : 'border-ink-line bg-surface text-ink-700 hover:border-primary-500/40',
+                ? 'border-primary-700 bg-primary-700 text-white shadow-md shadow-primary-700/25 scale-[1.02]'
+                : 'border-ink-line bg-surface text-ink-700 hover:border-primary-500/50 hover:bg-surface-raised',
             )}
           >
-            <Icon className="h-4 w-4" />
+            <Icon className={cn('h-4 w-4 transition-transform duration-200', isActive && 'scale-110')} />
             {label}
           </button>
         );

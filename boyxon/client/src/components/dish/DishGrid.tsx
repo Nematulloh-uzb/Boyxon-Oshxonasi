@@ -34,8 +34,14 @@ export function DishGrid({ dishes, loading, emptyText }: Props) {
   }
   return (
     <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-      {dishes.map((d) => (
-        <DishCard key={d._id} dish={d} />
+      {dishes.map((d, i) => (
+        <div
+          key={d._id}
+          className="animate-fade-in-up"
+          style={{ animationDelay: `${Math.min(i * 0.04, 0.32)}s` }}
+        >
+          <DishCard dish={d} />
+        </div>
       ))}
     </div>
   );

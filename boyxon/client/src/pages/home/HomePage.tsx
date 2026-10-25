@@ -1,4 +1,4 @@
-﻿import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Search, SlidersHorizontal, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -230,18 +230,18 @@ export default function HomePage() {
 
       <div className="mb-5 flex gap-2">
         <div className="relative flex-1">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-300" />
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-300 transition-colors" />
           <input
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             placeholder={t('home.search_placeholder')}
             aria-label={t('nav.search')}
-            className="h-12 w-full rounded-full border border-ink-line bg-surface pl-11 pr-4 text-[15px] outline-none focus:border-primary-500"
+            className="h-12 w-full rounded-full border border-ink-line bg-surface pl-11 pr-4 text-[15px] outline-none transition-all duration-300 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/15 focus:shadow-sm"
           />
         </div>
         <button
           onClick={() => setFilterOpen(true)}
-          className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-ink-line bg-surface text-ink-700"
+          className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-ink-line bg-surface text-ink-700 transition-all duration-300 hover:border-primary-500/50 hover:bg-surface-raised active:scale-90 hover:rotate-6"
           aria-label={t('filter.title')}
         >
           <SlidersHorizontal className="h-5 w-5" />
@@ -249,7 +249,7 @@ export default function HomePage() {
       </div>
 
       {/* Hero banner: "bepul" emas — mijozning cho'ntagida qoladigan pul */}
-      <div className="mb-6 overflow-hidden rounded-card bg-gradient-to-r from-primary-700 to-primary-800 p-6 text-white">
+      <div className="shimmer-card mb-6 overflow-hidden rounded-card bg-gradient-to-r from-primary-700 to-primary-800 p-6 text-white shadow-xl transition-all duration-300 hover:shadow-2xl">
         <p className="text-sm font-semibold text-white">{t('home.new_season')}</p>
         <p className="font-display text-2xl font-extrabold">{t('home.promo_title')}</p>
         <p className="mt-1 text-sm text-white">{t('home.promo_code')}</p>
