@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Bell, Menu, Moon, Sun, User } from 'lucide-react';
+import { Bell, Menu, Moon, Sun, User, MessageCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/auth.store';
 import { useUiStore } from '../../store/ui.store';
@@ -58,9 +58,19 @@ export function Header() {
     setTheme(next);
   };
 
+  // Scroll position — header compresses yoki ochiladi
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-30 border-b border-ink-line/40 bg-cream/50 backdrop-blur-md shadow-sm">
-      <div className="mx-auto flex h-12 max-w-6xl items-center gap-2 px-4">
+    <header className={`sticky top-0 z-30 border-b border-ink-line/40 bg-cream/50 backdrop-blur-md shadow-sm transition-all duration-300 ${
+      scrolled ? 'shadow-md backdrop-blur-xl bg-cream/70 dark:bg-surface/80' : ''
+    }`}>
+      <div className={`mx-auto flex max-w-6xl items-center gap-2 px-4 transition-all duration-300 ${scrolled ? 'h-10' : 'h-12'}`}>
         <button className="rounded-full p-2 hover:bg-surface-raised active:scale-90 transition-transform md:hidden" onClick={() => set({ mobileDrawer: true })} aria-label={t('nav.menu')}>
           <Menu className="h-5 w-5" />
         </button>
@@ -71,6 +81,16 @@ export function Header() {
           <Link to="/" className="transition-colors hover:text-primary-600">{t('nav.menu')}</Link>
           <Link to="/cart" className="transition-colors hover:text-primary-600">{t('nav.cart')}</Link>
           {user?.role === 'admin' && <Link to="/admin" className="transition-colors hover:text-primary-600">{t('nav.admin')}</Link>}
+          {accessToken && (
+            <button
+              onClick={() => set({ chatOpen: true })}
+              className="flex items-center gap-1.5 rounded-full border border-ink-line px-3 py-1 text-sm font-medium transition-all hover:border-primary-500/50 hover:text-primary-600 hover:bg-surface-raised active:scale-95"
+              aria-label="Chat"
+            >
+              <MessageCircle className="h-4 w-4" />
+              Chat
+            </button>
+          )}
         </nav>
         <div className="ml-auto flex items-center gap-2">
           {accessToken && (

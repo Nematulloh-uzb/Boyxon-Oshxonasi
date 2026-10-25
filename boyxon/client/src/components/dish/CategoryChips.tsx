@@ -49,7 +49,7 @@ export function CategoryChips({ categories, active, onChange }: Props) {
   const items = [{ _id: 'all', name: t('category.all'), slug: '' } as unknown as Category, ...categories];
   return (
     <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 md:mx-0 md:flex-wrap md:px-0">
-      {items.map((c) => {
+      {items.map((c, idx) => {
         const Icon = iconMap[c.icon ?? ''] ?? iconMap[(c.icon ?? '').toLowerCase()] ?? LayoutGrid;
         const isActive = active === c.slug || (!active && !c.slug);
         const label = !c.slug ? t('category.all') : (localizedCategoryName(c, lang) || c.name);
@@ -58,11 +58,12 @@ export function CategoryChips({ categories, active, onChange }: Props) {
             key={c._id}
             onClick={() => onChange(c.slug || undefined)}
             className={cn(
-              'flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 active:scale-95 hover:scale-[1.04]',
+              'flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 active:scale-95 hover:scale-[1.04] animate-fade-in-up',
               isActive
                 ? 'border-primary-700 bg-primary-700 text-white shadow-md shadow-primary-700/25 scale-[1.02]'
                 : 'border-ink-line bg-surface text-ink-700 hover:border-primary-500/50 hover:bg-surface-raised',
             )}
+            style={{ animationDelay: `${idx * 45}ms` }}
           >
             <Icon className={cn('h-4 w-4 transition-transform duration-200', isActive && 'scale-110')} />
             {label}

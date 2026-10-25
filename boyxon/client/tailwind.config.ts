@@ -59,6 +59,11 @@ export default {
         glow: '0 8px 20px rgba(230,126,34,0.35)',
       },
       borderRadius: { 'card': '20px' },
+      scale: {
+        '102': '1.02',
+        '103': '1.03',
+        '108': '1.08',
+      },
     },
   },
   plugins: [],

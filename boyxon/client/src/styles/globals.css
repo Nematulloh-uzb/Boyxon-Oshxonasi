@@ -105,25 +105,60 @@
 }
 
 @keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in-down {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.93);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.93); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(230, 126, 34, 0.4); }
+  50% { box-shadow: 0 0 0 12px rgba(230, 126, 34, 0); }
+}
+
+@keyframes hero-gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes badge-pop {
+  0% { transform: scale(0) rotate(-10deg); }
+  70% { transform: scale(1.2) rotate(3deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+@keyframes nav-bounce {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-5px); }
+  70% { transform: translateY(-2px); }
+}
+
+@keyframes progress-fill {
+  from { width: 0; }
+}
+
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ripple {
+  from { transform: scale(0); opacity: 0.6; }
+  to { transform: scale(2.5); opacity: 0; }
 }
 
 @layer utilities {
@@ -136,7 +171,22 @@
   .animate-float { animation: float 3s ease-in-out infinite; }
   .animate-pulse-subtle { animation: pulse-subtle 2.5s ease-in-out infinite; }
   .animate-fade-in-up { animation: fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .animate-fade-in-down { animation: fade-in-down 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
   .animate-scale-in { animation: scale-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .animate-slide-in-right { animation: slide-in-right 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .animate-badge-pop { animation: badge-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+  .animate-nav-bounce { animation: nav-bounce 0.45s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .animate-count-up { animation: count-up 0.3s ease both; }
+  .animate-glow-pulse { animation: glow-pulse 2s ease-in-out infinite; }
+
+  /* Stagger delay yordamchilari */
+  .delay-75 { animation-delay: 75ms; }
+  .delay-100 { animation-delay: 100ms; }
+  .delay-150 { animation-delay: 150ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
+  .delay-500 { animation-delay: 500ms; }
 
   /* Premium nur oqimi (shimmer effect) */
   .shimmer-card {
@@ -153,6 +203,12 @@
     pointer-events: none;
   }
 
+  /* Animated hero gradient */
+  .hero-gradient-animate {
+    background-size: 200% 200%;
+    animation: hero-gradient 6s ease infinite;
+  }
+
   /* Kartalar interaktiv ko'tarilishi (GPU tezlashuvi bilan) */
   .card-hover-lift {
     transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
@@ -161,7 +217,11 @@
     will-change: transform;
   }
   .card-hover-lift:hover {
-    transform: translateY(-3.5px) scale(1.006);
+    transform: translateY(-4px) scale(1.008);
+    box-shadow: 0 20px 40px -8px rgba(93,64,55,0.18), 0 0 0 1px rgba(230,126,34,0.12);
+  }
+  .dark .card-hover-lift:hover {
+    box-shadow: 0 20px 40px -8px rgba(0,0,0,0.55), 0 0 0 1px rgba(230,126,34,0.2);
   }
 
   /* GPU tezlashuvi va 120fps silliq aylanish */
@@ -175,6 +235,39 @@
     contain: layout paint;
     content-visibility: auto;
     contain-intrinsic-size: 280px;
+  }
+
+  /* Glow tugma */
+  .btn-glow:hover {
+    box-shadow: 0 0 0 4px rgba(230,126,34,0.2), 0 4px 16px rgba(230,126,34,0.35);
+  }
+
+  /* Ripple effekti */
+  .ripple-container { position: relative; overflow: hidden; }
+  .ripple-container::after {
+    content: '';
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: 100px;
+    height: 100px;
+    margin: -50px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transform: scale(0);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .ripple-container:active::after {
+    animation: ripple 0.5s ease-out;
+  }
+
+  /* Scroll reveal — framer-motion olmasa ham ishlaydi */
+  @supports (animation-timeline: scroll()) {
+    .scroll-reveal {
+      animation: fade-in-up linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 25%;
+    }
   }
 }
 
