@@ -95,10 +95,7 @@ export function ChatWidget() {
 
   return (
     <>
-      {/* Yopiq holat — floating tugma (mobil: pastki nav panelidan tepada).
-          Savatda checkout paneli ochiq bo'lsa, uning ustiga tushmasligi uchun
-          qo'shimcha ofset; savat bo'sh bo'lsa panel chizilmaydi va tugma
-          nav panelining tepasida turadi. */}
+      {/* Desktop uchun burchakdagi floating tugma (mobilda bottom nav'da joylashgan) */}
       {!open && (
         <button
           onClick={() => setOpen(true)}
@@ -109,96 +106,140 @@ export function ChatWidget() {
         </button>
       )}
 
-      {/* Ochiq chat oynasi */}
-      {open && (
-        <div className="fixed bottom-0 right-0 z-40 flex h-[100dvh] w-full flex-col bg-surface shadow-2xl sm:bottom-5 sm:right-5 sm:h-[560px] sm:max-h-[85vh] sm:w-[380px] sm:rounded-lg sm:border sm:border-ink-line">
-          {/* Sarlavha */}
-          <div className="flex items-center gap-3 rounded-t-lg bg-gradient-to-r from-primary-700 to-primary-800 px-4 py-3 text-white">
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/20">
-              <MessageCircle className="h-5 w-5" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="truncate font-semibold">{t('chat.support')}</p>
-              <p className="flex items-center gap-1.5 text-xs text-white">
-                <span className="h-2 w-2 rounded-full bg-green-300" />
-                {t('chat.online')}
-              </p>
-            </div>
-            <button onClick={() => setOpen(false)} className="rounded-full p-1.5 hover:bg-white/20" aria-label={t('common.close')}>
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-
-          {/* Xabarlar */}
-          <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-bg p-4">
-            {isLoading && (
-              <div className="flex h-full items-center justify-center text-ink-300">
-                <Loader2 className="h-6 w-6 animate-spin" />
-              </div>
-            )}
-            {!isLoading && !messages.length && (
-              <div className="py-10 text-center">
-                <MessageCircle className="mx-auto h-10 w-10 text-ink-300" />
-                <p className="mt-2 text-sm text-ink-300">{t('chat.welcome')}</p>
-              </div>
-            )}
-            {messages.map((m) => {
-              const mine = m.senderRole === 'user';
-              return (
-                <div key={m._id} className={cn('flex', mine ? 'justify-end' : 'justify-start')}>
-                  <div
-                    className={cn(
-                      'max-w-[80%] rounded-2xl px-3.5 py-2 text-sm shadow-sm',
-                      mine
-                        ? 'rounded-br-md bg-gradient-to-r from-primary-700 to-primary-800 text-white'
-                        : 'rounded-bl-md bg-surface-raised text-ink-800',
-                    )}
-                  >
-                    <p className="whitespace-pre-wrap break-words">{m.text}</p>
-                    <p className={cn('mt-1 text-[10px]', mine ? 'text-white' : 'text-ink-300')}>{time(m.createdAt)}</p>
-                  </div>
-                </div>
-              );
-            })}
-            {adminTyping && (
-              <div className="flex justify-start">
-                <div className="flex items-center gap-1 rounded-2xl rounded-bl-md bg-surface-raised px-4 py-3">
-                  <span className="h-2 w-2 animate-bounce rounded-full bg-ink-300 [animation-delay:-0.3s]" />
-                  <span className="h-2 w-2 animate-bounce rounded-full bg-ink-300 [animation-delay:-0.15s]" />
-                  <span className="h-2 w-2 animate-bounce rounded-full bg-ink-300" />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Yozish maydoni */}
-          <form
-            className="flex items-center gap-2 border-t border-ink-line p-3"
-            onSubmit={(e) => {
-              e.preventDefault();
-              send();
-            }}
-          >
-            <input
-              value={draft}
-              onChange={(e) => {
-                setDraft(e.target.value);
-                emitTyping('admin');
-              }}
-              placeholder={t('chat.placeholder')}
-              className="h-11 flex-1 rounded-full border border-ink-line bg-bg px-4 text-sm outline-none focus:border-primary-500"
+      {/* Zamonaviy animatsiyali Chatbar — butun ekran emas, qulay pastki panel (Bottom Sheet) */}
+      <AnimatePresence>
+        {open && (
+          <div className="fixed inset-0 z-50 flex flex-col justify-end pointer-events-auto sm:justify-end sm:items-end sm:p-5">
+            {/* Orqa fonni xiralashtiruvchi qatlam (tashqariga bosilganda chat yopiladi) */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setOpen(false)}
+              className="fixed inset-0 bg-black/50 backdrop-blur-[2px]"
             />
-            <button
-              type="submit"
-              disabled={!draft.trim()}
-              className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-r from-primary-700 to-primary-800 text-white transition disabled:opacity-40"
-              aria-label={t('chat.send')}
+
+            {/* Chatbar asosiy konteyneri */}
+            <motion.div
+              initial={{ y: '100%', opacity: 0.5 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: '100%', opacity: 0 }}
+              transition={{ type: 'spring', damping: 28, stiffness: 320 }}
+              className="relative z-10 flex h-[76vh] max-h-[620px] min-h-[440px] w-full max-w-lg mx-auto flex-col overflow-hidden rounded-t-[32px] border-t border-ink-line/40 bg-surface shadow-2xl sm:h-[560px] sm:max-h-[85vh] sm:w-[390px] sm:rounded-3xl sm:border sm:border-ink-line/50"
             >
-              <Send className="h-5 w-5" />
-            </button>
-          </form>
-        </div>
-      )}
+              {/* Mobil uchun yuqori tortish tutqichi (drag handle) */}
+              <div
+                onClick={() => setOpen(false)}
+                className="flex w-full cursor-pointer justify-center pt-2.5 pb-1 bg-gradient-to-r from-primary-700 via-primary-750 to-primary-800 sm:hidden"
+              >
+                <span className="h-1.5 w-12 rounded-full bg-white/40" />
+              </div>
+
+              {/* Sarlavha paneli */}
+              <div className="flex items-center gap-3 bg-gradient-to-r from-primary-700 via-primary-750 to-primary-800 px-5 py-3 text-white">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/20 shadow-sm">
+                  <MessageCircle className="h-5 w-5" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-semibold tracking-tight">{t('chat.support')}</p>
+                  <p className="flex items-center gap-1.5 text-xs text-white/90">
+                    <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
+                    {t('chat.online')}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setOpen(false)}
+                  className="rounded-full p-2 transition-colors hover:bg-white/20 active:scale-90"
+                  aria-label={t('common.close')}
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Xabarlar ro'yxati */}
+              <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-bg p-4 overscroll-contain">
+                {isLoading && (
+                  <div className="flex h-full items-center justify-center text-ink-300">
+                    <Loader2 className="h-6 w-6 animate-spin text-primary-600" />
+                  </div>
+                )}
+                {!isLoading && !messages.length && (
+                  <div className="py-12 text-center">
+                    <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-surface-raised shadow-inner">
+                      <MessageCircle className="h-7 w-7 text-primary-600" />
+                    </div>
+                    <p className="mt-3 font-semibold text-ink-800">{t('chat.title')}</p>
+                    <p className="mt-1 text-xs text-ink-300 max-w-[240px] mx-auto">{t('chat.welcome')}</p>
+                  </div>
+                )}
+                {messages.map((m) => {
+                  const mine = m.senderRole === 'user';
+                  return (
+                    <motion.div
+                      key={m._id}
+                      initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ duration: 0.15 }}
+                      className={cn('flex', mine ? 'justify-end' : 'justify-start')}
+                    >
+                      <div
+                        className={cn(
+                          'max-w-[80%] rounded-2xl px-3.5 py-2 text-sm shadow-sm transition-all',
+                          mine
+                            ? 'rounded-br-sm bg-gradient-to-r from-primary-700 to-primary-800 text-white'
+                            : 'rounded-bl-sm bg-surface-raised text-ink-800 border border-ink-line/30',
+                        )}
+                      >
+                        <p className="whitespace-pre-wrap break-words">{m.text}</p>
+                        <p className={cn('mt-1 text-[10px] text-right', mine ? 'text-white/80' : 'text-ink-300')}>
+                          {time(m.createdAt)}
+                        </p>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+                {adminTyping && (
+                  <div className="flex justify-start">
+                    <div className="flex items-center gap-1.5 rounded-2xl rounded-bl-sm bg-surface-raised px-4 py-2.5 border border-ink-line/30">
+                      <span className="h-2 w-2 animate-bounce rounded-full bg-ink-400 [animation-delay:-0.3s]" />
+                      <span className="h-2 w-2 animate-bounce rounded-full bg-ink-400 [animation-delay:-0.15s]" />
+                      <span className="h-2 w-2 animate-bounce rounded-full bg-ink-400" />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Yozish maydoni (Input) */}
+              <form
+                className="flex items-center gap-2 border-t border-ink-line/40 bg-surface p-3 pb-[calc(0.75rem_+_env(safe-area-inset-bottom,0px))]"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  send();
+                }}
+              >
+                <input
+                  value={draft}
+                  onChange={(e) => {
+                    setDraft(e.target.value);
+                    emitTyping('admin');
+                  }}
+                  placeholder={t('chat.placeholder')}
+                  className="h-11 flex-1 rounded-full border border-ink-line/60 bg-bg px-4 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
+                />
+                <button
+                  type="submit"
+                  disabled={!draft.trim()}
+                  className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-r from-primary-700 to-primary-800 text-white shadow-md transition hover:scale-105 active:scale-90 disabled:opacity-40"
+                  aria-label={t('chat.send')}
+                >
+                  <Send className="h-5 w-5" />
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
