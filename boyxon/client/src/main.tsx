@@ -28,13 +28,13 @@ const qc = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
-      // Ma'lumotlar oqilona yangilanadi: katalog sekin eskiradi,
-      // buyurtma/bildirishnoma socket + invalidate bilan, deraza fokuslanganda
-      // ham yangilanadi (admin narxi darhol ko'rinadi).
-      refetchOnWindowFocus: true,
-      refetchOnMount: true,
+      // Raketa tezligi: sahifalar orasida o'tganda qayta-qayta loading qilmaydi,
+      // keshdan 0ms da bir zumda chiqaradi.
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
       refetchOnReconnect: true,
-      staleTime: 60_000, // 1 daqiqa — keyin "eskirgan" hisoblanadi
+      staleTime: 5 * 60 * 1000, // 5 daqiqa kesh faol turadi
+      gcTime: 30 * 60 * 1000, // 30 daqiqa xotirada saqlanadi
     },
   },
 });

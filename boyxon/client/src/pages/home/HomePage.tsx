@@ -33,10 +33,7 @@ export default function HomePage() {
   const [filterLoaded, setFilterLoaded] = useState(false);
   const [filters, setFilters] = useState<DishFilterValues>({});
   const [page, setPage] = useState(1);
-  // Birinchi paint faqat header + bannerdan iborat bo'lsin: pastdagi
-  // og'ir bo'limlar va API so'rovlari paintdan keyin boshlanadi. Bu LCP/FCP
-  // uchun React render va tarmoq raqobatini kamaytiradi.
-  const [belowFoldReady, setBelowFoldReady] = useState(false);
+  const [belowFoldReady] = useState(true);
   const debounced = useDebounce(search, 400);
 
   // Filter oynasi birinchi marta ochilganda yuklanadi; keyin mounted qoladi,
@@ -52,25 +49,10 @@ export default function HomePage() {
     setPage(1);
   }, [urlQuery]);
 
-  useEffect(() => {
-    // Ikki rAF: birinchi frame albatta paint bo'lsin, keyin pastki qism
-    // render qilinadi. Bitta rAF ichida setState React'ni paintdan oldin
-    // ishga tushirishi mumkin edi.
-    let second = 0;
-    const first = requestAnimationFrame(() => {
-      second = requestAnimationFrame(() => setBelowFoldReady(true));
-    });
-    return () => {
-      cancelAnimationFrame(first);
-      cancelAnimationFrame(second);
-    };
-  }, []);
-
   const { data: cats, isLoading: catsLoading } = useQuery({
     queryKey: [QUERY_KEYS.categories],
     queryFn: () => categoriesApi.list().then((r) => r.data),
-    staleTime: 10 * 60 * 1000,
-    enabled: belowFoldReady,
+    staleTime: 15 * 60 * 1000,
   });
 
   const params: DishFilters = useMemo(
@@ -91,14 +73,13 @@ export default function HomePage() {
   const { data, isLoading, isFetching, isError, refetch } = useQuery({
     queryKey: [QUERY_KEYS.dishes, params],
     queryFn: () => dishesApi.list(params),
-    enabled: belowFoldReady,
+    staleTime: 5 * 60 * 1000,
   });
 
   const { data: featured, isLoading: featLoading } = useQuery({
     queryKey: [QUERY_KEYS.featured],
     queryFn: () => dishesApi.featured().then((r) => r.data),
-    staleTime: 5 * 60 * 1000,
-    enabled: belowFoldReady,
+    staleTime: 10 * 60 * 1000,
   });
 
   const setCat = (slug?: string): void => {

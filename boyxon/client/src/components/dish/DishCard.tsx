@@ -24,7 +24,7 @@ export function DishCard({ dish }: { dish: Dish }) {
   };
 
   return (
-    <article className="card-hover-lift group overflow-hidden rounded-card border border-ink-line/60 bg-surface shadow-sm transition-all duration-300 hover:shadow-xl hover:border-primary-500/40">
+    <article className="dish-contain card-hover-lift group overflow-hidden rounded-card border border-ink-line/60 bg-surface shadow-sm transition-all duration-300 hover:shadow-xl hover:border-primary-500/40">
       <Link to={`/dish/${dish.slug || dish._id}`} className="block overflow-hidden">
         {dish.image && !imgFailed ? (
           <img

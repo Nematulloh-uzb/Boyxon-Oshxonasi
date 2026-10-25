@@ -153,12 +153,29 @@
     pointer-events: none;
   }
 
-  /* Kartalar interaktiv ko'tarilishi */
+  /* Kartalar interaktiv ko'tarilishi (GPU tezlashuvi bilan) */
   .card-hover-lift {
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    will-change: transform;
   }
   .card-hover-lift:hover {
-    transform: translateY(-4px);
+    transform: translateY(-3.5px) scale(1.006);
+  }
+
+  /* GPU tezlashuvi va 120fps silliq aylanish */
+  .gpu-boost {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+
+  /* Katta ro'yxatlarni (taomlarni) 120fps silliq render qilish */
+  .dish-contain {
+    contain: layout paint;
+    content-visibility: auto;
+    contain-intrinsic-size: 280px;
   }
 }
+
 

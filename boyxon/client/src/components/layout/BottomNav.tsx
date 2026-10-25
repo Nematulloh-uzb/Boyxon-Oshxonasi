@@ -38,7 +38,7 @@ export function BottomNav() {
                 <motion.div
                   layoutId="bottomNavIndicator"
                   className="absolute inset-0 rounded-[20px] bg-primary-500/10 dark:bg-primary-500/20"
-                  transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 32, mass: 0.6 }}
                 />
               )}
               <span className="relative z-10 flex flex-col items-center">
