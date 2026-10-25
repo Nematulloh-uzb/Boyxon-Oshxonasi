@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
+import path from 'node:path';
 import { corsOrigins, env, isProd } from './config/env';
 import { initPassport } from './config/passport';
 import { errorHandler } from './middlewares/error.middleware';
@@ -74,6 +75,12 @@ export function createApp() {
   app.use(express.json({ limit: '256kb' }));
   app.use(express.urlencoded({ extended: false, limit: '256kb' }));
   app.use(cookieParser());
+
+  // Rasm yuklash papkasini ochiq qilamiz (rasmlarga kirish uchun)
+  app.use(
+    '/uploads/dishes',
+    express.static(path.resolve(process.cwd(), 'uploads', 'dishes')),
+  );
 
   initPassport();
   app.use(passport.initialize());
