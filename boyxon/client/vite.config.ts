@@ -104,15 +104,63 @@ function fontPreloadPlugin(): Plugin {
   };
 }
 
+/**
+ * index.html'dagi `__SITE_URL__` tokenini build-time sayt URL'i bilan almashtiradi.
+ * Production'da VITE_SITE_URL berilmasa token bo'sh qoladi — canonical/OG
+ * nisbiy (joriy origin) URL bo'lib ishlayveradi.
+ */
+function htmlSiteUrlPlugin(siteUrl: string): Plugin {
+  return {
+    name: 'boyxon-html-site-url',
+    transformIndexHtml(html) {
+      return html.replaceAll('__SITE_URL__', siteUrl);
+    },
+  };
+}
+
+/**
+ * Workers Assets bitta fayl uchun 25 MiB limit qo'yadi. APK (56 MiB) `public/`
+ * dan `dist/` ga ko'chiriladi va deploy'ni to'xtatadi — shu sababli build
+ * oxirida olib tashlaymiz. APK alohida joyga (masalan, R2) qo'yiladi va
+ * `VITE_APK_URL` orqali ko'rsatiladi.
+ */
+function pruneOversizedAssetsPlugin(): Plugin {
+  return {
+    name: 'boyxon-prune-oversized-assets',
+    apply: 'build',
+    enforce: 'post',
+    async closeBundle() {
+      const { rm } = await import('node:fs/promises');
+      await rm(fileURLToPath(new URL('./dist/boyxon-mobile.apk', import.meta.url)), { force: true });
+    },
+  };
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
+  const configuredSiteUrl = (env.VITE_SITE_URL ?? '').trim();
+  const siteUrl = (
+    configuredSiteUrl && !(mode === 'production' && /localhost|127\.0\.0\.1/i.test(configuredSiteUrl))
+      ? configuredSiteUrl
+      : mode === 'production'
+        ? ''
+        : 'http://localhost:5173'
+  ).replace(/\/+$/, '');
+
+  if (mode === 'production' && !siteUrl) {
+    console.warn(
+      '[seo] VITE_SITE_URL berilmagan — canonical/OG/sitemap nisbiy URL bilan yasaladi.',
+    );
+  }
 
   return {
     plugins: [
       react(),
-      seoFilesPlugin(env, mode === 'production'),
+      htmlSiteUrlPlugin(siteUrl),
+      seoFilesPlugin(siteUrl),
       inlineCssPlugin(),
       fontPreloadPlugin(),
+      pruneOversizedAssetsPlugin(),
     ],
     resolve: {
       alias: {
