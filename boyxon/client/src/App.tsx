@@ -13,6 +13,13 @@ export default function App() {
   const { i18n } = useTranslation();
 
   useEffect(() => {
+    // Global scroll optimizatsiyasi - silliq va past latency
+    if ('scrollBehavior' in document.documentElement.style) {
+      document.documentElement.style.scrollBehavior = 'smooth';
+    }
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
     async function restoreSession(): Promise<void> {
       if (useAuthStore.getState().accessToken) {

@@ -1,5 +1,5 @@
 import { Schema, model, type Document, type Types } from 'mongoose';
-import bcrypt from 'bcryptjs';
+import { comparePassword, hashPassword } from '../services/password.service';
 
 export interface Address {
   _id?: Types.ObjectId;
@@ -129,13 +129,13 @@ UserSchema.methods.registerFailedLogin = async function (): Promise<number> {
 
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password') || !this.password) return next();
-  this.password = await bcrypt.hash(this.password, 12);
+  this.password = await hashPassword(this.password);
   next();
 });
 
 UserSchema.methods.comparePassword = function (candidate: string): Promise<boolean> {
   if (!this.password) return Promise.resolve(false);
-  return bcrypt.compare(candidate, this.password);
+  return comparePassword(candidate, this.password);
 };
 
 UserSchema.methods.toJSON = function () {

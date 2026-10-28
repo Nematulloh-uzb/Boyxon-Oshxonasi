@@ -53,12 +53,14 @@
     color-scheme: dark;
   }
 
-  html { background-color: rgb(var(--bg)); }
+  html { background-color: rgb(var(--bg)); scroll-behavior: smooth; scroll-padding-top: 80px; }
   body {
     background-color: rgb(var(--bg));
     color: rgb(var(--fg));
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
+    overscroll-behavior-y: none;
+    text-rendering: optimizeLegibility;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Epilogue', system-ui, sans-serif;
@@ -228,6 +230,12 @@
   .gpu-boost {
     transform: translateZ(0);
     backface-visibility: hidden;
+  }
+
+  /* Scroll silliqligi - latency ni kamaytirish uchun */
+  .smooth-scroll {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
   }
 
   /* Katta ro'yxatlarni (taomlarni) 120fps silliq render qilish */

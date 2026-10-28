@@ -144,6 +144,7 @@
   "cart.go_home": "Bosh sahifaga",
   "cart.track_order": "Buyurtmani kuzatish",
   "auth.welcome": "Xush kelibsiz",
+  "auth.welcome_sub": "Hisobingizga kiring yoki yangi hisob oching",
   "auth.welcome_back": "Xush kelibsiz!",
   "auth.signin_subtitle": "Hisobingizga kiring",
   "auth.signup_title": "Ro'yxatdan o'tish",

@@ -1,16 +1,12 @@
-import { useEffect, useRef, useCallback } from 'react';
-import type { Socket } from 'socket.io-client';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { MessageCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/auth.store';
-import { resolveRuntimeUrl } from '../lib/runtime-env';
+import { REALTIME_URL } from '../lib/realtime-url';
+import { RealtimeClient } from '../lib/realtime';
+import { refreshAccessTokenOnce } from '../lib/realtime-token';
 
-const SOCKET_URL = resolveRuntimeUrl(
-  import.meta.env.VITE_SOCKET_URL as string | undefined,
-  'http://localhost:5000',
-  'https://boyxon-server.onrender.com',
-);
 const SESSION_KEY = 'boyxon-chat-open';
 
 /** Chat oynasi (mijoz widget / admin panel) hozir ochiqmi — toast berishga qaror qilish uchun. */
@@ -38,63 +34,58 @@ export interface ChatHandlers {
 type ChatMsgLike = { text?: string; senderRole?: string; sender?: unknown };
 
 /**
- * Chat real-time ulanish — chat sahifalari/panellari uchun alohida socket.
+ * Chat real-time ulanish — chat sahifalari/panellari uchun alohida WebSocket.
  * order:status / notification:new bilan aralashmasligi uchun alohida boshqariladi.
  * Faqat login bo'lganda ulanadi (token kerak).
  * Har yangi xabarda: qisqa ovoz chalinadi; chat oynasi yopiq bo'lsa toast ko'rsatiladi.
  */
-export function useChatSocket(handlers: ChatHandlers, enabled = true): Socket | null {
+export function useChatSocket(handlers: ChatHandlers, enabled = true): RealtimeClient | null {
   const token = useAuthStore((s) => s.accessToken);
   const { t } = useTranslation();
-  const socketRef = useRef<Socket | null>(null);
+  const [client, setClient] = useState<RealtimeClient | null>(null);
   const hRef = useRef(handlers);
   hRef.current = handlers; // har renderda yangilaymiz — stale closure'ni oldini olamiz
+  const tokenRef = useRef<string | null>(null);
+  tokenRef.current = token;
 
   useEffect(() => {
     if (!token || !enabled) {
-      socketRef.current?.disconnect();
-      socketRef.current = null;
+      setClient(null);
       return;
     }
-    socketRef.current?.disconnect();
-    socketRef.current = null;
 
-    let disposed = false;
-    let socket: Socket | null = null;
+    const realtime = new RealtimeClient({
+      url: REALTIME_URL,
+      getToken: () => tokenRef.current,
+      onUnauthorized: refreshAccessTokenOnce,
+    });
 
-    // Chat ham socket.io'ni faqat login bo'lganda dinamik yuklaydi.
-    void import('socket.io-client')
-      .then(({ io }) => {
-        if (disposed) return;
-        socket = io(SOCKET_URL, { auth: { token } });
-        socketRef.current = socket;
+    realtime.on('chat:message', (data) => {
+      const p = (data ?? {}) as { message?: ChatMsgLike };
+      hRef.current.onMessage?.(p as Parameters<NonNullable<ChatHandlers['onMessage']>>[0]);
+      // Ovoz + toast — faqat chat oynasi yopiq bo'lsa toast (aksi holda foydalanuvchi allaqachon ko'ryapti).
+      playChatSound();
+      if (!isChatOpen()) showChatToast(p.message, t);
+    });
+    realtime.on('chat:typing', (data) =>
+      hRef.current.onTyping?.(data as Parameters<NonNullable<ChatHandlers['onTyping']>>[0]),
+    );
+    realtime.on('chat:conversation-updated', () => hRef.current.onConversationUpdated?.());
 
-        socket.on('chat:message', (p) => {
-          hRef.current.onMessage?.(p as Parameters<NonNullable<ChatHandlers['onMessage']>>[0]);
-          // Ovoz + toast — faqat chat oynasi yopiq bo'lsa toast (aksi holda foydalanuvchi allaqachon ko'ryapti).
-          playChatSound();
-          if (!isChatOpen()) showChatToast((p as { message?: ChatMsgLike }).message, t);
-        });
-        socket.on('chat:typing', (p) => hRef.current.onTyping?.(p as Parameters<NonNullable<ChatHandlers['onTyping']>>[0]));
-        socket.on('chat:conversation-updated', () => hRef.current.onConversationUpdated?.());
-        socket.on('connect_error', () => undefined);
-      })
-      .catch(() => {
-        // Chunk yuklanmasa chat real-time ishlamaydi; REST orqali yozish mumkin.
-      });
+    realtime.connect();
+    setClient(realtime);
 
     return () => {
-      disposed = true;
-      socket?.disconnect();
-      if (socketRef.current === socket) socketRef.current = null;
+      realtime.disconnect();
+      setClient((current) => (current === realtime ? null : current));
     };
   }, [token, enabled, t]);
 
-  return socketRef.current;
+  return client;
 }
 
 /** "Yozmoqda" signalini yuborish uchun yordamchi. */
-export function useChatTyping(socket: Socket | null) {
+export function useChatTyping(socket: RealtimeClient | null) {
   return useCallback(
     (to?: string) => {
       socket?.emit('chat:typing', { to });
@@ -146,4 +137,3 @@ function showChatToast(msg: ChatMsgLike | undefined, t: (k: string) => string): 
     { duration: 5000 },
   );
 }
-

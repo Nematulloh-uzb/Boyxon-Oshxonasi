@@ -144,6 +144,7 @@
   "cart.go_home": "Go to home",
   "cart.track_order": "Track order",
   "auth.welcome": "Welcome",
+  "auth.welcome_sub": "Sign in to your account or create a new one",
   "auth.welcome_back": "Welcome!",
   "auth.signin_subtitle": "Sign in to your account",
   "auth.signup_title": "Sign up",

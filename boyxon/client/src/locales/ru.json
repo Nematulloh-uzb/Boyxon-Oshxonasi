@@ -144,6 +144,7 @@
   "cart.go_home": "На главную",
   "cart.track_order": "Отследить заказ",
   "auth.welcome": "Добро пожаловать",
+  "auth.welcome_sub": "Войдите в аккаунт или создайте новый",
   "auth.welcome_back": "Добро пожаловать!",
   "auth.signin_subtitle": "Войдите в свой аккаунт",
   "auth.signup_title": "Регистрация",

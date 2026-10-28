@@ -3,17 +3,21 @@ import { z } from 'zod';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { randomBytes } from 'node:crypto';
 import { resolve } from 'node:path';
+import { isWorkersRuntime } from '../utils/runtime';
 
-// .env — server papkasidan qat'iy joylash (CommonJS/tsc uchun xavfsiz)
-const candidatePaths = [
-  resolve(process.cwd(), 'boyxon', 'server', '.env'),
-  resolve(process.cwd(), 'server', '.env'),
-  resolve(process.cwd(), '.env'),
-];
-for (const p of candidatePaths) {
-  if (existsSync(p)) {
-    dotenv.config({ path: p });
-    break;
+// .env — server papkasidan qat'iy joylash (CommonJS/tsc uchun xavfsiz).
+// Workers'da fayl tizimi yo'q: qiymatlar `wrangler` binding'lari orqali keladi.
+if (!isWorkersRuntime) {
+  const candidatePaths = [
+    resolve(process.cwd(), 'boyxon', 'server', '.env'),
+    resolve(process.cwd(), 'server', '.env'),
+    resolve(process.cwd(), '.env'),
+  ];
+  for (const p of candidatePaths) {
+    if (existsSync(p)) {
+      dotenv.config({ path: p });
+      break;
+    }
   }
 }
 

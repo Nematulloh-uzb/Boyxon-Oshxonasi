@@ -1,0 +1,35 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "boyxon-server",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "enable_nodejs_http_server_modules"
+  ],
+  "observability": {
+    "enabled": true
+  },
+  "alias": {
+    "iconv-lite": "./worker/iconv-lite-stub.ts",
+    "mongoose": "./node_modules/mongoose/index.js"
+  },
+  "durable_objects": {
+    "bindings": [
+      { "name": "PASSWORD_HASHER", "class_name": "PasswordHasher" },
+      { "name": "REALTIME_HUB", "class_name": "RealtimeHub" },
+      { "name": "API_SERVER", "class_name": "ApiServer" }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["PasswordHasher", "RealtimeHub", "ApiServer"]
+    }
+  ],
+  "vars": {
+    "NODE_ENV": "production",
+    "TRUST_PROXY": "1",
+    "PORT": "3000"
+  }
+}

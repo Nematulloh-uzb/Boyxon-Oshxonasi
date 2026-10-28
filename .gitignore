@@ -35,3 +35,8 @@ boyxon/client/node_modules/
 boyxon/server/node_modules/
 boyxon/client/dist/
 boyxon/server/dist/
+
+# Cloudflare Workers lokal secretlar
+.dev.vars
+.wrangler/
+

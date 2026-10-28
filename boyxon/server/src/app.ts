@@ -7,7 +7,9 @@ import path from 'node:path';
 import { corsOrigins, env, isProd } from './config/env';
 import { initPassport } from './config/passport';
 import { errorHandler } from './middlewares/error.middleware';
+import { jsonBody } from './middlewares/body.middleware';
 import { apiLimiter } from './middlewares/rateLimit.middleware';
+import { isWorkersRuntime } from './utils/runtime';
 import { authRouter } from './routes/auth.routes';
 import { categoryRouter } from './routes/category.routes';
 import { dishRouter } from './routes/dish.routes';
@@ -72,15 +74,16 @@ export function createApp() {
   // Javoblarda Express versiyasini oshkor qilmaymiz.
   app.disable('x-powered-by');
 
-  app.use(express.json({ limit: '256kb' }));
-  app.use(express.urlencoded({ extended: false, limit: '256kb' }));
+  app.use(jsonBody);
   app.use(cookieParser());
 
-  // Rasm yuklash papkasini ochiq qilamiz (rasmlarga kirish uchun)
-  app.use(
-    '/uploads/dishes',
-    express.static(path.resolve(process.cwd(), 'uploads', 'dishes')),
-  );
+  // Rasm yuklash papkasini ochiq qilamiz (faqat Node — Workers'da fayl tizimi yo'q).
+  if (!isWorkersRuntime) {
+    app.use(
+      '/uploads/dishes',
+      express.static(path.resolve(process.cwd(), 'uploads', 'dishes')),
+    );
+  }
 
   initPassport();
   app.use(passport.initialize());

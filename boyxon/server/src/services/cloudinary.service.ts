@@ -1,19 +1,22 @@
 import { cloudinary, cloudinaryConfigured } from '../config/cloudinary';
 import { ApiError } from '../utils/ApiError';
+import { isWorkersRuntime } from '../utils/runtime';
 import fs from 'node:fs';
 import path from 'node:path';
 
 /** Lokal saqlash papkasi (Cloudinary bo'lmagan holda ishlaydi). */
 const UPLOAD_DIR = path.resolve(process.cwd(), 'uploads', 'dishes');
 
-if (!fs.existsSync(UPLOAD_DIR)) {
+// Workers'da fayl tizimi yo'q — papka yaratish faqat Node'da.
+if (!isWorkersRuntime && !fs.existsSync(UPLOAD_DIR)) {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 }
 
 /**
  * Rasmni yuklash.
  * - Cloudinary sozlangan bo'lsa — undan foydalanamiz.
- * - Sozlanmagan bo'lsa — serverning o'zi `uploads/dishes` papkasiga saqlaymiz.
+ * - Sozlanmagan bo'lsa — Node'da `uploads/dishes` papkasiga saqlaymiz.
+ * - Workers'da lokal fayl tizimi yo'q, shuning uchun Cloudinary majburiy.
  */
 export async function uploadBufferToCloudinary(
   buffer: Buffer,
@@ -31,7 +34,13 @@ export async function uploadBufferToCloudinary(
     }
   }
 
-  // Fallback: lokal saqlash
+  if (isWorkersRuntime) {
+    throw ApiError.badRequest(
+      'Rasm yuklash uchun Cloudinary sozlanmagan. Cloudflare Workers’da lokal fayl saqlash mumkin emas.',
+    );
+  }
+
+  // Fallback: lokal saqlash (faqat Node)
   const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 11)}.jpg`;
   const filePath = path.join(UPLOAD_DIR, fileName);
   fs.writeFileSync(filePath, buffer);
@@ -47,6 +56,8 @@ export async function deleteFromCloudinary(publicId: string): Promise<void> {
   if (cloudinaryConfigured) {
     await cloudinary.uploader.destroy(publicId).catch(() => undefined);
   }
+
+  if (isWorkersRuntime) return;
 
   // Lokal faylni ham o'chirish
   try {
