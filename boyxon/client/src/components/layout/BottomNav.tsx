@@ -34,7 +34,14 @@ export function BottomNav() {
   return (
     // Suzuvchi "pill" navigatsiya + o'ng tomonda alohida chat tugmasi.
     // Chat ochiq bo'lsa ham navigatsiya ko'rinib turadi (z-60 > chat z-50).
-    <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-[60] flex justify-center px-3 pb-[calc(0.6rem_+_env(safe-area-inset-bottom,0px))] md:hidden">
+    <nav
+      className={cn(
+        'pointer-events-none fixed inset-x-0 bottom-0 flex justify-center px-3 pb-[calc(0.6rem_+_env(safe-area-inset-bottom,0px))] md:hidden',
+        // Chat ochiq bo'lganda navigatsiya backdrop ustida ko'rinadi;
+        // boshqa modal oynalarda odatdagidek pastda qoladi.
+        chatOpen ? 'z-[60]' : 'z-30',
+      )}
+    >
       <div className="pointer-events-auto flex w-full max-w-[360px] items-end gap-2">
         <div className="flex min-w-0 flex-1 items-center justify-around gap-1 rounded-[26px] border border-ink-line/50 bg-surface/90 p-1.5 shadow-2xl backdrop-blur-xl dark:border-ink-line/30 dark:bg-surface/85">
           {navItems.map((item) => {
