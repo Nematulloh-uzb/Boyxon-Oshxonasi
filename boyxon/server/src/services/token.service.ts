@@ -64,11 +64,15 @@ export function verifyAccessToken(token: string): AccessPayload {
   };
 }
 
-/** Parolni tiklash tokeni — alohida kalit, 15 daqiqa, bir marta ishlatiladi (ver orqali). */
+/**
+ * Parolni tiklash tokeni — alohida kalit, 1 soat, bir marta ishlatiladi (ver orqali).
+ * 15 daqiqa juda qisqa edi: foydalanuvchi xatni kech ochsa yoki Gmail thread'da
+ * eski xatni bosса, havola allaqachon o'tib ketardi.
+ */
 export function signResetToken(userId: string, tokenVersion: number): string {
   return jwt.sign({ id: userId, ver: tokenVersion, purpose: 'reset' }, env.JWT_RESET_SECRET, {
     algorithm: 'HS256',
-    expiresIn: '15m',
+    expiresIn: '60m',
   });
 }
 

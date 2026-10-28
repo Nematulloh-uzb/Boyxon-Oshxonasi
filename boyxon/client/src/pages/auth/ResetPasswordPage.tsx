@@ -16,7 +16,7 @@ type Mode = 'checking' | 'form' | 'done' | 'failed';
  * alohida tiklash oynasida yangi parol o'rnatiladi.
  *
  * Sahifa ochilganda token tekshiriladi va QAYSI EMAIL uchunligi ko'rsatiladi
- * (`GET /info` — parolni o'zgartirmaydi). Token 15 daqiqa amal qiladi, bir martalik.
+ * (`GET /info` — parolni o'zgartirmaydi). Token 1 soat amal qiladi, bir martalik.
  */
 export default function ResetPasswordPage() {
   const { t } = useTranslation();

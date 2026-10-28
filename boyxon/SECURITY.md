@@ -29,7 +29,7 @@ qadamlarni** tavsiflaydi.
 | Token bekor qilish | `tokenVersion` — parol almashsa/bloklansa barcha tokenlar darhol o'ladi |
 | Refresh sessiyalari | har qurilma alohida `sid` bilan (`RefreshSession`) — refresh faqat shu qurilmani yangilaydi, boshqalar chiqmaydi |
 | Sessiyani yopish | `logout` — faqat shu qurilma; `logout-all` / parol almashish / bloklash — barcha sessiyalar + `tokenVersion` |
-| Parol tiklash | alohida kalit (`JWT_RESET_SECRET`), 15 daqiqa, **bir marta** ishlaydi |
+| Parol tiklash | alohida kalit (`JWT_RESET_SECRET`), 1 soat, **bir marta** ishlaydi |
 | Google OAuth | access token URL'da emas — bir martalik kod (60 s) almashtiriladi |
 
 **Nega `tokenVersion` muhim:** faqat JWT imzosini tekshirish yetarli emas. Imzo to'g'ri

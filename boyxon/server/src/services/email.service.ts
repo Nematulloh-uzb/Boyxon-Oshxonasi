@@ -252,7 +252,7 @@ export async function sendResetEmail(to: string, resetLink: string): Promise<voi
         <p style="margin:24px 0;text-align:center">
           <a href="${resetLink}" style="background:#C8102E;color:#fff;padding:12px 24px;border-radius:999px;text-decoration:none;font-weight:bold">Parolni tiklash</a>
         </p>
-        <p style="color:#666;font-size:13px">Havola 15 daqiqa amal qiladi va bir marta ishlatiladi.</p>
+        <p style="color:#666;font-size:13px">Havola 1 soat amal qiladi va bir marta ishlatiladi.</p>
         <p style="color:#666;font-size:13px">Agar bu so'rovni siz yubormagan bo'lsangiz, xatni e'tiborsiz qoldiring — parolingiz o'zgarmaydi.</p>`),
   });
 }

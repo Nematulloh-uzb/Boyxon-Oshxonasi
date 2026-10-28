@@ -42,7 +42,7 @@ export const authApi = {
   /** Parolni tiklash — reset havolasini emailga yuborish (javob har doim bir xil). */
   forgotPassword: (email: string) =>
     api.post<ApiOk<null>>('/auth/forgot-password', { email }).then((r) => r.data),
-  /** Yangi parol o'rnatish (token URL'dan, 15 daqiqa amal qiladi, bir martalik). */
+  /** Yangi parol o'rnatish (token URL'dan, 1 soat amal qiladi, bir martalik). */
   resetPassword: (token: string, password: string) =>
     api.post<ApiOk<null>>(`/auth/reset-password/${encodeURIComponent(token)}`, { password }).then((r) => r.data),
   /**

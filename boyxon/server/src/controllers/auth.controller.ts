@@ -381,6 +381,21 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response) =
 });
 
 /**
+ * Reset tokenini tekshirish. Muddati o'tganini "yaroqsiz"dan ajratamiz —
+ * foydalanuvchi nima qilish kerakligini tushunsin.
+ */
+function verifyResetTokenOrThrow(token: string): { id: string; ver: number } {
+  try {
+    return verifyResetToken(token);
+  } catch (e) {
+    if ((e as { name?: string }).name === 'TokenExpiredError') {
+      throw ApiError.badRequest('Havolaning muddati o‘tgan. Yangi havola so‘rang.');
+    }
+    throw ApiError.badRequest('Havola yaroqsiz. Yangi havola so‘rang.');
+  }
+}
+
+/**
  * GET /api/auth/reset-password/:token/info — havola yaroqliligini tekshirish
  * va qaysi email uchunligini ko'rsatish (parolni o'zgartirmaydi).
  *
@@ -390,12 +405,7 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response) =
  */
 export const resetPasswordInfo = asyncHandler(async (req: Request, res: Response) => {
   const { token } = req.params;
-  let payload: { id: string; ver: number };
-  try {
-    payload = verifyResetToken(token);
-  } catch {
-    throw ApiError.badRequest('Havola yaroqsiz yoki muddati o‘tgan');
-  }
+  const payload = verifyResetTokenOrThrow(token);
   const user = await User.findById(payload.id).select('email tokenVersion isActive');
   if (!user || !user.isActive) throw ApiError.notFound('Foydalanuvchi topilmadi');
   if ((user.tokenVersion ?? 0) !== payload.ver) {
@@ -407,19 +417,14 @@ export const resetPasswordInfo = asyncHandler(async (req: Request, res: Response
 /**
  * POST /api/auth/reset-password/:token — yangi parol o'rnatish.
  *
- * Xavfsizlik: token alohida kalit bilan imzolangan, 15 daqiqa amal qiladi va
+ * Xavfsizlik: token alohida kalit bilan imzolangan, 1 soat amal qiladi va
  * bir marta ishlatiladi (tokenVersion oshiriladi). Parol almashgach barcha eski
  * sessiyalar o'ladi.
  */
 export const resetPassword = asyncHandler(async (req: Request, res: Response) => {
   const { token } = req.params;
   const { password } = req.body as { password: string };
-  let payload: { id: string; ver: number };
-  try {
-    payload = verifyResetToken(token);
-  } catch {
-    throw ApiError.badRequest('Havola yaroqsiz yoki muddati o‘tgan');
-  }
+  const payload = verifyResetTokenOrThrow(token);
   const user = await User.findById(payload.id);
   if (!user) throw ApiError.notFound('Foydalanuvchi topilmadi');
   // Token bir marta ishlaydi: tokenVersion o'zgargan bo'lsa, havola eskirgan.
