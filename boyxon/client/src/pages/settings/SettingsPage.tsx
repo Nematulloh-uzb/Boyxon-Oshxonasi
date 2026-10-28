@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Bell, ChevronDown, Globe, LogOut, MapPin, Moon, Package, Sun } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +10,7 @@ import { NotificationPrefs } from '../../components/settings/NotificationPrefs';
 import { AddressManager } from '../../components/settings/AddressManager';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { Switch } from '../../components/ui/Switch';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/auth.store';
 import { usersApi } from '../../api/users.api';
@@ -31,6 +32,18 @@ export default function SettingsPage() {
   const [addressesOpen, setAddressesOpen] = useState(false);
   const [ordersOpen, setOrdersOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  // Tema darhol almashishi uchun lokal holat; server javobi fonda yuboriladi.
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const stored = localStorage.getItem('boyxon-theme');
+    return user?.preferences?.theme ?? (stored === 'light' ? 'light' : 'dark');
+  });
+  const themeRequest = useRef(0);
+
+  // Profil (yoki boshqa qurilma) dan tema o'zgarsa — lokal holatni moslashtiramiz.
+  useEffect(() => {
+    const pref = user?.preferences?.theme;
+    if (pref) setTheme(pref);
+  }, [user?.preferences?.theme]);
 
   const { data: orders } = useQuery({
     queryKey: ['orders'],
@@ -65,13 +78,44 @@ export default function SettingsPage() {
     }
   };
 
-  const toggleTheme = async (): Promise<void> => {
-    const theme = (user.preferences?.theme ?? 'dark') === 'dark' ? 'light' : 'dark';
-    // LocalStorage'ni darrov yangilash — sahifa refresh'da ham saqlanadi
-    localStorage.setItem('boyxon-theme', theme);
-    document.documentElement.classList.toggle('dark', theme === 'dark');
-    const r = await usersApi.updatePrefs({ theme });
-    setUser({ ...user, preferences: r.data });
+  const applyTheme = (next: 'light' | 'dark'): void => {
+    // DOM + localStorage bir zumda — React/network javobi kutilmaydi.
+    localStorage.setItem('boyxon-theme', next);
+    document.documentElement.classList.toggle('dark', next === 'dark');
+    // Switch va header darhol yangilanadi (optimistik).
+    setTheme(next);
+    setUser({
+      ...user,
+      preferences: {
+        language: user.preferences?.language ?? 'uz',
+        fontSize: user.preferences?.fontSize ?? 'medium',
+        ...user.preferences,
+        theme: next,
+      },
+    });
+  };
+
+  const toggleTheme = (nextDark: boolean): void => {
+    const next: 'light' | 'dark' = nextDark ? 'dark' : 'light';
+    if (next === theme) return;
+    const previous = theme;
+    const requestId = ++themeRequest.current;
+    applyTheme(next);
+
+    // Serverga fonda yuboriladi — switch javobni kutmaydi.
+    void usersApi
+      .updatePrefs({ theme: next })
+      .then((r) => {
+        // Tez ketma-ket bosishda eski javob yangisini bosib ketmasin.
+        if (requestId !== themeRequest.current) return;
+        const latest = useAuthStore.getState().user;
+        if (latest) setUser({ ...latest, preferences: r.data });
+      })
+      .catch(() => {
+        if (requestId !== themeRequest.current) return;
+        applyTheme(previous);
+        toast.error(t('settings.save_error'));
+      });
   };
 
   return (
@@ -167,13 +211,16 @@ export default function SettingsPage() {
           }
         />
         <SettingsRow
-          icon={(user.preferences?.theme ?? 'dark') === 'dark' ? Moon : Sun}
+          icon={currentTheme === 'dark' ? Moon : Sun}
           label={t('settings.theme')}
-          value={(user.preferences?.theme ?? 'dark') === 'dark' ? t('theme.dark') : t('theme.light')}
+          value={currentTheme === 'dark' ? t('theme.dark') : t('theme.light')}
           right={
-            <button onClick={() => void toggleTheme()} className="text-primary-600 text-sm font-semibold">
-              {t('settings.toggle')}
-            </button>
+            <Switch
+              checked={currentTheme === 'dark'}
+              pending={themePending}
+              onChange={(next) => void toggleTheme(next)}
+              label={t('settings.theme')}
+            />
           }
         />
       </SettingsGroup>
