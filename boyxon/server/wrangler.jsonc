@@ -27,6 +27,12 @@
       "new_sqlite_classes": ["PasswordHasher", "RealtimeHub", "ApiServer"]
     }
   ],
+  // Deploy versiyasi ID'si — ApiServer DO nomiga qo'shiladi. Aks holda eski DO
+  // eski kod/muhit bilan ishlashda davom etadi (Cloudflare DO'larni deployda
+  // avtomatik qayta ishga tushirmaydi).
+  "version_metadata": {
+    "binding": "CF_VERSION_METADATA"
+  },
   "vars": {
     "NODE_ENV": "production",
     "TRUST_PROXY": "1",
@@ -38,6 +44,6 @@
     "directory": "../client/dist",
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api/*", "/ws", "/health"]
+    "run_worker_first": ["/api/*", "/ws", "/health", "/sitemap.xml"]
   }
 }

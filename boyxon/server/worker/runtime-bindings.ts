@@ -25,6 +25,10 @@ export async function installRuntimeBindings(): Promise<void> {
 
   const { setPasswordHasher } = await import('../src/services/password.service');
   const { setRealtimeBroadcaster } = await import('../src/socket');
+  const { setBackgroundTracker } = await import('../src/utils/background');
+
+  // Email/push kabi javobdan keyingi ishlar javob qaytarilishidan oldin tugasin.
+  setBackgroundTracker((promise) => pending.push(promise));
 
   const hasherNs = (cfEnv as unknown as { PASSWORD_HASHER: DurableObjectNamespace }).PASSWORD_HASHER;
   const hubNs = (cfEnv as unknown as { REALTIME_HUB: DurableObjectNamespace }).REALTIME_HUB;
@@ -59,8 +63,8 @@ export async function installRuntimeBindings(): Promise<void> {
   });
 }
 
-/** Express javob bergach, yuborilgan real-time xabarlar tugashini kutamiz. */
-export async function flushRuntimeBroadcasts(): Promise<void> {
+/** Express javob bergach, fon vazifalari (email, push, real-time) tugashini kutamiz. */
+export async function flushRuntimeTasks(): Promise<void> {
   if (!pending.length) return;
   const batch = pending.splice(0, pending.length);
   await Promise.allSettled(batch);

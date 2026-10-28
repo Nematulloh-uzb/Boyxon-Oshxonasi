@@ -55,6 +55,21 @@ const envSchema = z.object({
   VAPID_PRIVATE_KEY: z.string().default(''),
   VAPID_EMAIL: z.string().default('mailto:admin@boyxon.uz'),
 
+  /**
+   * Email provayderi:
+   *   auto   — mavjud kalitlarga qarab (Brevo → Resend → SMTP)
+   *   brevo  — Brevo HTTP API (Workers'da tavsiya etiladi)
+   *   resend — Resend HTTP API
+   *   smtp   — faqat Node'da (Workers'da ishlamaydi)
+   *   none   — email o'chirilgan
+   */
+  EMAIL_PROVIDER: z.enum(['auto', 'brevo', 'resend', 'smtp', 'none']).default('auto'),
+  BREVO_API_KEY: z.string().default(''),
+  RESEND_API_KEY: z.string().default(''),
+  /** Yuboruvchi manzil: "Boyxon Oshxonasi <no-reply@boyxon.uz>" yoki "no-reply@boyxon.uz". */
+  EMAIL_FROM: z.string().default(''),
+  EMAIL_FROM_NAME: z.string().default(''),
+
   SMTP_HOST: z.string().default('smtp.gmail.com'),
   SMTP_PORT: z.coerce.number().default(587),
   SMTP_USER: z.string().default(''),
@@ -174,13 +189,16 @@ function loadEnv(): Env {
 
 
     /**
-     * Dev'da SMTP ko'pincha sozlanmagan bo'ladi, ya'ni tasdiqlash xati yuborilmaydi.
+     * Dev'da email ko'pincha sozlanmagan bo'ladi, ya'ni tasdiqlash xati yuborilmaydi.
      * Bunday holatda email tasdiqlashni majburiy qilib qo'ysak, yangi hisoblar
-     * umuman kira olmay qolardi. Shuning uchun faqat shu holatda ruxsat beramiz.
+     * umuman kira olmay qolardi. Shu sababli faqat shu holatda ruxsat beramiz.
      */
-    if ((!e.SMTP_USER || !e.SMTP_PASS) && process.env.ALLOW_UNVERIFIED_LOGIN === undefined) {
+    const hasEmailProvider =
+      e.EMAIL_PROVIDER !== 'none' &&
+      (Boolean(e.BREVO_API_KEY) || Boolean(e.RESEND_API_KEY) || Boolean(e.SMTP_USER && e.SMTP_PASS));
+    if (!hasEmailProvider && process.env.ALLOW_UNVERIFIED_LOGIN === undefined) {
       e.ALLOW_UNVERIFIED_LOGIN = true;
-      console.warn('⚠️  SMTP sozlanmagan — email tasdiqlash vaqtincha majburiy emas (faqat dev)');
+      console.warn('⚠️  Email provayderi sozlanmagan — email tasdiqlash vaqtincha majburiy emas (faqat dev)');
     }
   }
 
@@ -208,6 +226,18 @@ function loadEnv(): Env {
     }
     if (/localhost|127\.0\.0\.1/.test(e.MONGODB_URI)) {
       console.warn('⚠️  MONGODB_URI lokal bazaga ishora qilyapti — production uchun tekshiring');
+    }
+
+    // Workers'da SMTP ishlamaydi. Email provayderi bo'lmasa yangi mijozlar
+    // tasdiqlash xatini olmaydi va (ALLOW_UNVERIFIED_LOGIN=false bo'lsa)
+    // ro'yxatdan o'tgach kira olmaydi.
+    const httpEmail = Boolean(e.BREVO_API_KEY || e.RESEND_API_KEY);
+    const smtpEmail = !isWorkersRuntime && Boolean(e.SMTP_USER && e.SMTP_PASS);
+    if (e.EMAIL_PROVIDER === 'none' || (!httpEmail && !smtpEmail)) {
+      console.warn(
+        '⚠️  Email provayderi sozlanmagan — tasdiqlash/parol tiklash xatlari yuborilmaydi. ' +
+          (isWorkersRuntime ? 'BREVO_API_KEY yoki RESEND_API_KEY qo‘shing.' : 'SMTP yoki HTTP provayder qo‘shing.'),
+      );
     }
 
     if (failures.length) {

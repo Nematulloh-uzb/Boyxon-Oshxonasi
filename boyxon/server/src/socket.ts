@@ -1,12 +1,10 @@
-import type { Server } from 'socket.io';
-
 /**
  * Real-time emitter abstraksiyasi.
  *
- * Node/Render: socket.io `Server` o'rnatiladi (`setIo`).
- * Cloudflare Workers: `setRealtimeBroadcaster` orqali Durable Object'ga
- * yo'naltiriladi. Controller'lar `getIo()?.to(...).emit(...)` ko'rinishida
- * qoladi — ikkala muhitda ham bir xil ishlaydi.
+ * Node (Render/lokal): `setRealtimeBroadcaster` native WebSocket hub'i
+ * (`realtime-node.ts`) tomonidan o'rnatiladi.
+ * Cloudflare Workers: xuddi shu funksiya Durable Object hub'iga yo'naltiradi.
+ * Controller'lar `getIo()?.to(room).emit(...)` ko'rinishida qoladi.
  */
 type RoomEmitter = { emit: (event: string, payload?: unknown) => void };
 
@@ -15,14 +13,9 @@ export interface RealtimeEmitter {
   emit(event: string, payload?: unknown): void;
 }
 
-let io: Server | null = null;
 let broadcaster: ((room: string | null, event: string, payload?: unknown) => void) | null = null;
 
-export function setIo(instance: Server): void {
-  io = instance;
-}
-
-/** Workers entry tomonidan o'rnatiladi. */
+/** Node yoki Workers entry tomonidan o'rnatiladi. */
 export function setRealtimeBroadcaster(
   fn: (room: string | null, event: string, payload?: unknown) => void,
 ): void {
@@ -30,7 +23,6 @@ export function setRealtimeBroadcaster(
 }
 
 export function getIo(): RealtimeEmitter | null {
-  if (io) return io as unknown as RealtimeEmitter;
   if (!broadcaster) return null;
   return {
     to: (room: string) => ({

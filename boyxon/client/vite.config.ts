@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import { createReadStream } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 /**
@@ -120,18 +121,48 @@ function htmlSiteUrlPlugin(siteUrl: string): Plugin {
 
 /**
  * Workers Assets bitta fayl uchun 25 MiB limit qo'yadi. APK (56 MiB) `public/`
- * dan `dist/` ga ko'chiriladi va deploy'ni to'xtatadi — shu sababli build
- * oxirida olib tashlaymiz. APK alohida joyga (masalan, R2) qo'yiladi va
+ * da turmaydi — `apk/` papkasida saqlanadi va lokal dev'da shu middleware
+ * orqali beriladi. Production'da APK alohida joyga (masalan, R2) qo'yiladi va
  * `VITE_APK_URL` orqali ko'rsatiladi.
+ *
+ * Shu bosqichda `llms.txt` ichidagi `__SITE_URL__` ham almashtiriladi
+ * (public fayllar Vite transformatsiyasidan o'tmaydi).
  */
-function pruneOversizedAssetsPlugin(): Plugin {
+function buildFinalizePlugin(siteUrl: string): Plugin {
   return {
-    name: 'boyxon-prune-oversized-assets',
+    name: 'boyxon-build-finalize',
     apply: 'build',
     enforce: 'post',
     async closeBundle() {
-      const { rm } = await import('node:fs/promises');
-      await rm(fileURLToPath(new URL('./dist/boyxon-mobile.apk', import.meta.url)), { force: true });
+      const { readFile, writeFile } = await import('node:fs/promises');
+      const dist = fileURLToPath(new URL('./dist/', import.meta.url));
+      try {
+        const llms = await readFile(`${dist}llms.txt`, 'utf8');
+        await writeFile(`${dist}llms.txt`, llms.replaceAll('__SITE_URL__', siteUrl), 'utf8');
+      } catch {
+        /* llms.txt yo'q — e'tiborsiz */
+      }
+    },
+  };
+}
+
+/** Lokal dev'da APK'ni `public/` dan tashqaridan beradi. */
+function apkDevServerPlugin(): Plugin {
+  return {
+    name: 'boyxon-apk-dev-server',
+    apply: 'serve',
+    configureServer(server) {
+      const file = fileURLToPath(new URL('./apk/boyxon-mobile.apk', import.meta.url));
+      server.middlewares.use('/boyxon-mobile.apk', (_req, res) => {
+        res.setHeader('Content-Type', 'application/vnd.android.package-archive');
+        res.setHeader('Content-Disposition', 'attachment; filename="boyxon-mobile.apk"');
+        createReadStream(file)
+          .on('error', () => {
+            if (!res.headersSent) res.statusCode = 404;
+            res.end();
+          })
+          .pipe(res);
+      });
     },
   };
 }
@@ -160,7 +191,8 @@ export default defineConfig(({ mode }) => {
       seoFilesPlugin(siteUrl),
       inlineCssPlugin(),
       fontPreloadPlugin(),
-      pruneOversizedAssetsPlugin(),
+      buildFinalizePlugin(siteUrl),
+      apkDevServerPlugin(),
     ],
     resolve: {
       alias: {

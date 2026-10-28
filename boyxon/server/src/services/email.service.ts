@@ -1,6 +1,26 @@
 import nodemailer from 'nodemailer';
 import { env } from '../config/env';
+import { isWorkersRuntime } from '../utils/runtime';
 import { logger, maskEmail } from '../utils/logger';
+
+/**
+ * Email yuborish.
+ *
+ * - Cloudflare Workers: faqat HTTP provayder (Brevo yoki Resend). SMTP
+ *   (Gmail) Workers'dan chiqmaydi — `ETIMEDOUT` bilan tugaydi.
+ * - Node (Render/lokal): HTTP provayder bo'lsa — o'sha, aks holda SMTP.
+ *
+ * `EMAIL_PROVIDER=auto` (standart) mavjud kalitlarga qarab tanlaydi:
+ *   BREVO_API_KEY → Brevo, RESEND_API_KEY → Resend, SMTP_USER/PASS → SMTP.
+ */
+
+type EmailProvider = 'brevo' | 'resend' | 'smtp' | 'none';
+
+interface MailPayload {
+  to: string;
+  subject: string;
+  html: string;
+}
 
 /**
  * Transporter tipi nodemailer'ning o'zidan olinadi.
@@ -9,6 +29,55 @@ import { logger, maskEmail } from '../utils/logger';
 type Transporter = ReturnType<typeof nodemailer.createTransport>;
 
 let transporter: Transporter | null = null;
+
+function resolveProvider(): EmailProvider {
+  const configured = env.EMAIL_PROVIDER;
+
+  if (configured === 'none') return 'none';
+
+  if (configured === 'brevo') {
+    if (env.BREVO_API_KEY) return 'brevo';
+    logger.warn('EMAIL_PROVIDER=brevo, lekin BREVO_API_KEY bo‘sh — email yuborilmaydi');
+    return 'none';
+  }
+  if (configured === 'resend') {
+    if (env.RESEND_API_KEY) return 'resend';
+    logger.warn('EMAIL_PROVIDER=resend, lekin RESEND_API_KEY bo‘sh — email yuborilmaydi');
+    return 'none';
+  }
+  if (configured === 'smtp') {
+    // Workers'da SMTP umuman ishlamaydi — noto'g'ri sozlamada osilib qolmasin.
+    if (isWorkersRuntime) {
+      logger.warn('EMAIL_PROVIDER=smtp Cloudflare Workers’da qo‘llanmaydi — Brevo/Resend ishlating');
+      return 'none';
+    }
+    return env.SMTP_USER && env.SMTP_PASS ? 'smtp' : 'none';
+  }
+
+  // auto
+  if (env.BREVO_API_KEY) return 'brevo';
+  if (env.RESEND_API_KEY) return 'resend';
+  if (!isWorkersRuntime && env.SMTP_USER && env.SMTP_PASS) return 'smtp';
+  return 'none';
+}
+
+function senderName(): string {
+  return env.EMAIL_FROM_NAME || env.SMTP_FROM_NAME || 'Boyxon Oshxonasi';
+}
+
+/** `EMAIL_FROM` ichidan manzilni ajratadi: "Nom <a@b.uz>" yoki "a@b.uz". */
+function senderEmail(): string {
+  const raw = env.EMAIL_FROM.trim();
+  if (raw) {
+    const match = raw.match(/<([^>]+)>/);
+    return (match ? match[1] : raw).trim();
+  }
+  return env.SMTP_FROM_EMAIL || env.SMTP_USER;
+}
+
+function fromHeader(): string {
+  return `"${senderName()}" <${senderEmail()}>`;
+}
 
 function getTransporter(): Transporter | null {
   if (!env.SMTP_USER || !env.SMTP_PASS) return null;
@@ -33,12 +102,6 @@ function getTransporter(): Transporter | null {
   return transporter;
 }
 
-/** Xat sarlavhasidagi From: "Boyxon Oshxonasi <manzil>" ko'rinishida. */
-function fromHeader(): string {
-  const addr = env.SMTP_FROM_EMAIL || env.SMTP_USER;
-  return `"${env.SMTP_FROM_NAME}" <${addr}>`;
-}
-
 /**
  * Barcha xatlar uchun yagona brend shablon: logotip sarlavha, tugma, ogohlantirish.
  * Foydalanuvchi "qaysi saytdan keldi" ni bir qarashda biladi.
@@ -56,32 +119,112 @@ function brandShell(body: string): string {
     </div>
   </div>`;
 }
-/** Buyurtma tasdiqlash xati. SMTP sozlanmagan bo'lsa logga yozadi. */
+
+/** Brevo transactional email API. */
+async function sendViaBrevo(payload: MailPayload): Promise<void> {
+  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'api-key': env.BREVO_API_KEY,
+      'content-type': 'application/json',
+      accept: 'application/json',
+    },
+    body: JSON.stringify({
+      sender: { name: senderName(), email: senderEmail() },
+      to: [{ email: payload.to }],
+      subject: payload.subject,
+      htmlContent: payload.html,
+    }),
+  });
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`Brevo ${res.status}: ${body.slice(0, 300)}`);
+  }
+}
+
+/** Resend transactional email API. */
+async function sendViaResend(payload: MailPayload): Promise<void> {
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${env.RESEND_API_KEY}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: fromHeader(),
+      to: payload.to,
+      subject: payload.subject,
+      html: payload.html,
+    }),
+  });
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`Resend ${res.status}: ${body.slice(0, 300)}`);
+  }
+}
+
+/**
+ * Yagona yuborish nuqtasi. Xato tashqariga otilmaydi — logga yoziladi va
+ * `false` qaytadi (fon vazifasi butun so'rovni yiqitmasligi uchun).
+ */
+async function sendMail(payload: MailPayload): Promise<boolean> {
+  const provider = resolveProvider();
+
+  if (provider === 'none') {
+    logger.warn(
+      { to: maskEmail(payload.to), provider },
+      'Email provayderi sozlanmagan — xat yuborilmadi (Brevo/Resend kalitini qo‘shing)',
+    );
+    return false;
+  }
+
+  if (!senderEmail()) {
+    logger.error(
+      { provider },
+      'Yuboruvchi manzil yo‘q — EMAIL_FROM (yoki SMTP_USER) ni sozlang',
+    );
+    return false;
+  }
+
+  try {
+    if (provider === 'smtp') {
+      const t = getTransporter();
+      if (!t) return false;
+      await t.sendMail({
+        from: fromHeader(),
+        to: payload.to,
+        subject: payload.subject,
+        html: payload.html,
+      });
+    } else if (provider === 'brevo') {
+      await sendViaBrevo(payload);
+    } else {
+      await sendViaResend(payload);
+    }
+    return true;
+  } catch (err) {
+    logger.error({ err, to: maskEmail(payload.to), provider }, 'Email yuborilmadi');
+    return false;
+  }
+}
+
+/** Buyurtma tasdiqlash xati. */
 export async function sendOrderEmail(to: string, orderNumber: string, total: number): Promise<void> {
-  const t = getTransporter();
   const html = brandShell(
     `<h2 style="margin:0 0 8px">Buyurtmangiz qabul qilindi: <b>${orderNumber}</b></h2><p>Jami: <b>${total.toLocaleString('uz-UZ')} so'm</b></p>`,
   );
-  if (!t) {
-    logger.info({ to: maskEmail(to), orderNumber }, 'SMTP sozlanmagan — email yuborilmadi');
-    return;
-  }
-  await t.sendMail({ from: fromHeader(), to, subject: `Buyurtma ${orderNumber} qabul qilindi — Boyxon Oshxonasi`, html });
+  await sendMail({
+    to,
+    subject: `Buyurtma ${orderNumber} qabul qilindi — Boyxon Oshxonasi`,
+    html,
+  });
 }
 
-/** Email manzilni tasdiqlash xati. */
+/** Email manzilni tasdiqlash xati. Yuborilmasa `false` qaytadi. */
 export async function sendVerifyEmail(to: string, verifyLink: string): Promise<boolean> {
-  const t = getTransporter();
-  if (!t) {
-    /**
-     * SMTP sozlanmagan. Xavfsizlik: havola (ichida token bor) logga yozilmaydi.
-     * `false` qaytaramiz — chaqiruvchi shunga qarab foydalanuvchiga aniq xabar beradi.
-     */
-    logger.warn({ to: maskEmail(to) }, 'SMTP sozlanmagan — tasdiqlash xati yuborilmadi');
-    return false;
-  }
-  await t.sendMail({
-    from: fromHeader(),
+  return sendMail({
     to,
     subject: 'Emailingizni tasdiqlang — Boyxon Oshxonasi',
     html: brandShell(`
@@ -92,7 +235,6 @@ export async function sendVerifyEmail(to: string, verifyLink: string): Promise<b
         <p style="color:#666;font-size:13px">Havola 24 soat amal qiladi va bir marta ishlatiladi.</p>
         <p style="color:#666;font-size:13px">Agar siz ro'yxatdan o'tmagan bo'lsangiz, bu xatni e'tiborsiz qoldiring.</p>`),
   });
-  return true;
 }
 
 /**
@@ -101,18 +243,7 @@ export async function sendVerifyEmail(to: string, verifyLink: string): Promise<b
  * nomidan kelganini ko'radi (From sarlavhasi + brend shablon).
  */
 export async function sendResetEmail(to: string, resetLink: string): Promise<void> {
-  const t = getTransporter();
-  if (!t) {
-    /**
-     * Xavfsizlik: reset havolasi (ichida bir martalik token bor) LOGGA YOZILMAYDI.
-     * Ilgari to'liq havola logga tushardi — logni ko'rgan har qanday odam
-     * 15 daqiqa ichida hisobni egallab olishi mumkin edi.
-     */
-    logger.warn({ to: maskEmail(to) }, 'SMTP sozlanmagan — parol tiklash xati yuborilmadi (havola logga yozilmadi)');
-    return;
-  }
-  await t.sendMail({
-    from: fromHeader(),
+  await sendMail({
     to,
     subject: 'Parolni tiklash — Boyxon Oshxonasi',
     html: brandShell(`

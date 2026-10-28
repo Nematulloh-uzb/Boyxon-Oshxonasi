@@ -30,7 +30,7 @@ export class ApiServer extends DurableObject {
     // Ulanish DO xotirasida saqlanadi — keyingi so'rovlarda ~35 ms.
     await connectDb();
 
-    const { installRuntimeBindings, flushRuntimeBroadcasts } = await import('./runtime-bindings');
+    const { installRuntimeBindings, flushRuntimeTasks } = await import('./runtime-bindings');
     await installRuntimeBindings();
 
     if (!this.api) {
@@ -41,8 +41,8 @@ export class ApiServer extends DurableObject {
     try {
       return await handler(request);
     } finally {
-      // Controller'lar `getIo()` orqali yuborgan xabarlar yetib borishini kutamiz.
-      await flushRuntimeBroadcasts();
+      // Fon vazifalari (email, push, real-time) tugagach javob qaytaramiz.
+      await flushRuntimeTasks();
     }
   }
 

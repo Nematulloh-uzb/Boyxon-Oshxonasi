@@ -15,6 +15,7 @@ import { Setting } from '../models/Setting.model';
 import { sendPushToUsers } from '../services/push.service';
 import { notifyUser, emitNotification } from '../services/notify.service';
 import { getIo } from '../socket';
+import { runInBackground } from '../utils/background';
 import type { AuthRequest } from '../types/express';
 
 /** GET /api/admin/orders — barcha buyurtmalar (status/date filtri). */
@@ -96,7 +97,11 @@ export const updateOrderStatus = asyncHandler(async (req: Request, res: Response
   await notifyUser({ user: userId, type: 'order', title: 'Buyurtma holati', message: msg, link: `/orders/${order.id}` });
   const u = await User.findById(userId);
   if (u?.notificationPrefs?.pushEnabled) {
-    sendPushToUsers([userId], { title: 'Boyxon Oshxonasi', message: msg, url: `/orders/${order.id}` }).catch(() => undefined);
+    runInBackground(
+      sendPushToUsers([userId], { title: 'Boyxon Oshxonasi', message: msg, url: `/orders/${order.id}` }).catch(
+        () => 0,
+      ),
+    );
   }
   getIo()?.to(`user:${userId}`).emit('order:status', { orderId: order.id, status, message: msg });
   getIo()?.to('admin').emit('order:updated', { orderId: order.id, status });

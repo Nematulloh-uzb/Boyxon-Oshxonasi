@@ -1,23 +1,23 @@
-# Boyxon Oshxonasi
+﻿# Boyxon Oshxonasi
 
-> Toshkentda o'zbek milliy taomlarini tayyorlab, 30–45 daqiqada issiq holda yetkazib beramiz. Har kuni 09:00–23:00 ishlaymiz.
+> Toshkentda o'zbek milliy taomlarini tayyorlab, 30â€“45 daqiqada issiq holda yetkazib beramiz. Har kuni 09:00â€“23:00 ishlaymiz.
 
-Boyxon Oshxonasi — Toshkentdagi milliy taomlar oshxonasi. Sayt orqali palov, somsa, kabob va boshqa taomlarni buyurtma qilish, savatchani boshqarish va yetkazib berish manzilini kiritish mumkin.
+Boyxon Oshxonasi â€” Toshkentdagi milliy taomlar oshxonasi. Sayt orqali palov, somsa, kabob va boshqa taomlarni buyurtma qilish, savatchani boshqarish va yetkazib berish manzilini kiritish mumkin.
 
 ## Asosiy sahifalar
 
-- [Bosh sahifa (o'zbekcha)](https://boyxon-client.onrender.com/)
-- [Bosh sahifa (ruscha)](https://boyxon-client.onrender.com/ru)
-- [Bosh sahifa (inglizcha)](https://boyxon-client.onrender.com/en)
+- [Bosh sahifa (o'zbekcha)](__SITE_URL__/)
+- [Bosh sahifa (ruscha)](__SITE_URL__/ru)
+- [Bosh sahifa (inglizcha)](__SITE_URL__/en)
 
 ## Katalog
 
-- [Taomlar kategoriyasi](https://boyxon-client.onrender.com/category/taomlar)
-- [Taomlar kategoriyasi (ruscha)](https://boyxon-client.onrender.com/ru/category/taomlar)
-- [Taomlar kategoriyasi (inglizcha)](https://boyxon-client.onrender.com/en/category/taomlar)
+- [Taomlar kategoriyasi](__SITE_URL__/category/taomlar)
+- [Taomlar kategoriyasi (ruscha)](__SITE_URL__/ru/category/taomlar)
+- [Taomlar kategoriyasi (inglizcha)](__SITE_URL__/en/category/taomlar)
 
 ## Aloqa
 
 - Telefon: [+998 93 958-84-58](tel:+998939588458)
-- Manzil: Toshkent, Yunusobod tumani (41°00′17.3″N, 71°40′50.3″E)
-- Yetkazib berish: Toshkent shahri bo'ylab, 30–45 daqiqa
+- Manzil: Toshkent, Yunusobod tumani (41Â°00â€²17.3â€³N, 71Â°40â€²50.3â€³E)
+- Yetkazib berish: Toshkent shahri bo'ylab, 30â€“45 daqiqa

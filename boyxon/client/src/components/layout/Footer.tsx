@@ -10,6 +10,13 @@ import { localizedCategoryName } from '../../lib/format';
 const PHONE_DISPLAY = '+998 (93) 958-84-58';
 const PHONE_COPY = '+998939588458';
 
+/**
+ * APK Workers Assets'ga sig'maydi (25 MiB limit) — alohida joyga (masalan R2)
+ * qo'yiladi. `VITE_APK_URL` berilmasa lokal `/boyxon-mobile.apk` ishlatiladi.
+ */
+const APK_URL =
+  (import.meta.env.VITE_APK_URL as string | undefined)?.trim() || '/boyxon-mobile.apk';
+
 export function Footer() {
   const { t, i18n } = useTranslation();
   const [copied, setCopied] = useState(false);
@@ -109,7 +116,7 @@ export function Footer() {
           <div>
             <p className="font-semibold text-ink-700">{t('footer.download_app')}</p>
             <a
-              href="/boyxon-mobile.apk"
+              href={APK_URL}
               download
               className="mt-2 flex items-center gap-2 rounded-xl border border-ink-line bg-bg px-3 py-2 font-semibold text-ink-700 transition hover:border-primary-500/50 hover:text-primary-600"
             >

@@ -18,6 +18,7 @@ import {
 import { sendResetEmail, sendVerifyEmail } from '../services/email.service';
 import { env, primaryClientUrl } from '../config/env';
 import { logger } from '../utils/logger';
+import { runInBackground } from '../utils/background';
 import type { AuthRequest } from '../types/express';
 
 function setRefreshCookie(res: Response, token: string): void {
@@ -136,8 +137,11 @@ export const resendVerification = asyncHandler(async (req: Request, res: Respons
   const user = await User.findOne({ email: email.toLowerCase() });
   if (user && !user.emailVerified && user.isActive) {
     // Fonda yuboramiz — javob natijadan qat'i nazar bir xil (enumeration himoyasi).
-    void issueVerificationEmail(user).catch((err) =>
-      logger.error({ err, email: user.email }, 'Tasdiqlash xati qayta yuborilmadi'),
+    // Workers'da ApiServer DO javobdan oldin bu vazifani kutadi.
+    runInBackground(
+      issueVerificationEmail(user).catch((err) =>
+        logger.error({ err, email: user.email }, 'Tasdiqlash xati qayta yuborilmadi'),
+      ),
     );
   }
   res.json(ok(null, 'Agar bu email ro‘yxatda bo‘lsa va tasdiqlanmagan bo‘lsa, havola qayta yuborildi'));
@@ -366,8 +370,10 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response) =
     // Xatni KUTMAYDIM — fonda yuboramiz. Gmail SMTP sekin bo'lishi mumkin
     // (2-10s), foydalanuvchi tugmani bosgach javobni DARHOL ko'radi. Xato
     // bo'lsa logga yoziladi; javob baribir bir xil (enumeration himoyasi saqlanadi).
-    void sendResetEmail(user.email, link).catch((err) =>
-      logger.error({ err, email: user.email }, 'Parol tiklash xati yuborilmadi'),
+    runInBackground(
+      sendResetEmail(user.email, link).catch((err) =>
+        logger.error({ err, email: user.email }, 'Parol tiklash xati yuborilmadi'),
+      ),
     );
   }
   // Javob har doim bir xil — email ro'yxatda bor-yo'qligini aniqlash imkoni bo'lmasin.

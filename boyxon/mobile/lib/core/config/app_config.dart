@@ -8,13 +8,13 @@ class AppConfig {
 
   static const String apiBase = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'https://boyxon-server.onrender.com',
+    defaultValue: 'https://boyxon-server.nmatullohmansurov.workers.dev',
   );
 
   /// Sayt manzili — tashqi havolalar uchun (masalan, Google bilan kirish oqimi).
   static const String siteUrl = String.fromEnvironment(
     'SITE_URL',
-    defaultValue: 'https://boyxon-client.onrender.com',
+    defaultValue: 'https://boyxon-server.nmatullohmansurov.workers.dev',
   );
 
   static const String appName = 'Boyxon Oshxonasi';

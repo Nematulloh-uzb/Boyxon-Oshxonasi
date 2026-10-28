@@ -1,7 +1,7 @@
 # Boyxon Oshxonasi — Full-Stack Food Delivery Platform
 
 O'zbek milliy taomlarini yetkazib berish platformasi: React 18 + Vite + TypeScript
-frontend, Express + MongoDB backend, Socket.IO real-time, Web Push, Google OAuth,
+frontend, Express + MongoDB backend, native WebSocket real-time, Web Push, Google OAuth,
 Cloudinary rasmlar, to'liq admin panel.
 
 ## Dizayn tizimi
@@ -111,10 +111,25 @@ Credentials → OAuth client (Web) → redirect:
 - `GET /api/push/vapid-public-key` · `POST /api/push/subscribe|unsubscribe`
 - `GET /api/admin/stats` + dishes/categories/orders/users/promos/push CRUD (admin)
 
-Socket.IO: client login dan keyin ulanadi.
-`user:<id>` va `admin` xonalari. Hodisalar: `order:status`, `order:updated`.
+Real-time: native WebSocket (`/ws?token=...`). Client login dan keyin ulanadi.
+`user:<id>` va `admin` xonalari. Hodisalar: `order:status`, `order:updated`, chat.
 
 ## Deploy
+
+Asosiy yo'l — **Cloudflare Workers** (bepul reja). To'liq qo'llanma:
+[`DEPLOY-CLOUDFLARE.md`](./DEPLOY-CLOUDFLARE.md).
+
+```powershell
+cd boyxon\server
+npx wrangler login
+powershell -ExecutionPolicy Bypass -File .\scripts\deploy-cloudflare.ps1 `
+  -SiteUrl https://boyxon-server.<subdomain>.workers.dev
+```
+
+Worker saytni (SPA) va API'ni bitta domenda beradi; MongoDB Atlas,
+Cloudinary va Brevo/Resend ishlatiladi.
+
+Eski variant (ixtiyoriy):
 
 - Frontend → Vercel: root `boyxon/client`, build `npm run build`, output `dist`,
   env `VITE_API_URL`, `VITE_SOCKET_URL`, `VITE_VAPID_PUBLIC_KEY`.
@@ -135,7 +150,7 @@ e) Notification prefs → push hurmat qiladi. f) Til uz/ru/en → matn yangilana
 boyxon-oshxonasi/        # repo ildizi
 ├── boyxon/
 │   ├── client/          # React 18 + Vite + TS + Tailwind + shadcn
-│   ├── server/          # Express + TS + Mongoose + Socket.IO
+│   ├── server/          # Express + TS + Mongoose + native WebSocket
 │   └── README.md        # shu fayl
 └── docker-compose.yml   # lokal Mongo (repo ildizida)
 ```

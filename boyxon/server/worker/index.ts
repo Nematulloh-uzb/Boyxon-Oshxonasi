@@ -31,13 +31,24 @@ type HubStub = {
 /** MongoDB klasteriga yaqinroq joylashuv (Atlas odatda Yevropada). */
 const LOCATION_HINT = 'weur' as DurableObjectLocationHint;
 
+type VersionMetadata = { id: string };
+
+/**
+ * Joriy deploy versiyasi. Wrangler `version_metadata` binding'i orqali keladi.
+ * Lokal dev'da bo'lmasligi mumkin — `dev` ishlatiladi.
+ */
+const VERSION_ID =
+  (cfEnv as unknown as { CF_VERSION_METADATA?: VersionMetadata }).CF_VERSION_METADATA?.id ?? 'dev';
+
 function namespace(name: string): DurableObjectNamespace {
   return (cfEnv as unknown as Record<string, DurableObjectNamespace>)[name];
 }
 
 function apiStub(): ApiStub {
   const ns = namespace('API_SERVER');
-  return ns.get(ns.idFromName('global'), { locationHint: LOCATION_HINT }) as unknown as ApiStub;
+  // Har deploy — yangi DO nomi. Eski DO tabiiy ravishda bo'shab ketadi.
+  // RealtimeHub nomi o'zgarmaydi (aks holda ochiq WebSocket'lar uziladi).
+  return ns.get(ns.idFromName(`api:${VERSION_ID}`), { locationHint: LOCATION_HINT }) as unknown as ApiStub;
 }
 
 function hubStub(): HubStub {

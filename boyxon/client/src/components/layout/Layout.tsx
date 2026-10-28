@@ -9,7 +9,7 @@ import { useUiStore } from '../../store/ui.store';
 import { useAuthStore } from '../../store/auth.store';
 
 // Og'ir drawer/chat oynalari faqat kerak bo'lganda yuklanadi. Shu tufayli
-// framer-motion va socket.io-client mehmonning birinchi yuklanishiga tushmaydi.
+// framer-motion va real-time klient mehmonning birinchi yuklanishiga tushmaydi.
 const MobileDrawer = lazy(() =>
   import('./MobileDrawer').then((m) => ({ default: m.MobileDrawer })),
 );

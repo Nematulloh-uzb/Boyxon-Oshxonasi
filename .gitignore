@@ -39,4 +39,5 @@ boyxon/server/dist/
 # Cloudflare Workers lokal secretlar
 .dev.vars
 .wrangler/
+.wrangler/
 
