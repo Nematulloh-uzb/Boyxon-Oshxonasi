@@ -239,8 +239,7 @@ function loadEnv(): Env {
           (isWorkersRuntime ? 'BREVO_API_KEY yoki RESEND_API_KEY qo‘shing.' : 'SMTP yoki HTTP provayder qo‘shing.'),
       );
     }
-
-    if (failures.length) {
+ 
       console.error('❌ PRODUCTION xavfsizlik tekshiruvi muvaffaqiyatsiz:');
       for (const f of failures) console.error(`   • ${f}`);
       console.error('\n💡 Kuchli kalit generatsiya qilish:  node -e "console.log(require(\'crypto\').randomBytes(48).toString(\'hex\'))"');
