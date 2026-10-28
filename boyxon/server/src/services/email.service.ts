@@ -243,9 +243,16 @@ export async function sendVerifyEmail(to: string, verifyLink: string): Promise<b
  * nomidan kelganini ko'radi (From sarlavhasi + brend shablon).
  */
 export async function sendResetEmail(to: string, resetLink: string): Promise<void> {
+  // Mavzuga so'rov vaqti qo'shiladi — Gmail bir xil mavzuli xatlarni bitta
+  // threadga yig'adi va foydalanuvchi eski xatdagi tugmani bosib qolardi.
+  // Vaqt qo'shilsa, har bir so'rov alohida thread bo'ladi.
+  // `Intl` o'rniga qo'lda UTC+5 (Toshkent) — Workers'da locale bilan muammo bo'lmasin.
+  const tashkent = new Date(Date.now() + 5 * 60 * 60 * 1000);
+  const pad = (n: number): string => String(n).padStart(2, '0');
+  const requestedAt = `${pad(tashkent.getUTCDate())}.${pad(tashkent.getUTCMonth() + 1)}, ${pad(tashkent.getUTCHours())}:${pad(tashkent.getUTCMinutes())}`;
   await sendMail({
     to,
-    subject: 'Parolni tiklash — Boyxon Oshxonasi',
+    subject: `Parolni tiklash — Boyxon Oshxonasi (${requestedAt})`,
     html: brandShell(`
         <p>Salom!</p>
         <p><b>${to}</b> hisobi uchun parolni tiklash so'rovi olindi. Davom etish uchun tugmani bosing — alohida tiklash oynasi ochiladi:</p>
