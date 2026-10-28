@@ -16,7 +16,8 @@
 .NOTES
   - Avval `npx wrangler login` bajarilgan bo'lishi kerak.
   - `.dev.vars` ichida MONGODB_URI (to'g'ridan-to'g'ri hostlar bilan),
-    JWT kalitlari, EMAIL/BREVO kaliti, Cloudinary kalitlari bo'lishi shart.
+    JWT kalitlari, EMAIL/BREVO kaliti bo'lishi shart. Rasmlar `IMAGES` KV'da
+  saqlanadi (Cloudinary shart emas).
 #>
 param(
   [Parameter(Mandatory = $true)]

@@ -2,7 +2,7 @@
 
 O'zbek milliy taomlarini yetkazib berish platformasi: React 18 + Vite + TypeScript
 frontend, Express + MongoDB backend, native WebSocket real-time, Web Push, Google OAuth,
-Cloudinary rasmlar, to'liq admin panel.
+rasm saqlash (Cloudflare KV / Cloudinary), to'liq admin panel.
 
 ## Dizayn tizimi
 
@@ -127,7 +127,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\deploy-cloudflare.ps1 `
 ```
 
 Worker saytni (SPA) va API'ni bitta domenda beradi; MongoDB Atlas,
-Cloudinary va Brevo/Resend ishlatiladi.
+rasmlar Cloudflare KV'da, email Brevo/Resend orqali ishlaydi.
 
 Eski variant (ixtiyoriy):
 
@@ -135,13 +135,13 @@ Eski variant (ixtiyoriy):
   env `VITE_API_URL`, `VITE_SOCKET_URL`, `VITE_VAPID_PUBLIC_KEY`.
 - Backend → Railway/Render: root `boyxon/server`, build `npm run build`,
   start `npm start`, env — `.env.example` dagi barchasi.
-- DB → MongoDB Atlas · Rasmlar → Cloudinary.
+- DB → MongoDB Atlas · Rasmlar → Cloudflare KV (Workers) / Cloudinary (Node).
 
 ## Test oqimlari
 
 a) Google/kirish → home → savat → checkout → admin da buyurtma ko'rinadi.
 b) Admin status o'zgartiradi → user da real-time toast + push.
-c) R asmsiz taom → placeholder. d) Rasmli taom → Cloudinary img.
+c) R asmsiz taom → placeholder. d) Rasmli taom → yuklangan rasm.
 e) Notification prefs → push hurmat qiladi. f) Til uz/ru/en → matn yangilanadi.
 
 ## Tuzilma

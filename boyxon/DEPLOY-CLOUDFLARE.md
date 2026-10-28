@@ -14,6 +14,7 @@ ko'chirishning oxirgi bosqichlarini tushuntiradi.
 - Real-time `RealtimeHub` DO + native WebSocket (`/ws?token=...`) orqali.
 - Email HTTP provayderlar (Brevo/Resend) qo'llab-quvvatlanadi — Workers'da SMTP
   ishlamaydi.
+- Rasm saqlash `IMAGES` KV namespace'ida (Workers) yoki Cloudinary'da (Node).
 - APK `client/public/` dan `client/apk/` ga ko'chirildi (Workers Assets 25 MiB
   limitidan katta). Uni alohida joyga yuklash kerak (quyida).
 
@@ -61,20 +62,27 @@ mongodb://user:pass@ac-....mongodb.net:27017,.../boyxon?authSource=admin&replica
 Atlas → **Database Access** da foydalanuvchi, **Network Access** da
 `0.0.0.0/0` (yoki Cloudflare IP'lari) ruxsat etilgan bo'lsin.
 
-### Cloudinary — rasm yuklash uchun (majburiy)
+### Rasm saqlash — Cloudflare KV (allaqachon sozlangan)
 
-1. <https://cloudinary.com/users/register/free> — bepul akkaunt.
-2. Dashboard'dan **Cloud name**, **API Key**, **API Secret** ni oling.
-3. Bulutli qiymatlarni `.dev.vars` ga yozing:
+Workers'da rasmlar `IMAGES` KV namespace'ida saqlanadi va shu Worker orqali
+`/uploads/...` manzilida beriladi. Bepul reja: 1 GB saqlash, kuniga
+100 000 o'qish va 1 000 yozish.
 
-   ```
-   CLOUDINARY_CLOUD_NAME=...
-   CLOUDINARY_API_KEY=...
-   CLOUDINARY_API_SECRET=...
-   ```
+`wrangler.jsonc` da binding tayyor:
 
-   Workers'da lokal fayl tizimi yo'q — Cloudinary sozlanmasa admin panelda
-   rasm yuklash ishlamaydi.
+```jsonc
+"kv_namespaces": [{ "binding": "IMAGES", "id": "..." }]
+```
+
+Boshqa Cloudflare akkauntga ko'chirsangiz, namespace'ni qayta yaratib, ID'ni
+almashtiring:
+
+```powershell
+npx wrangler kv namespace create IMAGES
+```
+
+> Cloudinary endi faqat Node (Render/lokal) uchun ixtiyoriy variant bo'lib
+> qoldi. O'zbekistonda Cloudinary ro'yxatdan o'tish bloklangan.
 
 ### Brevo — email uchun (tavsiya etiladi, bepul)
 
@@ -116,7 +124,7 @@ https://boyxon-server.<subdomain>.workers.dev/api/auth/google/callback
 | `MONGODB_URI` | To'g'ridan-to'g'ri hostlar bilan |
 | `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `JWT_RESET_SECRET`, `JWT_EMAIL_VERIFY_SECRET` | Har biri kamida 32 belgi, bir-biridan farq qiladi |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Admin hisobi (parol kamida 12 belgi) |
-| `CLOUDINARY_*` | Rasm yuklash |
+| `CLOUDINARY_*` | Ixtiyoriy — faqat Node uchun; Workers'da KV ishlatiladi |
 | `BREVO_API_KEY` yoki `RESEND_API_KEY` | Email |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Ixtiyoriy |
 | `VAPID_*` | Push (ixtiyoriy) |
@@ -177,7 +185,7 @@ Brauzerda:
 
 1. Sayt ochilishi va taomlar yuklanishi.
 2. Login / ro'yxatdan o'tish.
-3. Admin panelda rasm yuklash (Cloudinary).
+3. Admin panelda rasm yuklash (KV `/uploads/...`).
 4. Chat va buyurtma holati real vaqtda yangilanishi (WebSocket).
 5. Parol tiklash xati kelishi (Brevo/Resend).
 
@@ -269,7 +277,7 @@ mumkin (lekin avval bir necha kun Worker barqaror ishlashini kuting).
 | Login juda sekin (birinchi so'rov) | DO sovuq start + Atlas ulanishi. Keyingi so'rovlar tez. |
 | Chat ulanmaydi | `wss://<domen>/ws?token=...`; token muddati o'tgan bo'lsa refresh kerak. |
 | Email ketmaydi | `EMAIL_PROVIDER=brevo`, `BREVO_API_KEY` va tasdiqlangan `EMAIL_FROM`. `wrangler tail` da `Brevo 4xx` ni ko'ring. |
-| Rasm yuklanmaydi | `CLOUDINARY_*` bo'sh yoki noto'g'ri. |
+| Rasm yuklanmaydi | `IMAGES` KV binding'i `wrangler.jsonc` da bormi; `npx wrangler kv namespace list` bilan tekshiring. |
 | `Asset too large` | `client/dist` da 25 MiB dan katta fayl bor — APK `apk/` papkasida turishi kerak. |
 
 ## Rollback

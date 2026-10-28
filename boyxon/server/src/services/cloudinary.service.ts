@@ -7,6 +7,22 @@ import path from 'node:path';
 /** Lokal saqlash papkasi (Cloudinary bo'lmagan holda ishlaydi). */
 const UPLOAD_DIR = path.resolve(process.cwd(), 'uploads', 'dishes');
 
+/**
+ * Muqobil saqlash adapteri (Cloudflare Workers'da KV).
+ * Worker `installRuntimeBindings()` paytida o'rnatadi; Node'da `null` qoladi
+ * va Cloudinary/lokal fayl tizimi ishlatiladi.
+ */
+export interface ImageStorageAdapter {
+  upload(buffer: Buffer, folder: string): Promise<{ url: string; publicId: string }>;
+  delete(publicId: string): Promise<void>;
+}
+
+let storageAdapter: ImageStorageAdapter | null = null;
+
+export function setImageStorageAdapter(adapter: ImageStorageAdapter | null): void {
+  storageAdapter = adapter;
+}
+
 // Workers'da fayl tizimi yo'q — papka yaratish faqat Node'da.
 if (!isWorkersRuntime && !fs.existsSync(UPLOAD_DIR)) {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
@@ -22,6 +38,10 @@ export async function uploadBufferToCloudinary(
   buffer: Buffer,
   folder = 'boyxon/dishes',
 ): Promise<{ url: string; publicId: string }> {
+  if (storageAdapter) {
+    return storageAdapter.upload(buffer, folder);
+  }
+
   if (cloudinaryConfigured) {
     try {
       const dataUri = `data:image/jpeg;base64,${buffer.toString('base64')}`;
@@ -53,6 +73,11 @@ export async function uploadBufferToCloudinary(
 
 /** Rasmni o'chirish — Cloudinary yoki lokal papkadan. */
 export async function deleteFromCloudinary(publicId: string): Promise<void> {
+  if (storageAdapter) {
+    await storageAdapter.delete(publicId).catch(() => undefined);
+    return;
+  }
+
   if (cloudinaryConfigured) {
     await cloudinary.uploader.destroy(publicId).catch(() => undefined);
   }

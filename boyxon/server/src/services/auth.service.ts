@@ -108,7 +108,11 @@ export async function loginUser(email: string, password: string, userAgent?: str
 
   // Parol to'g'ri — endi email tasdiqlanganini tekshiramiz.
   if (!user.emailVerified && !env.ALLOW_UNVERIFIED_LOGIN) {
-    throw ApiError.forbidden('EMAIL_NOT_VERIFIED');
+    throw new ApiError(
+      403,
+      'Email manzilingiz hali tasdiqlanmagan. Pochtangizga yuborilgan havolani bosing.',
+      'EMAIL_NOT_VERIFIED',
+    );
   }
 
   await user.resetLoginAttempts();

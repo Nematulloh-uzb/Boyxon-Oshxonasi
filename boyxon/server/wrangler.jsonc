@@ -33,6 +33,11 @@
   "version_metadata": {
     "binding": "CF_VERSION_METADATA"
   },
+  // Rasm saqlash: Cloudflare KV (bepul 1 GB). Cloudinary O'zbekistonda
+  // ro'yxatdan o'tishni bloklagani uchun Workers'da shu ishlatiladi.
+  "kv_namespaces": [
+    { "binding": "IMAGES", "id": "9faea0849867435bb08e3e973a408dbf" }
+  ],
   "vars": {
     "NODE_ENV": "production",
     "TRUST_PROXY": "1",
@@ -44,6 +49,6 @@
     "directory": "../client/dist",
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api/*", "/ws", "/health", "/sitemap.xml"]
+    "run_worker_first": ["/api/*", "/ws", "/health", "/sitemap.xml", "/uploads/*"]
   }
 }

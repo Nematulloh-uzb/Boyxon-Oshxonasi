@@ -1,11 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Check, Clock, Copy, Download, MapPin, Phone } from 'lucide-react';
-import { categoriesApi } from '../../api/categories.api';
-import { QUERY_KEYS } from '../../lib/constants';
-import { localizedCategoryName } from '../../lib/format';
 
 const PHONE_DISPLAY = '+998 (93) 958-84-58';
 const PHONE_COPY = '+998939588458';
@@ -18,13 +13,8 @@ const APK_URL =
   (import.meta.env.VITE_APK_URL as string | undefined)?.trim() || '/boyxon-mobile.apk';
 
 export function Footer() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
-  const { data: categories } = useQuery({
-    queryKey: [QUERY_KEYS.categories],
-    queryFn: () => categoriesApi.list().then((r) => r.data),
-    staleTime: 10 * 60 * 1000,
-  });
 
   const copyPhone = async (): Promise<void> => {
     try {
@@ -49,38 +39,7 @@ export function Footer() {
   return (
     <footer className="mt-12 border-t border-ink-line bg-surface pb-20 md:pb-0">
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <div className="grid gap-8 text-sm text-ink-300 md:grid-cols-2 lg:grid-cols-4">
-          <div>
-            <p className="font-display text-lg font-bold text-ink-700">Boyxon Oshxonasi</p>
-            <p className="mt-2">{t('footer.tagline')}</p>
-            <p className="mt-2 text-xs leading-relaxed text-ink-300">{t('footer.about_text')}</p>
-          </div>
-
-          <nav aria-label={t('footer.categories')}>
-            <p className="font-semibold text-ink-700">{t('footer.categories')}</p>
-            <div className="mt-2 flex flex-col gap-1">
-              <Link to="/" className="hover:text-primary-600">{t('home.all_dishes')}</Link>
-              {(categories ?? []).map((category) => (
-                <Link
-                  key={category._id}
-                  to={`/category/${category.slug}`}
-                  className="hover:text-primary-600"
-                >
-                  {localizedCategoryName(category, i18n.language) || category.name}
-                </Link>
-              ))}
-            </div>
-          </nav>
-
-          <nav aria-label={t('footer.navigation')}>
-            <p className="font-semibold text-ink-700">{t('footer.navigation')}</p>
-            <div className="mt-2 flex flex-col gap-1">
-              <Link to="/" className="hover:text-primary-600">{t('nav.menu')}</Link>
-              <Link to="/cart" className="hover:text-primary-600">{t('nav.cart')}</Link>
-              <Link to="/settings" className="hover:text-primary-600">{t('nav.settings')}</Link>
-            </div>
-          </nav>
-
+        <div className="grid gap-8 text-sm text-ink-300 md:grid-cols-2">
           <div>
             <p className="font-semibold text-ink-700">{t('footer.contact')}</p>
             <div className="mt-2 flex items-center gap-2">

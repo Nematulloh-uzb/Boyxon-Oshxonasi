@@ -16,6 +16,15 @@ type HubStub = {
   broadcast(room: string | null, event: string, payload?: unknown): Promise<void>;
 };
 
+type ImagesKV = {
+  put(
+    key: string,
+    value: ArrayBuffer | ArrayBufferView,
+    options?: { metadata?: Record<string, string> },
+  ): Promise<void>;
+  delete(key: string): Promise<void>;
+};
+
 const pending: Promise<unknown>[] = [];
 let installed = false;
 
@@ -61,6 +70,23 @@ export async function installRuntimeBindings(): Promise<void> {
       }),
     );
   });
+
+  // --- Rasm saqlash: Cloudflare KV (Workers'da fayl tizimi yo'q) ---
+  const { setImageStorageAdapter } = await import('../src/services/cloudinary.service');
+  const images = (cfEnv as unknown as { IMAGES?: ImagesKV }).IMAGES;
+  if (images) {
+    const siteUrl = (process.env.CLIENT_URL ?? '').split(',')[0].trim().replace(/\/+$/, '');
+    setImageStorageAdapter({
+      upload: async (buffer, folder) => {
+        const key = `${folder}/${Date.now()}-${crypto.randomUUID()}.jpg`;
+        await images.put(key, buffer, { metadata: { contentType: 'image/jpeg' } });
+        return { url: `${siteUrl}/uploads/${key}`, publicId: key };
+      },
+      delete: async (publicId) => {
+        await images.delete(publicId);
+      },
+    });
+  }
 }
 
 /** Express javob bergach, fon vazifalari (email, push, real-time) tugashini kutamiz. */

@@ -28,6 +28,13 @@ type HubStub = {
   fetch(request: Request): Promise<Response>;
 };
 
+type ImagesKV = {
+  getWithMetadata(
+    key: string,
+    type: 'arrayBuffer',
+  ): Promise<{ value: ArrayBuffer | null; metadata: Record<string, string> | null }>;
+};
+
 /** MongoDB klasteriga yaqinroq joylashuv (Atlas odatda Yevropada). */
 const LOCATION_HINT = 'weur' as DurableObjectLocationHint;
 
@@ -82,11 +89,34 @@ async function handleWebSocket(request: Request): Promise<Response> {
   return hubStub().fetch(new Request(request, { headers }));
 }
 
+/**
+ * KV'dagi rasmni berish (`/uploads/boyxon/dishes/...`).
+ * Rasm o'zgarmas (immutable) — bir yilga keshlanadi.
+ */
+async function serveImage(url: URL): Promise<Response> {
+  const key = decodeURIComponent(url.pathname.replace(/^\/uploads\//, ''));
+  if (!key || key.includes('..')) return new Response('Not found', { status: 404 });
+
+  const images = (cfEnv as unknown as { IMAGES?: ImagesKV }).IMAGES;
+  if (!images) return new Response('Not found', { status: 404 });
+
+  const { value, metadata } = await images.getWithMetadata(key, 'arrayBuffer');
+  if (!value) return new Response('Not found', { status: 404 });
+
+  return new Response(value, {
+    headers: {
+      'content-type': metadata?.contentType || 'image/jpeg',
+      'cache-control': 'public, max-age=31536000, immutable',
+    },
+  });
+}
+
 export default {
   async fetch(request: Request): Promise<Response> {
     try {
       const url = new URL(request.url);
       if (url.pathname === '/ws') return await handleWebSocket(request);
+      if (url.pathname.startsWith('/uploads/')) return await serveImage(url);
       return await apiStub().fetch(request);
     } catch (err) {
       console.error('Worker xatosi:', err);
