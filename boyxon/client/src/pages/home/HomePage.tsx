@@ -1,12 +1,11 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Search, SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { Search, SlidersHorizontal } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { dishesApi, type DishFilters } from '../../api/dishes.api';
 import { categoriesApi } from '../../api/categories.api';
 import { CategoryChips } from '../../components/dish/CategoryChips';
-import { CategoryLinks } from '../../components/dish/CategoryLinks';
 import { DishGrid } from '../../components/dish/DishGrid';
 import { DishCard } from '../../components/dish/DishCard';
 import type { DishFilterValues } from '../../components/dish/DishFilterSheet';
@@ -93,11 +92,6 @@ export default function HomePage() {
 
   const pages = data?.pagination.pages ?? 1;
 
-  const faqItems = [1, 2, 3, 4, 5].map((index) => ({
-    q: t(`seo.faq.q${index}`),
-    a: t(`seo.faq.a${index}`),
-  }));
-
   const homeUrl = canonicalFor('/', lang);
   const restaurantId = `${SITE_URL}/#restaurant`;
   const websiteId = `${SITE_URL}/#website`;
@@ -180,15 +174,6 @@ export default function HomePage() {
           },
         ]
       : []),
-    {
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: faqItems.map(({ q, a }) => ({
-        '@type': 'Question',
-        name: q,
-        acceptedAnswer: { '@type': 'Answer', text: a },
-      })),
-    },
   ];
 
   return (
@@ -339,38 +324,6 @@ export default function HomePage() {
             </button>
           </div>
         )}
-      </section>
-
-      {/* SEO: kategoriya havolalari */}
-      <section className="mt-10">
-        <h2 className="font-display text-lg font-bold">{t('seo.home.categories_title')}</h2>
-        <p className="mt-1 text-sm text-ink-300">{t('seo.home.categories_desc')}</p>
-        <div className="mt-3">
-          <CategoryLinks categories={cats ?? []} />
-        </div>
-      </section>
-
-      {/* SEO: boyitilgan matn */}
-      <section className="mt-10 max-w-3xl">
-        <h2 className="font-display text-lg font-bold">{t('seo.home.content_title')}</h2>
-        <p className="mt-2 text-[15px] leading-relaxed text-ink-500">{t('seo.home.content')}</p>
-        <p className="mt-2 text-sm leading-relaxed text-ink-300">{t('seo.home.content_extra')}</p>
-      </section>
-
-      {/* SEO: FAQ (FAQPage schema bilan bir xil savollar) */}
-      <section className="mt-10">
-        <h2 className="mb-3 font-display text-lg font-bold">{t('seo.home.faq_title')}</h2>
-        <div className="divide-y divide-ink-line/60 rounded-card border border-ink-line/60 bg-surface">
-          {faqItems.map(({ q, a }) => (
-            <details key={q} className="group px-4 py-3">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-ink-900">
-                {q}
-                <ChevronDown className="h-4 w-4 shrink-0 text-ink-300 transition group-open:rotate-180" />
-              </summary>
-              <p className="mt-2 text-sm leading-relaxed text-ink-500">{a}</p>
-            </details>
-          ))}
-        </div>
       </section>
         </>
       )}
