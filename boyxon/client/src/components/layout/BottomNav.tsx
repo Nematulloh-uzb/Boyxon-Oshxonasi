@@ -26,104 +26,95 @@ export function BottomNav() {
   };
 
   const navItems = [
-    { type: 'link' as const, to: '/', icon: Home, label: t('nav.home') },
-    { type: 'link' as const, to: '/cart', icon: ShoppingBag, label: t('nav.cart'), badge: count },
-    {
-      type: 'button' as const,
-      icon: MessageCircle,
-      label: t('nav.chat') || 'Chat',
-      isActive: chatOpen,
-      onClick: handleChatClick,
-    },
-    { type: 'link' as const, to: '/settings', icon: Settings, label: t('nav.settings') },
+    { to: '/', icon: Home, label: t('nav.home') },
+    { to: '/cart', icon: ShoppingBag, label: t('nav.cart'), badge: count },
+    { to: '/settings', icon: Settings, label: t('nav.settings') },
   ];
 
   return (
-    // Suzuvchi, ensizroq va ixcham 4-talik "pill" navigatsiya paneli (safe-area hisobga olingan)
-    <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-center px-3 pb-[calc(0.6rem_+_env(safe-area-inset-bottom,0px))] md:hidden pointer-events-none">
-      <div className="pointer-events-auto flex w-auto min-w-[310px] max-w-[340px] items-center justify-around gap-1 rounded-[26px] border border-ink-line/50 bg-surface/90 p-1.5 shadow-2xl backdrop-blur-xl dark:bg-surface/85 dark:border-ink-line/30">
-        {navItems.map((item) => {
-          const isItemActive =
-            item.type === 'button'
-              ? item.isActive
-              : !chatOpen &&
-                (item.to === '/'
-                  ? location.pathname === '/'
-                  : location.pathname.startsWith(item.to));
+    // Suzuvchi "pill" navigatsiya + o'ng tomonda alohida chat tugmasi.
+    // Chat ochiq bo'lsa ham navigatsiya ko'rinib turadi (z-60 > chat z-50).
+    <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-[60] flex justify-center px-3 pb-[calc(0.6rem_+_env(safe-area-inset-bottom,0px))] md:hidden">
+      <div className="pointer-events-auto flex w-full max-w-[360px] items-end gap-2">
+        <div className="flex min-w-0 flex-1 items-center justify-around gap-1 rounded-[26px] border border-ink-line/50 bg-surface/90 p-1.5 shadow-2xl backdrop-blur-xl dark:border-ink-line/30 dark:bg-surface/85">
+          {navItems.map((item) => {
+            const isItemActive =
+              !chatOpen &&
+              (item.to === '/'
+                ? location.pathname === '/'
+                : location.pathname.startsWith(item.to));
 
-          const content = (
-            <>
-              {isItemActive && (
-                <motion.div
-                  layoutId="bottomNavIndicator"
-                  className="absolute inset-0 rounded-[20px] bg-primary-500/10 dark:bg-primary-500/20"
-                  transition={{ type: 'spring', stiffness: 500, damping: 32, mass: 0.6 }}
-                />
-              )}
-              <span className="relative z-10 flex flex-col items-center">
-                <span className="relative">
-                  <item.icon
-                    className={cn(
-                      'h-[19px] w-[19px] transition-transform duration-200',
-                      isItemActive ? 'scale-110 stroke-[2.3]' : 'stroke-[1.9]',
-                    )}
-                  />
-                  {'badge' in item && !!item.badge && item.badge > 0 && (
-                    <motion.span
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="absolute -right-2.5 -top-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-gradient-to-r from-primary-600 to-primary-700 px-1 text-[9px] font-extrabold text-white shadow-sm"
-                    >
-                      {item.badge > 99 ? '99+' : item.badge}
-                    </motion.span>
-                  )}
-                </span>
-                <span className="mt-1 text-[10px] tracking-tight leading-none">
-                  {item.label}
-                </span>
-              </span>
-            </>
-          );
-
-          const className = cn(
-            'relative flex h-[50px] flex-1 flex-col items-center justify-center rounded-[20px] px-1 py-1 transition-all duration-200 active:scale-95',
-            isItemActive
-              ? 'text-primary-600 dark:text-primary-400 font-bold'
-              : 'text-ink-300 hover:text-ink-500 font-medium',
-          );
-
-          if (item.type === 'button') {
             return (
-              <button
-                key="nav-chat"
-                type="button"
-                onClick={item.onClick}
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.to === '/'}
                 aria-label={item.label}
-                className={className}
+                onClick={() => {
+                  if (chatOpen) set({ chatOpen: false });
+                }}
+                className={cn(
+                  'relative flex h-[50px] flex-1 flex-col items-center justify-center rounded-[20px] px-1 py-1 transition-all duration-200 active:scale-95',
+                  isItemActive
+                    ? 'font-bold text-primary-600 dark:text-primary-400'
+                    : 'font-medium text-ink-300 hover:text-ink-500',
+                )}
               >
-                {content}
-              </button>
+                {isItemActive && (
+                  <motion.div
+                    layoutId="bottomNavIndicator"
+                    className="absolute inset-0 rounded-[20px] bg-primary-500/10 dark:bg-primary-500/20"
+                    transition={{ type: 'spring', stiffness: 500, damping: 32, mass: 0.6 }}
+                  />
+                )}
+                <span className="relative z-10 flex flex-col items-center">
+                  <span className="relative">
+                    <item.icon
+                      className={cn(
+                        'h-[19px] w-[19px] transition-transform duration-200',
+                        isItemActive ? 'scale-110 stroke-[2.3]' : 'stroke-[1.9]',
+                      )}
+                    />
+                    {'badge' in item && !!item.badge && item.badge > 0 && (
+                      <motion.span
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="absolute -right-2.5 -top-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-gradient-to-r from-primary-600 to-primary-700 px-1 text-[9px] font-extrabold text-white shadow-sm"
+                      >
+                        {item.badge > 99 ? '99+' : item.badge}
+                      </motion.span>
+                    )}
+                  </span>
+                  <span className="mt-1 text-[10px] leading-none tracking-tight">
+                    {item.label}
+                  </span>
+                </span>
+              </NavLink>
             );
-          }
+          })}
+        </div>
 
-          return (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === '/'}
-              aria-label={item.label}
-              onClick={() => {
-                if (chatOpen) set({ chatOpen: false });
-              }}
-              className={className}
-            >
-              {content}
-            </NavLink>
-          );
-        })}
+        {/* Chat — navigatsiyaning o'ng tomonida, alohida dumaloq tugma */}
+        <button
+          type="button"
+          onClick={handleChatClick}
+          aria-label={t('nav.chat') || 'Chat'}
+          aria-expanded={chatOpen}
+          className={cn(
+            'relative grid h-[62px] w-[62px] shrink-0 place-items-center rounded-full border shadow-2xl transition-all duration-200 active:scale-95',
+            chatOpen
+              ? 'border-primary-400/70 bg-primary-700 text-white ring-4 ring-primary-500/25'
+              : 'border-white/15 bg-gradient-to-br from-primary-600 to-primary-800 text-white',
+          )}
+        >
+          <MessageCircle
+            className={cn('h-6 w-6 transition-transform duration-200', chatOpen && 'scale-90')}
+          />
+          {chatOpen && (
+            <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-surface bg-green-400" />
+          )}
+        </button>
       </div>
     </nav>
   );
 }
-
-

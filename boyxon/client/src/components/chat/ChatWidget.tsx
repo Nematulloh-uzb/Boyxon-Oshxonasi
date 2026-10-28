@@ -109,7 +109,7 @@ export function ChatWidget() {
       {/* Zamonaviy animatsiyali Chatbar — butun ekran emas, qulay pastki panel (Bottom Sheet) */}
       <AnimatePresence>
         {open && (
-          <div className="fixed inset-0 z-50 flex flex-col justify-end pointer-events-auto sm:justify-end sm:items-end sm:p-5">
+          <div className="pointer-events-auto fixed inset-0 z-50 flex flex-col justify-end p-3 pb-[calc(5.25rem_+_env(safe-area-inset-bottom,0px))] sm:items-end sm:justify-end sm:p-5">
             {/* Orqa fonni xiralashtiruvchi qatlam (tashqariga bosilganda chat yopiladi) */}
             <motion.div
               initial={{ opacity: 0 }}
@@ -120,22 +120,14 @@ export function ChatWidget() {
               className="fixed inset-0 bg-black/50 backdrop-blur-[2px]"
             />
 
-            {/* Chatbar asosiy konteyneri */}
+            {/* Suzib turuvchi karta — ekranga yopishmaydi, lekin joyidan siljimaydi */}
             <motion.div
-              initial={{ y: '100%', opacity: 0.5 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: '100%', opacity: 0 }}
-              transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-              className="relative z-10 flex h-[76vh] max-h-[620px] min-h-[440px] w-full max-w-lg mx-auto flex-col overflow-hidden rounded-t-[32px] border-t border-ink-line/40 bg-surface shadow-2xl sm:h-[560px] sm:max-h-[85vh] sm:w-[390px] sm:rounded-3xl sm:border sm:border-ink-line/50"
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.97 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
+              className="relative z-10 mx-auto flex h-[76vh] max-h-[620px] min-h-[440px] w-full max-w-lg origin-bottom flex-col overflow-hidden rounded-[28px] border border-ink-line/50 bg-surface shadow-2xl sm:h-[560px] sm:max-h-[85vh] sm:w-[390px] sm:origin-bottom-right sm:rounded-3xl"
             >
-              {/* Mobil uchun yuqori tortish tutqichi (drag handle) */}
-              <div
-                onClick={() => setOpen(false)}
-                className="flex w-full cursor-pointer justify-center pt-2.5 pb-1 bg-gradient-to-r from-primary-700 via-primary-750 to-primary-800 sm:hidden"
-              >
-                <span className="h-1.5 w-12 rounded-full bg-white/40" />
-              </div>
-
               {/* Sarlavha paneli */}
               <div className="flex items-center gap-3 bg-gradient-to-r from-primary-700 via-primary-750 to-primary-800 px-5 py-3 text-white">
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/20 shadow-sm">
