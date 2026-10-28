@@ -31,5 +31,13 @@
     "NODE_ENV": "production",
     "TRUST_PROXY": "1",
     "PORT": "3000"
+  },
+  // Mijoz (React SPA) shu Worker'dan beriladi — bitta origin, CORS muammosi yo'q.
+  // Avval `cd boyxon/client && npm run build` bajarilishi kerak.
+  "assets": {
+    "directory": "../client/dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*", "/ws", "/health"]
   }
 }

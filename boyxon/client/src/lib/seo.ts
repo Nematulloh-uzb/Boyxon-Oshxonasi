@@ -11,10 +11,14 @@
 
 import { resolveRuntimeUrl } from './runtime-env';
 
+/**
+ * Sayt URL'i. Production'da standart — joriy origin (Worker statik fayllarni
+ * o'zi beradi). `VITE_SITE_URL` berilsa — o'sha (masalan, custom domen).
+ */
 export const SITE_URL = resolveRuntimeUrl(
   import.meta.env.VITE_SITE_URL as string | undefined,
   'http://localhost:5173',
-  'https://boyxon-client.onrender.com',
+  window.location.origin,
 ).replace(/\/+$/, '');
 
 export const SEO_LANGS = ['uz', 'ru', 'en'] as const;
