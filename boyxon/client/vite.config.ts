@@ -6,30 +6,10 @@ import { fileURLToPath } from 'node:url';
  * Build vaqtida robots.txt yozadi (public/ dan ko'chirilmaydi — API manzili
  * muhitga qarab o'zgaradi). Dev serverda ham xuddi shu qoida beriladi.
  */
-function seoFilesPlugin(env: Record<string, string>, isProduction: boolean): Plugin {
-  const rawSiteUrl =
-    env.VITE_SITE_URL ||
-    (isProduction ? 'https://boyxon-client.onrender.com' : 'http://localhost:5173');
-  const siteUrl = (
-    isProduction && /localhost|127\.0\.0\.1/i.test(rawSiteUrl)
-      ? 'https://boyxon-client.onrender.com'
-      : rawSiteUrl
-  ).replace(/\/+$/, '');
-
-  const rawApiUrl =
-    env.VITE_API_URL ||
-    (isProduction ? 'https://boyxon-server.onrender.com/api' : 'http://localhost:5000/api');
-  const apiUrl = (
-    isProduction && /localhost|127\.0\.0\.1/i.test(rawApiUrl)
-      ? 'https://boyxon-server.onrender.com/api'
-      : rawApiUrl
-  ).replace(/\/+$/, '');
-  const apiBase = apiUrl.replace(/\/api$/, '');
-  // Sitemap serverda (dinamik taomlar bilan) yasaladi. Lokal build'da API
-  // nisbiy `/api` bo'lsa, robots.txt'da nisbiy URL qolmasin — Lighthouse
-  // buni xato deb hisoblaydi va qidiruv botlari ham noto'g'ri talqin qiladi.
-  const sitemapBase = /^https?:\/\//i.test(apiBase) ? apiBase : siteUrl;
-
+function seoFilesPlugin(siteUrl: string): Plugin {
+  // Sitemap serverda (dinamik taomlar bilan) yasaladi. Sayt URL'i noma'lum
+  // bo'lsa (VITE_SITE_URL berilmagan) robotlar uchun faqat absolut URL kerak
+  // bo'lgan Sitemap qatorini qoldirib ketamiz.
   const privatePaths = [
     '/cart',
     '/settings',
