@@ -23,14 +23,13 @@ function seoFilesPlugin(siteUrl: string): Plugin {
   const disallow = privatePaths.flatMap((path) => [path, `/ru${path}`, `/en${path}`]);
 
   const robots = [
-    `# Boyxon Oshxonasi — ${siteUrl}`,
+    siteUrl ? `# Boyxon Oshxonasi — ${siteUrl}` : '# Boyxon Oshxonasi',
     'User-agent: *',
     'Allow: /',
     '',
     ...disallow.map((path) => `Disallow: ${path}`),
     '',
-    `Sitemap: ${sitemapBase}/sitemap.xml`,
-    '',
+    ...(siteUrl ? [`Sitemap: ${siteUrl}/sitemap.xml`, ''] : []),
   ].join('\n');
 
   return {
