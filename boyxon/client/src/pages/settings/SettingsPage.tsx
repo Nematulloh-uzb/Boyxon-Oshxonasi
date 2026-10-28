@@ -37,6 +37,7 @@ export default function SettingsPage() {
     const stored = localStorage.getItem('boyxon-theme');
     return user?.preferences?.theme ?? (stored === 'light' ? 'light' : 'dark');
   });
+  const [themeSaving, setThemeSaving] = useState(false);
   const themeRequest = useRef(0);
 
   // Profil (yoki boshqa qurilma) dan tema o'zgarsa — lokal holatni moslashtiramiz.
@@ -89,7 +90,6 @@ export default function SettingsPage() {
       preferences: {
         language: user.preferences?.language ?? 'uz',
         fontSize: user.preferences?.fontSize ?? 'medium',
-        ...user.preferences,
         theme: next,
       },
     });
@@ -100,9 +100,10 @@ export default function SettingsPage() {
     if (next === theme) return;
     const previous = theme;
     const requestId = ++themeRequest.current;
+    setThemeSaving(true);
     applyTheme(next);
 
-    // Serverga fonda yuboriladi — switch javobni kutmaydi.
+    // Serverga yuboriladi; javob kelguncha switch kutish holatida turadi.
     void usersApi
       .updatePrefs({ theme: next })
       .then((r) => {
@@ -110,10 +111,12 @@ export default function SettingsPage() {
         if (requestId !== themeRequest.current) return;
         const latest = useAuthStore.getState().user;
         if (latest) setUser({ ...latest, preferences: r.data });
+        setThemeSaving(false);
       })
       .catch(() => {
         if (requestId !== themeRequest.current) return;
         applyTheme(previous);
+        setThemeSaving(false);
         toast.error(t('settings.save_error'));
       });
   };
@@ -211,14 +214,21 @@ export default function SettingsPage() {
           }
         />
         <SettingsRow
-          icon={currentTheme === 'dark' ? Moon : Sun}
+          icon={theme === 'dark' ? Moon : Sun}
           label={t('settings.theme')}
-          value={currentTheme === 'dark' ? t('theme.dark') : t('theme.light')}
+          value={
+            themeSaving
+              ? t('common.saving')
+              : theme === 'dark'
+                ? t('theme.dark')
+                : t('theme.light')
+          }
           right={
             <Switch
-              checked={currentTheme === 'dark'}
-              pending={themePending}
-              onChange={(next) => void toggleTheme(next)}
+              checked={theme === 'dark'}
+              disabled={themeSaving}
+              pending={themeSaving}
+              onChange={toggleTheme}
               label={t('settings.theme')}
             />
           }

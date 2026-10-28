@@ -35,16 +35,39 @@ export const updateMe = asyncHandler(async (req: Request, res: Response) => {
 /** PATCH /api/users/me/preferences — til, tema, shrift. */
 export const updatePreferences = asyncHandler(async (req: Request, res: Response) => {
   const { language, theme, fontSize } = req.body as Record<string, string>;
-  const user = await User.findByIdAndUpdate(
-    uid(req),
+  const auth = (req as AuthRequest).user!;
+  const update = {
+    ...(language && { 'preferences.language': language }),
+    ...(theme && { 'preferences.theme': theme }),
+    ...(fontSize && { 'preferences.fontSize': fontSize }),
+  };
+  if (Object.keys(update).length === 0) {
+    throw ApiError.badRequest('Yangilanadigan sozlama topilmadi');
+  }
+
+  // Bitta DB so'rov: auth tekshiruvi (isActive + tokenVersion) va yozish
+  // atomar bajariladi — `requireAuth` alohida o'qish qilmaydi.
+  const user = await User.findOneAndUpdate(
     {
-      ...(language && { 'preferences.language': language }),
-      ...(theme && { 'preferences.theme': theme }),
-      ...(fontSize && { 'preferences.fontSize': fontSize }),
+      _id: uid(req),
+      isActive: true,
+      ...(auth.ver === 0
+        ? { $or: [{ tokenVersion: 0 }, { tokenVersion: { $exists: false } }] }
+        : { tokenVersion: auth.ver }),
     },
-    { new: true },
+    { $set: update },
+    { new: true, projection: { preferences: 1 }, lean: true },
   );
-  res.json(ok(user?.preferences, 'Sozlamalar saqlandi'));
+
+  if (!user) {
+    // Aniq sabab — faqat xato holatda, qo'shimcha o'qish bilan.
+    const current = await User.findById(uid(req)).select('isActive tokenVersion').lean();
+    if (!current) throw ApiError.notFound('Foydalanuvchi topilmadi');
+    if (!current.isActive) throw ApiError.forbidden('Hisob bloklangan');
+    throw ApiError.unauthorized('Sessiya bekor qilingan — qaytadan kiring');
+  }
+
+  res.json(ok(user.preferences, 'Sozlamalar saqlandi'));
 });
 
 /** PATCH /api/users/me/notification-prefs — push sozlamalari. */
@@ -52,7 +75,11 @@ export const updateNotifPrefs = asyncHandler(async (req: Request, res: Response)
   const prefs = req.body as Record<string, boolean>;
   const update: Record<string, boolean> = {};
   if (typeof prefs.pushEnabled === 'boolean') update['notificationPrefs.pushEnabled'] = prefs.pushEnabled;
-  const user = await User.findByIdAndUpdate(uid(req), update, { new: true });
+  const user = await User.findByIdAndUpdate(uid(req), update, {
+    new: true,
+    projection: { notificationPrefs: 1 },
+    lean: true,
+  });
   res.json(ok(user?.notificationPrefs, 'Bildirishnomalar yangilandi'));
 });
 

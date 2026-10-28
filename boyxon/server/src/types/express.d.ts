@@ -12,6 +12,8 @@ declare global {
 export interface AuthUser {
   id: string;
   role: 'user' | 'admin';
+  /** Access token ichidagi tokenVersion — tezkor DB filtrlar uchun. */
+  ver: number;
 }
 
 export interface AuthRequest extends Express.Request {

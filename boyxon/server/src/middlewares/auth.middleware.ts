@@ -24,7 +24,7 @@ export async function requireAuth(req: Request, _res: Response, next: NextFuncti
       throw ApiError.unauthorized('Token yaroqsiz yoki muddati o‘tgan');
     }
 
-    const user = await User.findById(payload.id).select('role isActive tokenVersion');
+    const user = await User.findById(payload.id).select('role isActive tokenVersion').lean();
     if (!user) throw ApiError.unauthorized('Foydalanuvchi topilmadi');
     if (!user.isActive) throw ApiError.forbidden('Hisob bloklangan');
     if ((user.tokenVersion ?? 0) !== payload.ver) {
@@ -32,7 +32,7 @@ export async function requireAuth(req: Request, _res: Response, next: NextFuncti
     }
 
     // Rol bazadan olinadi: token eskirgan bo'lsa ham huquq noto'g'ri oshib ketmaydi.
-    (req as AuthRequest).user = { id: payload.id, role: user.role };
+    (req as AuthRequest).user = { id: payload.id, role: user.role, ver: payload.ver };
     next();
   } catch (err) {
     next(err);
@@ -48,12 +48,41 @@ export async function optionalAuth(req: Request, _res: Response, next: NextFunct
   if (!header?.startsWith('Bearer ')) return next();
   try {
     const payload = verifyAccessToken(header.slice(7));
-    const user = await User.findById(payload.id).select('role isActive tokenVersion');
+    const user = await User.findById(payload.id).select('role isActive tokenVersion').lean();
     if (user && user.isActive && (user.tokenVersion ?? 0) === payload.ver) {
-      (req as AuthRequest).user = { id: payload.id, role: user.role };
+      (req as AuthRequest).user = { id: payload.id, role: user.role, ver: payload.ver };
     }
   } catch {
     // Jimgina o'tkazib yuboramiz — bu ixtiyoriy tekshiruv.
   }
   next();
+}
+
+/**
+ * Tezkor autentifikatsiya — faqat JWT imzosi va muddati tekshiriladi,
+ * DB'ga alohida so'rov yuborilmaydi. `isActive` va `tokenVersion` esa
+ * keyingi yozish so'rovining filtriga qo'shiladi (atomar tekshiruv).
+ *
+ * Faqat shu naqshni ishlatadigan endpointlar uchun: bitta DB round-trip
+ * tejaydi, xavfsizlik darajasi `requireAuth` bilan bir xil qoladi.
+ */
+export function requireAuthFast(req: Request, _res: Response, next: NextFunction): void {
+  try {
+    const header = req.headers.authorization;
+    if (!header?.startsWith('Bearer ')) throw ApiError.unauthorized('Token topilmadi');
+
+    const payload = verifyAccessToken(header.slice(7));
+    (req as AuthRequest).user = {
+      id: payload.id,
+      role: payload.role as 'user' | 'admin',
+      ver: payload.ver,
+    };
+    next();
+  } catch (err) {
+    next(
+      err instanceof ApiError
+        ? err
+        : ApiError.unauthorized('Token yaroqsiz yoki muddati o‘tgan'),
+    );
+  }
 }
