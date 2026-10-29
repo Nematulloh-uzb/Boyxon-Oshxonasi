@@ -88,7 +88,7 @@ const UserSchema = new Schema<UserDoc>(
     },
     preferences: {
       language: { type: String, enum: ['uz', 'ru', 'en'], default: 'uz' },
-      theme: { type: String, enum: ['light', 'dark'], default: 'light' },
+      theme: { type: String, enum: ['light', 'dark'], default: 'dark' },
       fontSize: { type: String, enum: ['small', 'medium', 'large'], default: 'medium' },
     },
     isActive: { type: Boolean, default: true },

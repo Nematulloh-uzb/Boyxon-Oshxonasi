@@ -65,6 +65,9 @@ export default function App() {
     // Tema: user preference ustuvor, aks holda localStorage (guest), default DARK
     const theme = user?.preferences?.theme ?? localStorage.getItem('boyxon-theme') ?? 'dark';
     document.documentElement.classList.toggle('dark', theme === 'dark');
+    try {
+      localStorage.setItem('boyxon-theme', theme);
+    } catch {}
   }, [user]);
 
   return <AppRouter />;

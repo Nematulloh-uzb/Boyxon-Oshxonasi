@@ -43,11 +43,11 @@ export function Header() {
   });
   useEffect(() => {
     // Login bo'lgan user'da server preference ustuvor; aks holda localStorage
-    const t = user?.preferences?.theme ?? theme;
+    const t = user?.preferences?.theme ?? localStorage.getItem('boyxon-theme') ?? 'dark';
     document.documentElement.classList.toggle('dark', t === 'dark');
     localStorage.setItem('boyxon-theme', t);
     setTheme(t);
-    // theme dependency'siz — aks holda toggle server preference'ga qaytadi
+    // theme dependency'siz â€” aks holda toggle server preference'ga qaytadi
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
