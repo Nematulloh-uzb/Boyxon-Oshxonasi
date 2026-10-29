@@ -43,7 +43,8 @@ export function Header() {
   });
   useEffect(() => {
     // Login bo'lgan user'da server preference ustuvor; aks holda localStorage
-    const t = user?.preferences?.theme ?? localStorage.getItem('boyxon-theme') ?? 'dark';
+    const stored = localStorage.getItem('boyxon-theme') as Theme | null;
+    const t: Theme = user?.preferences?.theme ?? stored ?? 'dark';
     document.documentElement.classList.toggle('dark', t === 'dark');
     localStorage.setItem('boyxon-theme', t);
     setTheme(t);
@@ -56,6 +57,12 @@ export function Header() {
     localStorage.setItem('boyxon-theme', next);
     document.documentElement.classList.toggle('dark', next === 'dark');
     setTheme(next);
+    // Agar user login qilgan bo'lsa, serverga ham saqlash
+    if (accessToken) {
+      void import('../../api/users.api').then(({ usersApi }) => {
+        void usersApi.updatePrefs({ theme: next }).catch(() => {});
+      });
+    }
   };
 
   // Scroll position — header compresses yoki ochiladi
