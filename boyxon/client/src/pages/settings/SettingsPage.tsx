@@ -216,13 +216,7 @@ export default function SettingsPage() {
         <SettingsRow
           icon={theme === 'dark' ? Moon : Sun}
           label={t('settings.theme')}
-          value={
-            themeSaving
-              ? t('common.saving')
-              : theme === 'dark'
-                ? t('theme.dark')
-                : t('theme.light')
-          }
+          value={theme === 'dark' ? t('theme.dark') : t('theme.light')}
           right={
             <Switch
               checked={theme === 'dark'}
