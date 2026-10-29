@@ -21,7 +21,6 @@ import { DishPlaceholder } from '../../components/dish/DishPlaceholder';
 import { DishCard } from '../../components/dish/DishCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Seo } from '../../components/seo/Seo';
-import { Breadcrumbs } from '../../components/seo/Breadcrumbs';
 import { getCategorySeo } from '../../lib/category-seo';
 import { breadcrumbSchema } from '../../lib/seo-schema';
 import {
@@ -185,15 +184,15 @@ export default function DishPage() {
         </div>
       ) : (
         <div className="mx-auto max-w-3xl space-y-5 px-4 py-5">
-          <Breadcrumbs
-            items={[
-              { label: t('seo.breadcrumb_home'), to: '/' },
-              ...(category
-                ? [{ label: categoryCrumb, to: `/category/${category.slug}` }]
-                : []),
-              { label: name },
-            ]}
-          />
+          <div className="flex items-center gap-2 text-xs text-ink-300 mb-4">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-2 hover:text-primary-600 transition"
+            >
+              <ArrowLeft className="h-3.5 w-3.5 shrink-0" />
+              {t('common.back')}
+            </button>
+          </div>
 
           <div className="overflow-hidden rounded-card border border-ink-line/60 bg-surface shadow-sm">
             {dish.image && !imgFailed ? (
