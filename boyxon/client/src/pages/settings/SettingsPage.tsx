@@ -43,7 +43,13 @@ export default function SettingsPage() {
   // Profil (yoki boshqa qurilma) dan tema o'zgarsa — lokal holatni moslashtiramiz.
   useEffect(() => {
     const pref = user?.preferences?.theme;
-    if (pref) setTheme(pref);
+    if (pref) {
+      setTheme(pref);
+      document.documentElement.classList.toggle('dark', pref === 'dark');
+      try {
+        localStorage.setItem('boyxon-theme', pref);
+      } catch {}
+    }
   }, [user?.preferences?.theme]);
 
   const { data: orders } = useQuery({

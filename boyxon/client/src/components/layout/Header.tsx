@@ -53,16 +53,7 @@ export function Header() {
   }, [user]);
 
   const toggleTheme = (): void => {
-    const next: Theme = currentTheme() === 'dark' ? 'light' : 'dark';
-    localStorage.setItem('boyxon-theme', next);
-    document.documentElement.classList.toggle('dark', next === 'dark');
-    setTheme(next);
-    // Agar user login qilgan bo'lsa, serverga ham saqlash
-    if (accessToken) {
-      void import('../../api/users.api').then(({ usersApi }) => {
-        void usersApi.updatePrefs({ theme: next }).catch(() => {});
-      });
-    }
+    // Disabled - theme controlled via Settings
   };
 
   // Scroll position — header compresses yoki ochiladi
@@ -136,10 +127,11 @@ export function Header() {
           </span>
           <button
             className="rounded-full p-2 hover:bg-surface-raised active:scale-90 transition-transform duration-200"
-            onClick={toggleTheme}
-            aria-label={theme === 'dark' ? t('theme.light') : t('theme.dark')}
+            onClick={() => nav('/settings')}
+            aria-label={t('settings.title')}
+            title={t('settings.title')}
           >
-            {theme === 'dark' ? <Sun className="h-4 w-4 transition-transform duration-300 hover:rotate-45" /> : <Moon className="h-4 w-4 transition-transform duration-300 hover:-rotate-12" />}
+            {theme === 'dark' ? <Moon className="h-4 w-4 transition-transform duration-300" /> : <Sun className="h-4 w-4 transition-transform duration-300" />}
           </button>
           <button
             className={`rounded-full hover:bg-surface-raised transition-transform duration-200 hover:scale-105 active:scale-90 ${user?.avatar ? 'p-1' : 'p-2'}`}
