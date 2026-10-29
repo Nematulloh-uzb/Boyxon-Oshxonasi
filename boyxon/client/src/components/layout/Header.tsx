@@ -131,7 +131,7 @@ export function Header() {
             aria-label={t('settings.title')}
             title={t('settings.title')}
           >
-            {theme === 'dark' ? <Moon className="h-4 w-4 transition-transform duration-300" /> : <Sun className="h-4 w-4 transition-transform duration-300" />}
+            <Sun className="h-4 w-4 transition-transform duration-300" />
           </button>
           <button
             className={`rounded-full hover:bg-surface-raised transition-transform duration-200 hover:scale-105 active:scale-90 ${user?.avatar ? 'p-1' : 'p-2'}`}
