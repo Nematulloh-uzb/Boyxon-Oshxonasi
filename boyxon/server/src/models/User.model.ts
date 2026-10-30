@@ -41,6 +41,11 @@ export interface UserDoc extends Document {
    * kirganlarda darhol `true` (Google emailni o'zi tasdiqlagan).
    */
   emailVerified: boolean;
+  /** Email tasdiqlash kodi — bazada faqat hash saqlanadi (6 xonali kod). */
+  emailVerifyCodeHash?: string | null;
+  emailVerifyCodeExpiresAt?: Date | null;
+  emailVerifyCodeAttempts?: number;
+  emailVerifyCodeSentAt?: Date | null;
   lastLoginAt?: Date;
   /**
    * Token avlodi. Har oshirilganda foydalanuvchining BARCHA eski access/refresh
@@ -93,6 +98,11 @@ const UserSchema = new Schema<UserDoc>(
     },
     isActive: { type: Boolean, default: true },
     emailVerified: { type: Boolean, default: false },
+    // Tasdiqlash kodi: hash, amal qilish muddati, urinishlar va oxirgi yuborilgan vaqt.
+    emailVerifyCodeHash: { type: String, select: false, default: null },
+    emailVerifyCodeExpiresAt: { type: Date, default: null },
+    emailVerifyCodeAttempts: { type: Number, default: 0 },
+    emailVerifyCodeSentAt: { type: Date, default: null },
     lastLoginAt: { type: Date },
     tokenVersion: { type: Number, default: 0 },
     failedLoginAttempts: { type: Number, default: 0 },
