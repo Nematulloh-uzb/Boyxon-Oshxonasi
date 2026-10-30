@@ -17,6 +17,13 @@
     event.preventDefault();
     reloadOnce();
   });
+  window.addEventListener('unhandledrejection', function (event) {
+    var reason = event && event.reason;
+    var msg = String((reason && (reason.message || reason)) || '');
+    if (/dynamically imported module|Importing a module script failed|ChunkLoadError|Loading chunk/i.test(msg)) {
+      reloadOnce();
+    }
+  });
   window.addEventListener(
     'error',
     function (event) {
