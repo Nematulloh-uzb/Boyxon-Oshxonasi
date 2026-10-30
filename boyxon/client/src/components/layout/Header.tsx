@@ -42,13 +42,13 @@ export function Header() {
     return stored ?? user?.preferences?.theme ?? currentTheme();
   });
   useEffect(() => {
-    // Login bo'lgan user'da server preference ustuvor; aks holda localStorage
+    // Qurilmadagi tanlov ustuvor — refresh'da tema o'zgarmasin.
     const stored = localStorage.getItem('boyxon-theme') as Theme | null;
-    const t: Theme = user?.preferences?.theme ?? stored ?? 'dark';
+    const t: Theme = stored ?? user?.preferences?.theme ?? 'dark';
     document.documentElement.classList.toggle('dark', t === 'dark');
     localStorage.setItem('boyxon-theme', t);
     setTheme(t);
-    // theme dependency'siz â€” aks holda toggle server preference'ga qaytadi
+    // theme dependency'siz — aks holda toggle server preference'ga qaytadi
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 

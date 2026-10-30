@@ -33,22 +33,25 @@ export default function SettingsPage() {
   const [ordersOpen, setOrdersOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   // Tema darhol almashishi uchun lokal holat; server javobi fonda yuboriladi.
+  // localStorage — qurilmadagi tanlov, refresh'da ham saqlanadi.
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     const stored = localStorage.getItem('boyxon-theme');
-    return user?.preferences?.theme ?? (stored === 'light' ? 'light' : 'dark');
+    if (stored === 'light' || stored === 'dark') return stored;
+    return user?.preferences?.theme ?? 'dark';
   });
   const [themeSaving, setThemeSaving] = useState(false);
   const themeRequest = useRef(0);
 
-  // Profil (yoki boshqa qurilma) dan tema o'zgarsa — lokal holatni moslashtiramiz.
+  // Qurilmada tanlov yo'q bo'lsa (birinchi kirish) — serverdagi prefni olamiz.
   useEffect(() => {
+    if (localStorage.getItem('boyxon-theme')) return;
     const pref = user?.preferences?.theme;
-    if (pref) {
-      setTheme(pref);
-      document.documentElement.classList.toggle('dark', pref === 'dark');
-      try {
-        localStorage.setItem('boyxon-theme', pref);
-      } catch {}
+    if (!pref) return;
+    setTheme(pref);
+    try {
+      localStorage.setItem('boyxon-theme', pref);
+    } catch {
+      /* private mode */
     }
   }, [user?.preferences?.theme]);
 

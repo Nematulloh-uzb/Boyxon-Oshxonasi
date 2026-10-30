@@ -45,10 +45,13 @@
   },
   // Mijoz (React SPA) shu Worker'dan beriladi — bitta origin, CORS muammosi yo'q.
   // Avval `cd boyxon/client && npm run build` bajarilishi kerak.
+  // `run_worker_first: true` — barcha so'rovlar Worker'dan o'tadi, shunda HTML
+  // uchun `no-cache`, hashed asset'lar uchun `immutable` sarlavhalarini o'zimiz
+  // qo'yamiz va yangi deploy darhol kuchga kiradi.
   "assets": {
     "directory": "../client/dist",
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api/*", "/ws", "/health", "/sitemap.xml", "/uploads/*"]
+    "run_worker_first": true
   }
 }

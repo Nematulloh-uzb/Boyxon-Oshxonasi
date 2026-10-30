@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#121212" />
+    <!-- CSP `script-src 'self'` inline skriptlarni bloklaydi — tema va chunk
+         tiklash mantiqi alohida fayllarda (public/theme-init.js, public/chunk-reload.js). -->
+    <script src="/theme-init.js"></script>
+    <script src="/chunk-reload.js"></script>
     <style>
       html { scroll-behavior: smooth; scroll-padding-top: 80px; }
       body { overscroll-behavior-y: none; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
@@ -74,8 +78,6 @@
 
     <!-- Tezlik: rasmlar uchun oldindan ulanish (shriftlar self-hosted) -->
     <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
-
-    <script src="/theme-init.js" defer></script>
   </head>
   <body>
     <div id="root"></div>

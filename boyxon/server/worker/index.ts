@@ -35,6 +35,10 @@ type ImagesKV = {
   ): Promise<{ value: ArrayBuffer | null; metadata: Record<string, string> | null }>;
 };
 
+type AssetsFetcher = {
+  fetch(request: Request): Promise<Response>;
+};
+
 /** MongoDB klasteriga yaqinroq joylashuv (Atlas odatda Yevropada). */
 const LOCATION_HINT = 'weur' as DurableObjectLocationHint;
 
@@ -111,13 +115,73 @@ async function serveImage(url: URL): Promise<Response> {
   });
 }
 
+/**
+ * Statik fayllar (SPA HTML, JS/CSS, ikonkalar).
+ *
+ * HTML'ni hech qachon keshlab qoldirmaymiz: aks holda yangi deploydan keyin
+ * brauzer eski `index.html` ni olib, undagi eski chunk nomlarini so'raydi va
+ * ular o'rniga yana HTML qaytadi (MIME xatosi + oq ekran). Hashed `/assets/*`
+ * esa bir yilga immutable — tez va xavfsiz.
+ */
+async function serveAsset(request: Request, url: URL): Promise<Response> {
+  const assets = (cfEnv as unknown as { ASSETS?: AssetsFetcher }).ASSETS;
+  if (!assets) return new Response('Not found', { status: 404 });
+
+  const res = await assets.fetch(request);
+  const contentType = res.headers.get('content-type') || '';
+  const isHtml = contentType.includes('text/html');
+
+  // SPA fallback mavjud bo'lmagan /assets/* uchun index.html qaytaradi.
+  // Modul skript text/html MIME bilan yuklanmaydi — aniq JS 404 qaytaramiz.
+  if (url.pathname.startsWith('/assets/') && isHtml) {
+    return new Response('/* Boyxon: bu fayl eski deployga tegishli */', {
+      status: 404,
+      headers: {
+        'content-type': 'text/javascript; charset=utf-8',
+        'cache-control': 'no-store',
+      },
+    });
+  }
+
+  const headers = new Headers(res.headers);
+  if (isHtml) {
+    // `no-store` — brauzer ham, Cloudflare edge ham HTML'ni saqlamaydi.
+    // `no-cache` bilan edge nusxasi qolib ketib, eski chunk nomlari berilardi.
+    headers.set('cache-control', 'no-store, max-age=0');
+    headers.set('cdn-cache-control', 'no-store');
+    headers.set('pragma', 'no-cache');
+    headers.set('expires', '0');
+    headers.delete('etag');
+    headers.delete('last-modified');
+  } else if (url.pathname.startsWith('/assets/')) {
+    headers.set('cache-control', 'public, max-age=31536000, immutable');
+  }
+
+  return new Response(res.body, {
+    status: res.status,
+    statusText: res.statusText,
+    headers,
+  });
+}
+
 export default {
   async fetch(request: Request): Promise<Response> {
     try {
       const url = new URL(request.url);
       if (url.pathname === '/ws') return await handleWebSocket(request);
       if (url.pathname.startsWith('/uploads/')) return await serveImage(url);
-      return await apiStub().fetch(request);
+
+      // Dinamik API faqat shu yo'llarda; qolgani — statik fayl yoki SPA.
+      if (
+        url.pathname.startsWith('/api/') ||
+        url.pathname === '/api' ||
+        url.pathname === '/health' ||
+        url.pathname === '/sitemap.xml'
+      ) {
+        return await apiStub().fetch(request);
+      }
+
+      return await serveAsset(request, url);
     } catch (err) {
       console.error('Worker xatosi:', err);
       return errorResponse(request, 500, 'Server xatosi');

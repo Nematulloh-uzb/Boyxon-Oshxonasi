@@ -31,6 +31,22 @@ export class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, info: ErrorInfo): void {
     // Keyinchalik Sentry va h.k. ulanadigan joy. Hozircha konsolga yozamiz.
     console.error('UI ErrorBoundary:', error, info.componentStack);
+
+    // Deploydan keyin eski JS chunk topilmasa — sahifani bir marta avtomatik
+    // yangilaymiz. Yangi HTML yangi chunk nomlarini olib keladi.
+    const message = String(error?.message ?? error);
+    if (/dynamically imported module|Importing a module script failed|Failed to fetch/i.test(message)) {
+      try {
+        const key = 'boyxon-chunk-reload';
+        const last = Number(sessionStorage.getItem(key) || 0);
+        if (Date.now() - last >= 15000) {
+          sessionStorage.setItem(key, String(Date.now()));
+          window.location.reload();
+        }
+      } catch {
+        /* private mode */
+      }
+    }
   }
 
   render(): ReactNode {

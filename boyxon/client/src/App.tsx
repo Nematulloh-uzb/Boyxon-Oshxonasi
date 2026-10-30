@@ -62,12 +62,19 @@ export default function App() {
   }, [user, i18n]);
 
   useEffect(() => {
-    // Tema: user preference ustuvor, aks holda localStorage (guest), default DARK
-    const theme = user?.preferences?.theme ?? localStorage.getItem('boyxon-theme') ?? 'dark';
+    // Tema: qurilmadagi tanlov (localStorage) ustuvor — refresh'da o'zgarmasin.
+    // Birinchi marta kirgan qurilmada serverdagi pref ishlatiladi.
+    const stored = localStorage.getItem('boyxon-theme');
+    const pref = user?.preferences?.theme;
+    const theme = stored === 'light' || stored === 'dark' ? stored : pref ?? 'dark';
     document.documentElement.classList.toggle('dark', theme === 'dark');
-    try {
-      localStorage.setItem('boyxon-theme', theme);
-    } catch {}
+    if (!stored) {
+      try {
+        localStorage.setItem('boyxon-theme', theme);
+      } catch {
+        /* private mode */
+      }
+    }
   }, [user]);
 
   return <AppRouter />;
