@@ -56,10 +56,10 @@ export function Header() {
           {accessToken && (
             <button
               onClick={() => set({ chatOpen: true })}
-              className="flex items-center gap-1.5 rounded-full border border-ink-line px-3 py-1 text-sm font-medium transition-all hover:border-primary-500/50 hover:text-primary-600 hover:bg-surface-raised active:scale-95"
+              className="flex items-center gap-1 rounded-full border border-ink-line px-2.5 py-0.5 text-xs font-medium transition-all hover:border-primary-500/50 hover:text-primary-600 hover:bg-surface-raised active:scale-95"
               aria-label="Chat"
             >
-              <MessageCircle className="h-4 w-4" />
+              <MessageCircle className="h-3.5 w-3.5" />
               Chat
             </button>
           )}

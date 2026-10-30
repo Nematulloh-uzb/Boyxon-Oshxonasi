@@ -108,14 +108,14 @@ export function BottomNav() {
           aria-label={t('nav.chat') || 'Chat'}
           aria-expanded={chatOpen}
           className={cn(
-            'relative grid h-[62px] w-[62px] shrink-0 place-items-center rounded-full border shadow-2xl transition-all duration-200 active:scale-95',
+            'relative grid h-[54px] w-[54px] shrink-0 place-items-center rounded-full border shadow-2xl transition-all duration-200 active:scale-95',
             chatOpen
               ? 'border-primary-400/70 bg-primary-700 text-white ring-4 ring-primary-500/25'
               : 'border-white/15 bg-gradient-to-br from-primary-600 to-primary-800 text-white',
           )}
         >
           <MessageCircle
-            className={cn('h-6 w-6 transition-transform duration-200', chatOpen && 'scale-90')}
+            className={cn('h-5 w-5 transition-transform duration-200', chatOpen && 'scale-90')}
           />
           {chatOpen && (
             <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-surface bg-green-400" />
