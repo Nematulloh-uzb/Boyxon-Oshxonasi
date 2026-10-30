@@ -1,18 +1,12 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Bell, Menu, Sun, User, MessageCircle } from 'lucide-react';
+import { Bell, Menu, User, MessageCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/auth.store';
 import { useUiStore } from '../../store/ui.store';
 import { useQuery } from '@tanstack/react-query';
 import { notificationsApi } from '../../api/notifications.api';
 import { useKitchenStatus } from '../../hooks/useKitchenStatus';
-
-type Theme = 'light' | 'dark';
-
-function currentTheme(): Theme {
-  return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-}
 
 export function Header() {
   const { t } = useTranslation();
@@ -35,26 +29,6 @@ export function Header() {
         : 'border-danger/20 bg-danger/10 text-danger';
   const kitchenDot =
     kitchenOpen === undefined ? 'animate-pulse bg-ink-300' : kitchenOpen ? 'bg-success' : 'bg-danger';
-
-  // Tema toggle — guest uchun ham ishlaydi (localStorage'da saqlanadi)
-  const [theme, setTheme] = useState<Theme>(() => {
-    const stored = localStorage.getItem('boyxon-theme') as Theme | null;
-    return stored ?? user?.preferences?.theme ?? currentTheme();
-  });
-  useEffect(() => {
-    // Qurilmadagi tanlov ustuvor — refresh'da tema o'zgarmasin.
-    const stored = localStorage.getItem('boyxon-theme') as Theme | null;
-    const t: Theme = stored ?? user?.preferences?.theme ?? 'dark';
-    document.documentElement.classList.toggle('dark', t === 'dark');
-    localStorage.setItem('boyxon-theme', t);
-    setTheme(t);
-    // theme dependency'siz — aks holda toggle server preference'ga qaytadi
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
-  const toggleTheme = (): void => {
-    // Disabled - theme controlled via Settings
-  };
 
   // Scroll position — header compresses yoki ochiladi
   const [scrolled, setScrolled] = useState(false);
@@ -125,14 +99,6 @@ export function Header() {
             <span className={`h-2 w-2 rounded-full ${kitchenDot}`} />
             {kitchenOpen === undefined ? '…' : kitchenOpen ? t('kitchen.open') : t('kitchen.closed')}
           </span>
-          <button
-            className="rounded-full p-2 hover:bg-surface-raised active:scale-90 transition-transform duration-200"
-            onClick={() => nav('/settings')}
-            aria-label={t('settings.title')}
-            title={t('settings.title')}
-          >
-            <Sun className="h-4 w-4 transition-transform duration-300" />
-          </button>
           <button
             className={`rounded-full hover:bg-surface-raised transition-transform duration-200 hover:scale-105 active:scale-90 ${user?.avatar ? 'p-1' : 'p-2'}`}
             onClick={() => nav(accessToken ? '/settings' : '/auth')}
