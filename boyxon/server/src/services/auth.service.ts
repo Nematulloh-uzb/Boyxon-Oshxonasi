@@ -110,7 +110,7 @@ export async function loginUser(email: string, password: string, userAgent?: str
   if (!user.emailVerified && !env.ALLOW_UNVERIFIED_LOGIN) {
     throw new ApiError(
       403,
-      'Email manzilingiz hali tasdiqlanmagan. Pochtangizga yuborilgan havolani bosing.',
+      'Email manzilingiz hali tasdiqlanmagan. Pochtangizga yuborilgan 6 xonali kodni kiriting.',
       'EMAIL_NOT_VERIFIED',
     );
   }

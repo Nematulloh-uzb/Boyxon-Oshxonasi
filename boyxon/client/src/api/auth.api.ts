@@ -33,6 +33,13 @@ export const authApi = {
    */
   googleExchange: (code: string) =>
     api.post<ApiOk<{ accessToken: string; user: User }>>('/auth/google/exchange', { code }).then((r) => r.data),
+  /** 6 xonali kod bilan emailni tasdiqlash (muvaffaqiyatda darhol token beriladi). */
+  verifyEmailCode: (email: string, code: string) =>
+    api
+      .post<
+        ApiOk<{ accessToken?: string; user?: User; alreadyVerified?: boolean }>
+      >('/auth/verify-code', { email, code })
+      .then((r) => r.data),
   /** Email tasdiqlash havolasidagi tokenni yuborish. */
   verifyEmail: (token: string) =>
     api.post<ApiOk<{ email: string; alreadyVerified?: boolean }>>(`/auth/verify-email/${encodeURIComponent(token)}`).then((r) => r.data),

@@ -50,9 +50,15 @@ export const googleExchangeSchema = z.object({
   code: z.string().min(10, 'Kod noto‘g‘ri').max(100),
 });
 
-/** Tasdiqlash havosini qayta yuborish. */
+/** Tasdiqlash kodini qayta yuborish. */
 export const resendVerificationSchema = z.object({
   email: z.string().trim().toLowerCase().email('Email noto‘g‘ri').max(160),
+});
+
+/** 6 xonali tasdiqlash kodi (faqat raqamlar). */
+export const verifyCodeSchema = z.object({
+  email: z.string().trim().toLowerCase().email('Email noto‘g‘ri').max(160),
+  code: z.string().trim().regex(/^\d{6}$/, 'Kod 6 xonali raqam bo‘lishi kerak'),
 });
 
 /** Tasdiqlash havolasidagi token (JWT — uchta nuqta bilan ajratilgan). */

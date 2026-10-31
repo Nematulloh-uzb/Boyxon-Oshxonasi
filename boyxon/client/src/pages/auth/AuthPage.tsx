@@ -208,6 +208,7 @@ function AuthForm({ from, onDone }: { from: string; onDone: (token: string, u: U
       const r = await authApi.register(v);
       toast.success(r.message);
       if (r.data.verificationRequired || !r.data.accessToken) {
+        if (!r.data.emailDelivered) toast.error(t('auth.code_not_delivered'));
         nav(`/verify-email?email=${encodeURIComponent(r.data.user.email)}`, { replace: true });
         return;
       }

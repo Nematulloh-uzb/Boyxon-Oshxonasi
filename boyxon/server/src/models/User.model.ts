@@ -161,6 +161,11 @@ UserSchema.methods.toJSON = function () {
   delete obj.tokenVersion;
   delete obj.failedLoginAttempts;
   delete obj.lockedUntil;
+  // Tasdiqlash kodi bilan bog'liq ichki maydonlar mijozga kerak emas.
+  delete obj.emailVerifyCodeHash;
+  delete obj.emailVerifyCodeExpiresAt;
+  delete obj.emailVerifyCodeAttempts;
+  delete obj.emailVerifyCodeSentAt;
   return obj;
 };
 

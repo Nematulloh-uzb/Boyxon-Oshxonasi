@@ -91,3 +91,15 @@ export const sensitiveLimiter = createLimiter({
   limit: 5,
   message: 'Juda ko‘p urinish — bir soatdan keyin qayta urinib ko‘ring',
 });
+
+/**
+ * Tasdiqlash kodi urinishlari. Asosiy himoya — hisob darajasidagi 5 urinish
+ * (`verification.service`), bu esa IP bo'yicha qo'shimcha to'siq.
+ * Muvaffaqiyatli urinishlar sanalmaydi.
+ */
+export const codeLimiter = createLimiter({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  skipSuccessfulRequests: true,
+  message: 'Juda ko‘p kod urinishi — 15 daqiqadan keyin qayta urinib ko‘ring',
+});

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import passport from 'passport';
 import { requireAuth } from '../middlewares/auth.middleware';
 import { validate } from '../middlewares/validate.middleware';
-import { authLimiter, sensitiveLimiter } from '../middlewares/rateLimit.middleware';
+import { authLimiter, sensitiveLimiter, codeLimiter } from '../middlewares/rateLimit.middleware';
 import {
   registerSchema,
   loginSchema,
@@ -12,6 +12,7 @@ import {
   changePasswordSchema,
   googleExchangeSchema,
   resendVerificationSchema,
+  verifyCodeSchema,
   verifyEmailParamsSchema,
 } from '../validators/auth.validator';
 import { env, primaryClientUrl } from '../config/env';
@@ -64,6 +65,12 @@ authRouter.post('/reset-password/:token', sensitiveLimiter, validate({ body: res
 authRouter.patch('/change-password', requireAuth, validate({ body: changePasswordSchema }), c.changePassword);
 
 // Email tasdiqlash. Qayta yuborish cheklangan (email bombardimoniga qarshi).
+authRouter.post(
+  '/verify-code',
+  codeLimiter,
+  validate({ body: verifyCodeSchema }),
+  c.verifyEmailCode,
+);
 authRouter.post(
   '/verify-email/:token',
   validate({ params: verifyEmailParamsSchema }),

@@ -10,12 +10,18 @@ import {
   verifyRefreshToken,
   signResetToken,
   verifyResetToken,
-  signEmailVerifyToken,
   verifyEmailVerifyToken,
   refreshCookieOptions,
   REFRESH_TTL_MS,
 } from '../services/token.service';
-import { sendResetEmail, sendVerifyEmail } from '../services/email.service';
+import { sendResetEmail, sendVerifyCodeEmail } from '../services/email.service';
+import {
+  consumeVerificationCode,
+  issueVerificationCode,
+  canResendVerificationCode,
+  VERIFY_CODE_RESEND_MS,
+  VERIFY_CODE_TTL_MS,
+} from '../services/verification.service';
 import { env, primaryClientUrl } from '../config/env';
 import { logger } from '../utils/logger';
 import { runInBackground } from '../utils/background';
@@ -46,8 +52,8 @@ function userAgentOf(req: Request): string {
 export const register = asyncHandler(async (req: Request, res: Response) => {
   const { user, accessToken, refreshToken } = await registerUser(req.body, userAgentOf(req));
 
-  // Tasdiqlash havosini yuboramiz. SMTP yo'q bo'lsa `false` qaytadi.
-  const sent = await issueVerificationEmail(user);
+  // Tasdiqlash kodini yuboramiz. Email provayderi yo'q bo'lsa `false` qaytadi.
+  const sent = await issueVerificationCodeEmail(user);
 
   /**
    * Muhim: email tasdiqlash majburiy bo'lsa (`ALLOW_UNVERIFIED_LOGIN=false`),
@@ -73,22 +79,21 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
         emailDelivered: sent,
       },
       mustVerify
-        ? 'Ro‘yxatdan o‘tdingiz! Email manzilingizga tasdiqlash havolasi yuborildi — hisobni faollashtirish uchun uni bosing.'
+        ? 'Ro‘yxatdan o‘tdingiz! Email manzilingizga 6 xonali tasdiqlash kodi yuborildi — hisobni faollashtirish uchun kodni kiriting.'
         : 'Ro‘yxatdan o‘tdingiz!',
     ),
   );
 });
 
-/** Tasdiqlash tokenini yaratib, emailga yuboradi. Yuborilgan bo'lsa `true`. */
-async function issueVerificationEmail(user: {
+/** Tasdiqlash kodini yaratib, emailga yuboradi. Yuborilgan bo'lsa `true`. */
+async function issueVerificationCodeEmail(user: {
   id?: string;
   _id?: unknown;
   email: string;
-  tokenVersion?: number;
 }): Promise<boolean> {
   const userId = String(user.id ?? user._id);
-  const token = signEmailVerifyToken(userId, user.tokenVersion ?? 0);
-  return sendVerifyEmail(user.email, `${primaryClientUrl()}/verify-email/${token}`);
+  const code = await issueVerificationCode(userId);
+  return sendVerifyCodeEmail(user.email, code);
 }
 
 /**
@@ -127,24 +132,61 @@ export const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
 });
 
 /**
- * POST /api/auth/resend-verification — tasdiqlash havosini qayta yuborish.
+ * POST /api/auth/verify-code — 6 xonali kod bilan emailni tasdiqlash.
+ * Body: { email, code }
+ *
+ * Muvaffaqiyatli bo'lsa darhol token beriladi — foydalanuvchi qayta login
+ * qilishi shart emas. Kod bir martalik (muvaffaqiyatdan keyin o'chiriladi).
+ */
+export const verifyEmailCode = asyncHandler(async (req: Request, res: Response) => {
+  const { email, code } = req.body as { email: string; code: string };
+  const { user, alreadyVerified } = await consumeVerificationCode(email, code);
+
+  // Allaqachon tasdiqlangan hisobga kod orqali token bermaymiz — aks holda
+  // emailni bilgan har kim parolsiz kirib ketardi.
+  if (alreadyVerified) {
+    res.json(ok({ alreadyVerified: true }, 'Email allaqachon tasdiqlangan — parolingiz bilan kiring'));
+    return;
+  }
+
+  user.lastLoginAt = new Date();
+  user.failedLoginAttempts = 0;
+  await user.save();
+  logger.info({ userId: user.id }, 'Email kodi bilan tasdiqlandi');
+
+  const sid = await createRefreshSession(user.id as string, userAgentOf(req));
+  const { accessToken, refreshToken } = issueTokens(
+    user.id as string,
+    user.role,
+    user.tokenVersion ?? 0,
+    sid,
+  );
+  setRefreshCookie(res, refreshToken);
+
+  res.json(ok({ accessToken, user }, 'Email tasdiqlandi! Xush kelibsiz.'));
+});
+
+/**
+ * POST /api/auth/resend-verification — tasdiqlash kodini qayta yuborish.
  * Body: { email }
  *
- * Javob har doim bir xil (email ro'yxatda bor-yo'qligini oshkor qilmaydi).
+ * Javob har doim bir xil (email ro'yxatda bor-yo'qligini oshkor qilmaydi) va
+ * 60 soniyalik cooldown jimgina qo'llanadi.
  */
 export const resendVerification = asyncHandler(async (req: Request, res: Response) => {
   const { email } = req.body as { email: string };
   const user = await User.findOne({ email: email.toLowerCase() });
   if (user && !user.emailVerified && user.isActive) {
-    // Fonda yuboramiz — javob natijadan qat'i nazar bir xil (enumeration himoyasi).
-    // Workers'da ApiServer DO javobdan oldin bu vazifani kutadi.
-    runInBackground(
-      issueVerificationEmail(user).catch((err) =>
-        logger.error({ err, email: user.email }, 'Tasdiqlash xati qayta yuborilmadi'),
-      ),
-    );
+    if (await canResendVerificationCode(user.id as string)) {
+      // Fonda yuboramiz — javob natijadan qat'i nazar bir xil (enumeration himoyasi).
+      runInBackground(
+        issueVerificationCodeEmail(user).catch((err) =>
+          logger.error({ err, email: user.email }, 'Tasdiqlash kodi qayta yuborilmadi'),
+        ),
+      );
+    }
   }
-  res.json(ok(null, 'Agar bu email ro‘yxatda bo‘lsa va tasdiqlanmagan bo‘lsa, havola qayta yuborildi'));
+  res.json(ok(null, 'Agar bu email ro‘yxatda bo‘lsa va tasdiqlanmagan bo‘lsa, yangi kod yuborildi'));
 });
 
 /**
@@ -174,10 +216,10 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     );
   } catch (e) {
     // Maxsus holat: parol to'g'ri, lekin email tasdiqlanmagan.
-    if (e instanceof ApiError && e.message === 'EMAIL_NOT_VERIFIED') {
+    if (e instanceof ApiError && e.code === 'EMAIL_NOT_VERIFIED') {
       res.status(403).json({
         success: false,
-        message: 'Email manzilingiz hali tasdiqlanmagan. Pochtangizga yuborilgan havolani bosing.',
+        message: 'Email manzilingiz hali tasdiqlanmagan. Pochtangizga yuborilgan 6 xonali kodni kiriting.',
         code: 'EMAIL_NOT_VERIFIED',
         data: { email: email.toLowerCase() },
       });

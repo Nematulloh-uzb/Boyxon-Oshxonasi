@@ -222,6 +222,25 @@ export async function sendOrderEmail(to: string, orderNumber: string, total: num
   });
 }
 
+/**
+ * Tasdiqlash KODI xati (6 xonali). Yuborilmasa `false` qaytadi.
+ * Kod emailda katta va aniq ko'rinadi — Gmail uni "bir martalik kod" deb
+ * taniydi va nusxalashni osonlashtiradi.
+ */
+export async function sendVerifyCodeEmail(to: string, code: string): Promise<boolean> {
+  return sendMail({
+    to,
+    subject: `Tasdiqlash kodi: ${code} — Boyxon Oshxonasi`,
+    html: brandShell(`
+        <p>Salom!</p>
+        <p>Hisobingizni tasdiqlash uchun quyidagi kodni kiriting:</p>
+        <p style="margin:24px 0;text-align:center;font-size:34px;font-weight:800;letter-spacing:10px;color:#2C2C2C;background:#FFF8F0;border:1px solid #F3E3D0;border-radius:14px;padding:18px 10px 18px 20px">${code}</p>
+        <p style="color:#666;font-size:13px">Kod 10 daqiqa amal qiladi va faqat bir marta ishlatiladi.</p>
+        <p style="color:#666;font-size:13px">Kodni hech kimga aytmang — Boyxon xodimlari ham kod so'ramaydi.</p>
+        <p style="color:#666;font-size:13px">Agar siz ro'yxatdan o'tmagan bo'lsangiz, bu xatni e'tiborsiz qoldiring.</p>`),
+  });
+}
+
 /** Email manzilni tasdiqlash xati. Yuborilmasa `false` qaytadi. */
 export async function sendVerifyEmail(to: string, verifyLink: string): Promise<boolean> {
   return sendMail({

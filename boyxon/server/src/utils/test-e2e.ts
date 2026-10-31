@@ -120,6 +120,44 @@ async function main(): Promise<void> {
   const cookie = login.cookie;
   check('POST /auth/login → 200 + token + cookie', login.status === 200 && Boolean(accessToken) && Boolean(cookie), `status ${login.status}`);
 
+  // Email tasdiqlash — 6 xonali kod oqimi.
+  {
+    const { User } = await import('../models/User.model');
+    const { issueVerificationCode } = await import('../services/verification.service');
+    const pending = await User.create({
+      name: 'Kod Test',
+      email: 'code-test@example.com',
+      password: 'Test1234',
+      emailVerified: false,
+    });
+    const code = await issueVerificationCode(String(pending.id));
+    const wrongCode = code === '000000' ? '111111' : '000000';
+
+    const bad = await request(base, 'POST', '/auth/verify-code', { email: 'code-test@example.com', code: wrongCode });
+    check('POST /auth/verify-code noto‘g‘ri kod → 400', bad.status === 400, `status ${bad.status}`);
+
+    const blockedLogin = await request(base, 'POST', '/auth/login', { email: 'code-test@example.com', password: 'Test1234' });
+    check('Tasdiqlanmagan hisob login → 403 EMAIL_NOT_VERIFIED', blockedLogin.status === 403 && (blockedLogin.body as { code?: string }).code === 'EMAIL_NOT_VERIFIED', `status ${blockedLogin.status}`);
+
+    const good = await request(base, 'POST', '/auth/verify-code', { email: 'code-test@example.com', code });
+    const goodData = (good.body as { data?: { accessToken?: string; user?: { emailVerified?: boolean } } }).data;
+    check(
+      'POST /auth/verify-code to‘g‘ri kod → 200 + token',
+      good.status === 200 && Boolean(goodData?.accessToken) && goodData?.user?.emailVerified === true && Boolean(good.cookie),
+      `status ${good.status}`,
+    );
+
+    const after = await request(base, 'POST', '/auth/login', { email: 'code-test@example.com', password: 'Test1234' });
+    check('Kod bilan tasdiqlangach login → 200', after.status === 200, `status ${after.status}`);
+
+    const reuse = await request(base, 'POST', '/auth/verify-code', { email: 'code-test@example.com', code });
+    check(
+      'Kod bir martalik — qayta ishlatilsa token berilmaydi',
+      reuse.status === 200 && !(reuse.body as { data?: { accessToken?: string } }).data?.accessToken,
+      `status ${reuse.status}`,
+    );
+  }
+
   // Birinchi tashrif (cookie yo'q) — 401 emas, 200 + null. Konsolda xato bo'lmasligi uchun.
   const guestRefresh = await request(base, 'POST', '/auth/refresh', {});
   check(
