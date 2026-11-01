@@ -432,28 +432,7 @@ class _AuthPageState extends State<AuthPage> {
         const SizedBox(height: 20),
 
         // Google
-        Material(
-          color: p.cardLow,
-          borderRadius: BorderRadius.circular(12),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () => _snack(context.tr('auth.google_not_configured')),
-            child: SizedBox(
-              height: 48,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const _GoogleLogo(size: 20),
-                  const SizedBox(width: 10),
-                  Text(
-                    context.tr('auth.google'),
-                    style: AppText.labelLg.copyWith(color: p.onSurface),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+        _GoogleSignInButton(onTap: _signInWithGoogle),
 
         // Pastki havola
         const SizedBox(height: 28),

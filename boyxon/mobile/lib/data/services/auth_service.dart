@@ -1,5 +1,6 @@
 import '../../core/api/api_client.dart';
 import '../models/user.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 /// Ro'yxatdan o'tish natijasi.
 class RegisterOutcome {
@@ -14,12 +15,33 @@ class RegisterOutcome {
   final User? user;
 }
 
+/// Google Sign-In natijasi.
+class GoogleSignInResult {
+  const GoogleSignInResult({
+    required this.idToken,
+    required this.email,
+    this.displayName,
+    this.photoUrl,
+  });
+
+  final String idToken;
+  final String email;
+  final String? displayName;
+  final String? photoUrl;
+}
+
 /// Auth API — saytdagi bilan bir xil oqim (Bearer + refresh cookie).
 class AuthService {
   AuthService._internal();
   static final AuthService I = AuthService._internal();
 
   final ApiClient _api = ApiClient.I;
+
+  /// Google Sign-In instansi (web/mobile uchun).
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: ['email', 'profile'],
+    serverClientId: 'YOUR_SERVER_CLIENT_ID', // Bu qiymat serverda GOOGLE_CLIENT_ID bilan bir xil bo'lishi kerak
+  );
 
   /// POST /api/auth/login → { accessToken, user }.
   ///
@@ -34,6 +56,34 @@ class AuthService {
     final token = data['accessToken'] as String?;
     if (token != null && token.isNotEmpty) _api.setAccessToken(token);
     return User.fromJson(_userMap(data));
+  }
+
+  /// Google bilan kirish (mobil uchun).
+  /// Google ID tokenini oladi va serverga yuboradi.
+  Future<User> signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? account = await _googleSignIn.signIn();
+      if (account == null) {
+        throw Exception('Google sign-in bekor qilindi');
+      }
+
+      final GoogleSignInAuthentication auth = await account.authentication;
+      final String? idToken = auth.idToken;
+      if (idToken == null) {
+        throw Exception('Google ID token olinmadi');
+      }
+
+      final res = await _api.post('/api/auth/google/mobile', body: {
+        'idToken': idToken,
+      });
+      final data = res.dataMap;
+      final token = data['accessToken'] as String?;
+      if (token != null && token.isNotEmpty) _api.setAccessToken(token);
+      return User.fromJson(_userMap(data));
+    } catch (e) {
+      await _googleSignIn.signOut();
+      rethrow;
+    }
   }
 
   /// POST /api/auth/register.
@@ -77,6 +127,7 @@ class AuthService {
       await _api.post('/api/auth/logout');
     } finally {
       _api.clearSession();
+      await _googleSignIn.signOut();
     }
   }
 

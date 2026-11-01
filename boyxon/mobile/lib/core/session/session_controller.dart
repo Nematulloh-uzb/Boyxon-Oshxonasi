@@ -45,6 +45,15 @@ class SessionController extends ChangeNotifier {
     return u;
   }
 
+  /// Google bilan kirish (mobil uchun).
+  Future<User> signInWithGoogle() async {
+    final u = await AuthService.I.signInWithGoogle();
+    user = u;
+    status = SessionStatus.authed;
+    notifyListeners();
+    return u;
+  }
+
   /// Ro'yxatdan o'tish. Email tasdiqlash talab qilinsa — status guest bo'lib qoladi.
   Future<RegisterOutcome> register({
     required String name,
