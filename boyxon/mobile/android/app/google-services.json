@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "387056151658",
+    "project_id": "boyxon-oshxonasi-15e43",
+    "storage_bucket": "boyxon-oshxonasi-15e43.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:387056151658:android:349dfb5c484f8412012e13",
+        "android_client_info": {
+          "package_name": "uz.boyxon.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZVs7rBHUWV_x4UROVYyL__rnSM76QDLM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

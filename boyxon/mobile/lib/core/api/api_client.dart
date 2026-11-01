@@ -199,7 +199,8 @@ class ApiClient {
   bool _isAuthPath(String path) =>
       path.contains('/api/auth/refresh') ||
       path.contains('/api/auth/login') ||
-      path.contains('/api/auth/register');
+      path.contains('/api/auth/register') ||
+      path.contains('/api/auth/google');
 
   Future<bool> _refresh() =>
       _refreshFuture ??= _doRefresh().whenComplete(() => _refreshFuture = null);
