@@ -398,6 +398,101 @@ export const googleExchange = asyncHandler(async (req: Request, res: Response) =
   );
 });
 
+/**
+ * POST /api/auth/google/mobile — Google ID token bilan mobil ilovadan kirish.
+ * Body: { idToken: string }
+ *
+ * Mobil ilova `google_sign_in` paketi orqali Google ID tokenini oladi,
+ * shu endpointga yuboradi. Server tokenni tekshiradi, foydalanuvchini
+ * topadi/yaratadi va access/refresh tokenlarini qaytaradi.
+ */
+export const googleMobile = asyncHandler(async (req: Request, res: Response) => {
+  const { idToken } = req.body as { idToken?: string };
+  if (!idToken) throw ApiError.badRequest('ID token kerak');
+
+  // Google Client ID ni tekshirish uchun OAuth2Client yaratamiz
+  const client = new OAuth2Client(env.GOOGLE_CLIENT_ID);
+  let payload;
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: env.GOOGLE_CLIENT_ID,
+    });
+    payload = ticket.getPayload();
+  } catch (e) {
+    logger.warn({ err: e }, 'Google ID token tasdiqlanmadi');
+    throw ApiError.unauthorized('Yaroqsiz Google token');
+  }
+
+  if (!payload) throw ApiError.unauthorized('Token payload yo‘q');
+
+  // Email tasdiqlanganligini tekshiramiz (Google o'zi tasdiqlagan bo'lsa)
+  const email = payload.email?.toLowerCase();
+  const emailVerified = payload.email_verified === true;
+  const googleId = payload.sub;
+  const name = payload.name || email?.split('@')[0] || 'Foydalanuvchi';
+  const avatar = payload.picture ?? null;
+
+  if (!email) throw ApiError.badRequest('Google email bermadi');
+  if (!emailVerified) throw ApiError.badRequest('Google email tasdiqlanmagan');
+
+  // Foydalanuvchini googleId yoki email bo'yicha topamiz
+  let user = await User.findOne({
+    $or: [{ googleId }, { email }],
+  });
+
+  if (user && !user.isActive) {
+    throw ApiError.unauthorized('Hisob bloklangan');
+  }
+
+  if (!user) {
+    // Yangi foydalanuvchi yaratamiz
+    user = await User.create({
+      name,
+      email,
+      googleId,
+      avatar,
+      role: 'user',
+      emailVerified: true, // Google tasdiqlagan
+    });
+  } else {
+    // Mavjud foydalanuvchini yangilaymiz
+    if (!user.googleId) {
+      user.googleId = googleId;
+      // Agar email oldin tasdiqlanmagan bo'lsa, endi tasdiqlaymiz
+      // va parolni o'chiramiz (xavfsizlik uchun)
+      if (!user.emailVerified) {
+        user.password = undefined;
+        user.name = name;
+        user.tokenVersion = (user.tokenVersion ?? 0) + 1;
+      }
+    }
+    if (!user.avatar) user.avatar = avatar;
+    user.emailVerified = true;
+    user.lastLoginAt = new Date();
+    await user.save();
+  }
+
+  // Admin panel faqat parol bilan kiradi — Google orqali emas
+  if (user.role === 'admin') {
+    throw ApiError.forbidden('Admin paneli faqat parol bilan kiriladi');
+  }
+
+  const sid = await createRefreshSession(user.id as string, userAgentOf(req));
+  const tokens = issueTokens(user.id as string, user.role, user.tokenVersion ?? 0, sid);
+  setRefreshCookie(res, tokens.refreshToken);
+
+  res.json(
+    ok(
+      {
+        accessToken: tokens.accessToken,
+        user,
+      },
+      'Google bilan kirdingiz',
+    ),
+  );
+});
+
 function randomCode(): string {
   // crypto.randomUUID — kriptografik jihatdan xavfsiz, taxmin qilinmaydi.
   return randomUUID();

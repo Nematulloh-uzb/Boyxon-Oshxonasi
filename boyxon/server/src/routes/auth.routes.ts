@@ -51,6 +51,9 @@ authRouter.get(
 // Bir martalik kodni tokenga almashtirish (access token URL'da yurmaydi).
 authRouter.post('/google/exchange', sensitiveLimiter, validate({ body: googleExchangeSchema }), c.googleExchange);
 
+// Mobil ilova uchun Google ID token bilan kirish.
+authRouter.post('/google/mobile', sensitiveLimiter, c.googleMobile);
+
 // Parol bilan bog'liq amallar — qat'iy limit.
 authRouter.post('/forgot-password', sensitiveLimiter, validate({ body: forgotSchema }), c.forgotPassword);
 // Token kimniki ekanini ko'rsatish (parolni o'zgartirmaydi) — GET, shuning uchun brauzerda ochiladi.
