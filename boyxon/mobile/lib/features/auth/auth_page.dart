@@ -157,6 +157,38 @@ class _AuthPageState extends State<AuthPage> {
     }
   }
 
+  Future<void> _signInWithGoogle() async {
+    if (_busy) return;
+    setState(() {
+      _error = null;
+      _busy = true;
+    });
+
+    final session = context.read<SessionController>();
+    try {
+      await session.signInWithGoogle();
+      // Muvaffaqiyatli — root gate avtomatik AppShell'ga o'tadi.
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      if (e.code == 'FORBIDDEN' && e.message.contains('admin')) {
+        setState(() => _error = context.tr('auth.admin_password_only'));
+      } else {
+        setState(() => _error = e.message);
+      }
+    } catch (e) {
+      if (mounted) {
+        // Google sign-in bekor qilinsa xato bermaslik uchun
+        final err = e.toString();
+        if (!err.toLowerCase().contains('cancel') &&
+            !err.toLowerCase().contains('bekor')) {
+          setState(() => _error = context.tr('auth.google_cancelled'));
+        }
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
