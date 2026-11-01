@@ -17,6 +17,13 @@ class AppConfig {
     defaultValue: 'https://boyxon-server.nmatullohmansurov.workers.dev',
   );
 
+  /// Google OAuth Client ID — serverda `GOOGLE_CLIENT_ID` bilan bir xil bo'lishi kerak.
+  /// `--dart-define=GOOGLE_CLIENT_ID=your-client-id` orqali o'zgartirilishi mumkin.
+  static const String googleClientId = String.fromEnvironment(
+    'GOOGLE_CLIENT_ID',
+    defaultValue: '',
+  );
+
   static const String appName = 'Boyxon Oshxonasi';
   static const String versionName = '1.0.0';
 
