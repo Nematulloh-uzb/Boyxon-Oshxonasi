@@ -464,7 +464,7 @@ class _AuthPageState extends State<AuthPage> {
         const SizedBox(height: 20),
 
         // Google
-        _GoogleSignInButton(onTap: _signInWithGoogle),
+        _GoogleSignInButton(onTap: _signInWithGoogle, busy: _busy),
 
         // Pastki havola
         const SizedBox(height: 28),
@@ -894,4 +894,49 @@ class _GoogleLogoPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// Google bilan kirish tugmasi.
+class _GoogleSignInButton extends StatelessWidget {
+  const _GoogleSignInButton({required this.onTap, this.busy = false});
+
+  final VoidCallback onTap;
+  final bool busy;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return Material(
+      color: p.cardLow,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: busy ? null : onTap,
+        child: SizedBox(
+          height: 48,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const _GoogleLogo(size: 20),
+              const SizedBox(width: 10),
+              if (busy)
+                SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: p.primary,
+                  ),
+                )
+              else
+                Text(
+                  context.tr('auth.google'),
+                  style: AppText.labelLg.copyWith(color: p.onSurface),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
