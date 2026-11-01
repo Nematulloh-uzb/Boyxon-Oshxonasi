@@ -161,7 +161,7 @@ export function ChatWidget() {
                     <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-surface-raised shadow-inner">
                       <MessageCircle className="h-7 w-7 text-primary-600" />
                     </div>
-                    <p className="mt-3 font-semibold text-ink-800">{t('chat.title')}</p>
+                    <p className="mt-3 font-semibold text-ink-900">{t('chat.title')}</p>
                     <p className="mt-1 text-xs text-ink-300 max-w-[240px] mx-auto">{t('chat.welcome')}</p>
                   </div>
                 )}
@@ -180,7 +180,7 @@ export function ChatWidget() {
                           'max-w-[80%] rounded-2xl px-3.5 py-2 text-sm shadow-sm transition-all',
                           mine
                             ? 'rounded-br-sm bg-gradient-to-r from-primary-700 to-primary-800 text-white'
-                            : 'rounded-bl-sm bg-surface-raised text-ink-800 border border-ink-line/30',
+                            : 'rounded-bl-sm bg-surface-raised text-ink-900 border border-ink-line/30',
                         )}
                       >
                         <p className="whitespace-pre-wrap break-words">{m.text}</p>
@@ -194,9 +194,9 @@ export function ChatWidget() {
                 {adminTyping && (
                   <div className="flex justify-start">
                     <div className="flex items-center gap-1.5 rounded-2xl rounded-bl-sm bg-surface-raised px-4 py-2.5 border border-ink-line/30">
-                      <span className="h-2 w-2 animate-bounce rounded-full bg-ink-400 [animation-delay:-0.3s]" />
-                      <span className="h-2 w-2 animate-bounce rounded-full bg-ink-400 [animation-delay:-0.15s]" />
-                      <span className="h-2 w-2 animate-bounce rounded-full bg-ink-400" />
+                      <span className="h-2 w-2 animate-bounce rounded-full bg-ink-300 [animation-delay:-0.3s]" />
+                      <span className="h-2 w-2 animate-bounce rounded-full bg-ink-300 [animation-delay:-0.15s]" />
+                      <span className="h-2 w-2 animate-bounce rounded-full bg-ink-300" />
                     </div>
                   </div>
                 )}

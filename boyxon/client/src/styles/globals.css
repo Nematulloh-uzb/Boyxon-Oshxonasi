@@ -277,6 +277,18 @@
       animation-range: entry 0% entry 25%;
     }
   }
+
+  /*
+   * Savatdagi mobil "To'lovni tasdiqlash" paneli (73px) + BottomNav (66px)
+   * doimiy ravishda pastda turadi. Panel faqat savatda tovar bo'lsa
+   * ko'rinadi, shuning uchun footer ostidagi matn uning ostida qolmasligi
+   * uchun faqat shu holatda qo'shimcha joy ajratamiz.
+   */
+  @media (max-width: 767px) {
+    main:has(.cart-checkout-bar) ~ footer {
+      padding-bottom: calc(9.75rem + env(safe-area-inset-bottom, 0px));
+    }
+  }
 }
 
 

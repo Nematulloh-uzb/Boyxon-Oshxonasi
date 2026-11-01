@@ -220,7 +220,7 @@ export default function HomePage() {
         <div className="hero-gradient-animate bg-gradient-to-r from-primary-800 via-primary-600 to-primary-700 p-6 text-white">
           {/* Decorative blobs */}
           <div className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-white/5 blur-2xl" />
-          <div className="pointer-events-none absolute -bottom-6 right-16 h-28 w-28 rounded-full bg-white/8 blur-xl" />
+          <div className="pointer-events-none absolute -bottom-6 right-16 h-28 w-28 rounded-full bg-white/10 blur-xl" />
           <div className="pointer-events-none absolute right-4 top-4 text-4xl opacity-20 animate-float">🍽️</div>
 
           <p className="text-sm font-semibold text-white/90 animate-fade-in-up">{t('home.new_season')}</p>

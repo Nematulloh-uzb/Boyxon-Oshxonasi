@@ -26,6 +26,7 @@ import { env, primaryClientUrl } from '../config/env';
 import { logger } from '../utils/logger';
 import { runInBackground } from '../utils/background';
 import type { AuthRequest } from '../types/express';
+import { OAuth2Client } from 'google-auth-library';
 
 function setRefreshCookie(res: Response, token: string): void {
   res.cookie('refreshToken', token, refreshCookieOptions());

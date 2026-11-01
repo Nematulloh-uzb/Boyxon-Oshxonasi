@@ -21,7 +21,9 @@ export function DeliveryToggle({ value, onChange }: Props) {
           onClick={() => onChange(v)}
           className={cn(
             'flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold transition',
-            value === v ? 'bg-surface text-primary-700 shadow-sm' : 'text-ink-300',
+            value === v
+              ? 'bg-surface text-primary-700 shadow-sm dark:text-primary-400'
+              : 'text-ink-300',
           )}
         >
           <Icon className="h-4 w-4" />

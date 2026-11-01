@@ -71,13 +71,13 @@ export default function AdminChat() {
                 onClick={() => setSelectedId(c._id)}
                 className={cn(
                   'flex w-full items-center gap-3 border-b border-ink-line/60 px-3 py-3 text-left transition hover:bg-surface-raised',
-                  selectedId === c._id && 'bg-primary-50',
+                  selectedId === c._id && 'bg-primary-50 text-primary-800',
                 )}
               >
                 <UserAvatar src={u?.avatar} name={u?.name} className="h-10 w-10" />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="truncate font-semibold text-ink-800">{u?.name ?? t('chat.unknown_user')}</p>
+                    <p className="truncate font-semibold text-ink-900">{u?.name ?? t('chat.unknown_user')}</p>
                     {c.adminUnread > 0 && (
                       <span className="grid h-5 min-w-5 shrink-0 place-items-center rounded-full bg-danger px-1.5 text-[10px] font-bold text-white">
                         {c.adminUnread}

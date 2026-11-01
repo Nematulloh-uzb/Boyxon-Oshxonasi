@@ -43,7 +43,7 @@ export default function AuthPage() {
       <div className="relative flex flex-col justify-between overflow-hidden bg-gradient-to-br from-primary-800 via-primary-700 to-primary-600 p-8 text-white md:p-12">
         {/* Animated blobs */}
         <div className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-white/5 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 -right-12 h-80 w-80 rounded-full bg-white/8 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -right-12 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
         <div className="pointer-events-none absolute left-1/2 top-1/3 h-40 w-40 -translate-x-1/2 rounded-full bg-primary-500/40 blur-2xl" />
 
         {/* Suzuvchi emoji'lar */}
@@ -228,7 +228,7 @@ function AuthForm({ from, onDone }: { from: string; onDone: (token: string, u: U
             type="button"
             onClick={() => setTab(key)}
             className={`relative rounded-xl py-2.5 text-sm font-semibold transition-all duration-200 ${
-              tab === key ? 'text-primary-700' : 'text-ink-300 hover:text-ink-700'
+              tab === key ? 'text-primary-700 dark:text-primary-400' : 'text-ink-300 hover:text-ink-700'
             }`}
           >
             {tab === key && (

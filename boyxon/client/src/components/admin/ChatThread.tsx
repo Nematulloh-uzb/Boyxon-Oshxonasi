@@ -93,7 +93,7 @@ export function ChatThread({ conversationId, onBack }: { conversationId: string;
         </button>
         <UserAvatar src={user?.avatar} name={user?.name} className="h-10 w-10" viewable />
         <div className="min-w-0 flex-1">
-          <p className="truncate font-semibold text-ink-800">{user?.name ?? t('chat.unknown_user')}</p>
+          <p className="truncate font-semibold text-ink-900">{user?.name ?? t('chat.unknown_user')}</p>
           {user?.phone && <p className="truncate text-xs text-ink-300">{user.phone}</p>}
         </div>
       </div>
@@ -127,7 +127,7 @@ export function ChatThread({ conversationId, onBack }: { conversationId: string;
                   'max-w-[78%] rounded-2xl px-3.5 py-2 text-sm shadow-sm',
                   mine
                     ? 'rounded-br-md bg-gradient-to-r from-[#E67E22] to-[#F39C12] text-white'
-                    : 'rounded-bl-md bg-surface-raised text-ink-800',
+                    : 'rounded-bl-md bg-surface-raised text-ink-900',
                 )}
               >
                 <p className="whitespace-pre-wrap break-words">{m.text}</p>

@@ -10,10 +10,13 @@ export default {
         primary: {
           50: '#FFF3E0',
           100: '#FDEBD0',
+          300: '#F5B041',
+          400: '#F39C12',
           500: '#E67E22',
           600: '#D35400',
           700: '#B85C00',
           // WCAG AA: oq matn uchun 4.6:1, primary-100 fonida 6.1:1
+          750: '#A34F00',
           800: '#8A4500',
         },
         // ── New semantic tokens ──

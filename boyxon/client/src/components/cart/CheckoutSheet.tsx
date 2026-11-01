@@ -166,15 +166,25 @@ export function CheckoutSheet() {
                   <button
                     key={addrKey(a)}
                     onClick={() => setAddressId(a._id ?? '')}
-                    className={`rounded-2xl border px-3 py-3 text-left text-sm ${addressId === a._id ? 'border-primary-500 bg-primary-50' : 'border-ink-line'}`}
+                    className={`rounded-2xl border px-3 py-3 text-left text-sm ${
+                      addressId === a._id
+                        ? 'border-primary-500 bg-primary-50 text-primary-800'
+                        : 'border-ink-line'
+                    }`}
                   >
                     <span className="font-semibold">{a.label}</span>
-                    <span className="mt-0.5 block text-ink-300">{a.address}</span>
+                    <span
+                      className={`mt-0.5 block ${
+                        addressId === a._id ? 'text-primary-800/75' : 'text-ink-300'
+                      }`}
+                    >
+                      {a.address}
+                    </span>
                   </button>
                 ))}
               </div>
             ) : (
-              <p className="rounded-2xl bg-primary-50 px-3 py-3 text-sm text-ink-500">
+              <p className="rounded-2xl bg-primary-50 px-3 py-3 text-sm text-primary-800">
                 {t('cart.no_address')}
               </p>
             )}

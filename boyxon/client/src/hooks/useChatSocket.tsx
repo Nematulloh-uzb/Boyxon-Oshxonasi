@@ -130,7 +130,7 @@ function showChatToast(msg: ChatMsgLike | undefined, t: (k: string) => string): 
         <MessageCircle className="h-4 w-4" />
       </span>
       <div className="min-w-0">
-        <p className="text-sm font-semibold text-ink-800">{senderName}</p>
+        <p className="text-sm font-semibold text-ink-900">{senderName}</p>
         <p className="line-clamp-2 text-sm text-ink-500">{msg.text}</p>
       </div>
     </div>,

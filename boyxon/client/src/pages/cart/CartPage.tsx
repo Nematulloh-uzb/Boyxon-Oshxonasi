@@ -58,10 +58,10 @@ export default function CartPage() {
       </div>
 
       {/* Mobil checkout paneli — BottomNav (64px + safe-area) ustida turadi, kontentni yopmaydi (pb-44). */}
-      <div className="fixed inset-x-0 bottom-[calc(4rem_+_env(safe-area-inset-bottom,0px))] z-20 border-t border-ink-line bg-surface p-3 md:hidden">
+      <div className="cart-checkout-bar fixed inset-x-0 bottom-[calc(4rem_+_env(safe-area-inset-bottom,0px))] z-20 border-t border-ink-line bg-surface p-3 md:hidden">
         <div className="mx-auto flex max-w-lg items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold text-primary-700">
+            <p className="text-xs font-semibold text-primary-700 dark:text-primary-400">
               {toFree > 0
                 ? tVal(t('cart.free_delivery_hint'), { amount: formatPrice(toFree), fee: formatPrice(DELIVERY_FEE) })
                 : tVal(t('cart.free_delivery_done'), { fee: formatPrice(DELIVERY_FEE) })}
