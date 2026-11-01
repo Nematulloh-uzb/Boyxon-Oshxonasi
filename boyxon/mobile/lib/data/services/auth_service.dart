@@ -1,4 +1,5 @@
 import '../../core/api/api_client.dart';
+import '../../core/config/app_config.dart';
 import '../models/user.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -38,9 +39,9 @@ class AuthService {
   final ApiClient _api = ApiClient.I;
 
   /// Google Sign-In instansi (web/mobile uchun).
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
+  late final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'profile'],
-    serverClientId: 'YOUR_SERVER_CLIENT_ID', // Bu qiymat serverda GOOGLE_CLIENT_ID bilan bir xil bo'lishi kerak
+    serverClientId: AppConfig.googleClientId,
   );
 
   /// POST /api/auth/login → { accessToken, user }.
