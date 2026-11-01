@@ -22,3 +22,8 @@ subprojects {
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
+
+// Google Services plugin — Google Sign-In (Android) uchun kerak.
+plugins {
+    id("com.google.gms.google-services") version "4.4.2" apply false
+}
