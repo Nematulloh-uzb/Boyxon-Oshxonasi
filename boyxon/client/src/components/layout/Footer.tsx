@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Check, Clock, Copy, Download, MapPin, Phone } from 'lucide-react';
+import { ArrowUpRight, Check, Copy, Download, MapPin, Navigation, Phone } from 'lucide-react';
+
+/** Boyxon Oshxonasi joylashuvi: Namangan, Zirabuloq ko'chasi (1-son texnikum yonida). */
+const MAPS_URL = 'https://www.google.com/maps/search/?api=1&query=41.0048%2C71.6806';
 
 const PHONE_DISPLAY = '+998 (93) 958-84-58';
 const PHONE_COPY = '+998939588458';
@@ -62,14 +65,35 @@ export function Footer() {
             </div>
             {copied && <p className="mt-1 text-xs font-medium text-success">{t('footer.copied')}</p>}
 
-            <p className="mt-3 flex items-start gap-2 text-xs leading-relaxed">
-              <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-              <span>{t('footer.address_line')}</span>
-            </p>
-            <p className="mt-1.5 flex items-center gap-2 text-xs">
-              <Clock className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-              <span>{t('footer.hours_value')}</span>
-            </p>
+            <a
+              href={MAPS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${t('footer.open_map')} — ${t('footer.address_line')}`}
+              className="group mt-3 block rounded-2xl border border-ink-line bg-bg p-3 transition duration-200 hover:-translate-y-0.5 hover:border-primary-500/70 hover:shadow-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 active:translate-y-0"
+            >
+              <span className="flex items-start gap-2.5">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary-500/15 text-primary-600 transition group-hover:bg-primary-500 group-hover:text-white">
+                  <MapPin className="h-4 w-4" aria-hidden="true" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-xs font-semibold leading-snug text-ink-700">
+                    {t('footer.address_line')}
+                  </span>
+                  <span className="mt-1 block text-[11px] leading-relaxed text-ink-300">
+                    {t('footer.landmark_line')}
+                  </span>
+                </span>
+              </span>
+              <span className="mt-3 flex items-center justify-center gap-1.5 rounded-xl bg-primary-600 px-3 py-2.5 text-xs font-bold text-white shadow-sm transition group-hover:bg-primary-700">
+                <Navigation className="h-4 w-4" aria-hidden="true" />
+                {t('footer.open_map')}
+                <ArrowUpRight
+                  className="h-3.5 w-3.5 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                  aria-hidden="true"
+                />
+              </span>
+            </a>
           </div>
 
           <div>

@@ -29,7 +29,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     uz: {
       title: "Sho'rvalar yetkazib berish Toshkentda — Boyxon Oshxonasi",
       description:
-        "Mastava, shurva va moshxurda — issiq va to'yimli sho'rvalar. Toshkent bo'ylab 30–45 daqiqada yetkazib berish, har kuni 9:00–23:00.",
+        "Mastava, shurva va moshxurda — issiq va to'yimli sho'rvalar. Toshkent bo'ylab 30–45 daqiqada yetkazib berish.",
       h1: "Sho'rvalar — Toshkentda issiq yetkazib berish",
       subtitle:
         "Mastava, shurva va moshxurda — har kuni yangi pishirilgan, issiq holda yetkaziladi.",
@@ -41,7 +41,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     ru: {
       title: "Доставка супов в Ташкенте — Boyxon Oshxonasi",
       description:
-        "Мастава, шурпа и мошхурда — горячие и сытные супы. Доставка по Ташкенту за 30–45 минут, ежедневно с 9:00 до 23:00.",
+        "Мастава, шурпа и мошхурда — горячие и сытные супы. Доставка по Ташкенту за 30–45 минут.",
       h1: "Супы — горячая доставка в Ташкенте",
       subtitle: "Мастава, шурпа и мошхурда — готовим ежедневно и доставляем горячими.",
       content:
@@ -52,7 +52,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     en: {
       title: "Soup delivery in Tashkent — Boyxon Oshxonasi",
       description:
-        "Mastava, shurpa and moshkhurda — hot, hearty soups. Delivered across Tashkent in 30–45 minutes, daily 9:00–23:00.",
+        "Mastava, shurpa and moshkhurda — hot, hearty soups. Delivered across Tashkent in 30–45 minutes.",
       h1: "Soups — hot delivery in Tashkent",
       subtitle: "Mastava, shurpa and moshkhurda — cooked daily and delivered hot.",
       content:
@@ -65,7 +65,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     uz: {
       title: "Palov yetkazib berish Toshkentda — Boyxon Oshxonasi",
       description:
-        "Boyxon to'y oshi, Samarqand oshi va tovuq palov. Toshkent bo'ylab 30–45 daqiqada issiq yetkazib berish, har kuni 9:00–23:00.",
+        "Boyxon to'y oshi, Samarqand oshi va tovuq palov. Toshkent bo'ylab 30–45 daqiqada issiq yetkazib berish.",
       h1: "Palov — Toshkentda issiq yetkazib berish",
       subtitle:
         "Boyxon to'y oshi, Samarqand oshi va tovuq palov — qozonda, yangi pishirilgan.",
@@ -78,7 +78,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     ru: {
       title: "Доставка плова в Ташкенте — Boyxon Oshxonasi",
       description:
-        "Свадебный плов Boyxon, самаркандский плов и плов с курицей. Горячая доставка по Ташкенту за 30–45 минут, ежедневно с 9:00 до 23:00.",
+        "Свадебный плов Boyxon, самаркандский плов и плов с курицей. Горячая доставка по Ташкенту за 30–45 минут.",
       h1: "Плов — горячая доставка в Ташкенте",
       subtitle:
         "Свадебный плов Boyxon, самаркандский плов и плов с курицей — свежий, из казана.",
@@ -91,7 +91,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     en: {
       title: "Pilaf delivery in Tashkent — Boyxon Oshxonasi",
       description:
-        "Boyxon wedding pilaf, Samarkand pilaf and chicken pilaf. Delivered hot across Tashkent in 30–45 minutes, daily 9:00–23:00.",
+        "Boyxon wedding pilaf, Samarkand pilaf and chicken pilaf. Delivered hot across Tashkent in 30–45 minutes.",
       h1: "Pilaf — hot delivery in Tashkent",
       subtitle:
         "Boyxon wedding pilaf, Samarkand pilaf and chicken pilaf — fresh from the kazan.",
@@ -106,7 +106,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     uz: {
       title: "Somsa yetkazib berish Toshkentda — Boyxon Oshxonasi",
       description:
-        "Gushtli, qovoqli va kartoshkali somsa. Toshkent bo'ylab 30–45 daqiqada issiq yetkazib berish, har kuni 9:00–23:00.",
+        "Gushtli, qovoqli va kartoshkali somsa. Toshkent bo'ylab 30–45 daqiqada issiq yetkazib berish.",
       h1: "Somsa — Toshkentda tandirdan issiq yetkazib berish",
       subtitle: "Gushtli, qovoqli va kartoshkali somsa — tandirda pishirilgan, qarsildoq.",
       content:
@@ -118,7 +118,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     ru: {
       title: "Доставка самсы в Ташкенте — Boyxon Oshxonasi",
       description:
-        "Самса с мясом, тыквой и картофелем. Горячая доставка по Ташкенту за 30–45 минут, ежедневно с 9:00 до 23:00.",
+        "Самса с мясом, тыквой и картофелем. Горячая доставка по Ташкенту за 30–45 минут.",
       h1: "Самса — горячая доставка из тандыра в Ташкенте",
       subtitle: "Самса с мясом, тыквой и картофелем — из тандыра, с хрустящей корочкой.",
       content:
@@ -130,7 +130,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     en: {
       title: "Samsa delivery in Tashkent — Boyxon Oshxonasi",
       description:
-        "Samsa with meat, pumpkin and potato. Delivered hot across Tashkent in 30–45 minutes, daily 9:00–23:00.",
+        "Samsa with meat, pumpkin and potato. Delivered hot across Tashkent in 30–45 minutes.",
       h1: "Samsa — hot tandoor delivery in Tashkent",
       subtitle: "Meat, pumpkin and potato samsa — baked in the tandoor, crisp outside.",
       content:
@@ -143,7 +143,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     uz: {
       title: "Kabob yetkazib berish Toshkentda — Boyxon Oshxonasi",
       description:
-        "Jiz kabob, qiyma kabob va tovuq shashlik. Toshkent bo'ylab 30–45 daqiqada issiq yetkazib berish, har kuni 9:00–23:00.",
+        "Jiz kabob, qiyma kabob va tovuq shashlik. Toshkent bo'ylab 30–45 daqiqada issiq yetkazib berish.",
       h1: "Kaboblar — Toshkentda issiq yetkazib berish",
       subtitle: "Jiz kabob, qiyma kabob va tovuq shashlik — cho'g'da, yangi pishirilgan.",
       content:
@@ -155,7 +155,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     ru: {
       title: "Доставка шашлыка в Ташкенте — Boyxon Oshxonasi",
       description:
-        "Жиз-кабоб, кебаб из фарша и куриный шашлык. Горячая доставка по Ташкенту за 30–45 минут, ежедневно с 9:00 до 23:00.",
+        "Жиз-кабоб, кебаб из фарша и куриный шашлык. Горячая доставка по Ташкенту за 30–45 минут.",
       h1: "Шашлык — горячая доставка в Ташкенте",
       subtitle:
         "Жиз-кабоб, кебаб из фарша и куриный шашлык — на углях, свежеприготовленные.",
@@ -168,7 +168,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     en: {
       title: "Kebab delivery in Tashkent — Boyxon Oshxonasi",
       description:
-        "Jiz kabob, minced meat kebab and chicken shashlik. Delivered hot across Tashkent in 30–45 minutes, daily 9:00–23:00.",
+        "Jiz kabob, minced meat kebab and chicken shashlik. Delivered hot across Tashkent in 30–45 minutes.",
       h1: "Kebabs — hot delivery in Tashkent",
       subtitle: "Jiz kabob, minced meat kebab and chicken shashlik — grilled over charcoal.",
       content:
@@ -182,7 +182,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     uz: {
       title: "Salatlar yetkazib berish Toshkentda — Boyxon Oshxonasi",
       description:
-        "Achchiq-chuchuk, Sezar salati va Olivye. Toshkent bo'ylab 30–45 daqiqada yetkazib berish, har kuni 9:00–23:00.",
+        "Achchiq-chuchuk, Sezar salati va Olivye. Toshkent bo'ylab 30–45 daqiqada yetkazib berish.",
       h1: "Salatlar — Toshkentda yangi va mazali",
       subtitle: "Achchiq-chuchuk, Sezar salati va Olivye — har kuni yangi tayyorlanadi.",
       content:
@@ -194,7 +194,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     ru: {
       title: "Доставка салатов в Ташкенте — Boyxon Oshxonasi",
       description:
-        "Ачичук, салат Цезарь и Оливье. Доставка по Ташкенту за 30–45 минут, ежедневно с 9:00 до 23:00.",
+        "Ачичук, салат Цезарь и Оливье. Доставка по Ташкенту за 30–45 минут.",
       h1: "Салаты — свежие и вкусные в Ташкенте",
       subtitle: "Ачичук, салат Цезарь и Оливье — готовим каждый день.",
       content:
@@ -205,7 +205,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     en: {
       title: "Salad delivery in Tashkent — Boyxon Oshxonasi",
       description:
-        "Achichuk, Caesar salad and Olivier. Delivered across Tashkent in 30–45 minutes, daily 9:00–23:00.",
+        "Achichuk, Caesar salad and Olivier. Delivered across Tashkent in 30–45 minutes.",
       h1: "Salads — fresh and tasty in Tashkent",
       subtitle: "Achichuk, Caesar salad and Olivier — made fresh daily.",
       content:
@@ -218,7 +218,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     uz: {
       title: "Shirinliklar yetkazib berish Toshkentda — Boyxon Oshxonasi",
       description:
-        "Chak-chak, halva va quymoq — milliy shirinliklar. Toshkent bo'ylab 30–45 daqiqada yetkazib berish, har kuni 9:00–23:00.",
+        "Chak-chak, halva va quymoq — milliy shirinliklar. Toshkent bo'ylab 30–45 daqiqada yetkazib berish.",
       h1: "Shirinliklar — Toshkentda milliy ta'm",
       subtitle: "Chak-chak, halva va quymoq — o'zbek dasturxonining shirin yakuni.",
       content:
@@ -230,7 +230,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     ru: {
       title: "Доставка десертов в Ташкенте — Boyxon Oshxonasi",
       description:
-        "Чак-чак, халва и куймак — национальные сладости. Доставка по Ташкенту за 30–45 минут, ежедневно с 9:00 до 23:00.",
+        "Чак-чак, халва и куймак — национальные сладости. Доставка по Ташкенту за 30–45 минут.",
       h1: "Десерты — национальный вкус Ташкента",
       subtitle: "Чак-чак, халва и куймак — сладкое завершение узбекского стола.",
       content:
@@ -242,7 +242,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     en: {
       title: "Dessert delivery in Tashkent — Boyxon Oshxonasi",
       description:
-        "Chak-chak, halva and quymoq — Uzbek national sweets. Delivered across Tashkent in 30–45 minutes, daily 9:00–23:00.",
+        "Chak-chak, halva and quymoq — Uzbek national sweets. Delivered across Tashkent in 30–45 minutes.",
       h1: "Desserts — Uzbek flavours in Tashkent",
       subtitle: "Chak-chak, halva and quymoq — the sweet finish to an Uzbek meal.",
       content:
@@ -255,7 +255,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     uz: {
       title: "Ichimliklar yetkazib berish Toshkentda — Boyxon Oshxonasi",
       description:
-        "Choy, ayron va kompot — taomga mos ichimliklar. Toshkent bo'ylab 30–45 daqiqada yetkazib berish, har kuni 9:00–23:00.",
+        "Choy, ayron va kompot — taomga mos ichimliklar. Toshkent bo'ylab 30–45 daqiqada yetkazib berish.",
       h1: "Ichimliklar — Toshkentda salqin va tetiklantiruvchi",
       subtitle: "Choy, ayron va kompot — taomga mos tanlov.",
       content:
@@ -266,7 +266,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     ru: {
       title: "Доставка напитков в Ташкенте — Boyxon Oshxonasi",
       description:
-        "Чай, айран и компот — напитки к любому блюду. Доставка по Ташкенту за 30–45 минут, ежедневно с 9:00 до 23:00.",
+        "Чай, айран и компот — напитки к любому блюду. Доставка по Ташкенту за 30–45 минут.",
       h1: "Напитки — прохладные и освежающие в Ташкенте",
       subtitle: "Чай, айран и компот — идеальное дополнение к любому блюду.",
       content:
@@ -277,7 +277,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     en: {
       title: "Drinks delivery in Tashkent — Boyxon Oshxonasi",
       description:
-        "Tea, ayran and kompot — drinks for every dish. Delivered across Tashkent in 30–45 minutes, daily 9:00–23:00.",
+        "Tea, ayran and kompot — drinks for every dish. Delivered across Tashkent in 30–45 minutes.",
       h1: "Drinks — cool and refreshing in Tashkent",
       subtitle: "Tea, ayran and kompot — the perfect match for any dish.",
       content:
@@ -290,7 +290,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     uz: {
       title: "Non yetkazib berish Toshkentda — Boyxon Oshxonasi",
       description:
-        "Patir, yupqa va gijda non. Toshkent bo'ylab 30–45 daqiqada issiq yetkazib berish, har kuni 9:00–23:00.",
+        "Patir, yupqa va gijda non. Toshkent bo'ylab 30–45 daqiqada issiq yetkazib berish.",
       h1: "Non — Toshkentda tandirdan issiq yetkazib berish",
       subtitle: "Patir, yupqa va gijda non — har kuni yangi pishirilgan.",
       content:
@@ -301,7 +301,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     ru: {
       title: "Доставка хлеба в Ташкенте — Boyxon Oshxonasi",
       description:
-        "Патир, юпка и гижда — свежий узбекский хлеб. Горячая доставка по Ташкенту за 30–45 минут, ежедневно с 9:00 до 23:00.",
+        "Патир, юпка и гижда — свежий узбекский хлеб. Горячая доставка по Ташкенту за 30–45 минут.",
       h1: "Хлеб — горячая доставка из тандыра в Ташкенте",
       subtitle: "Патир, юпка и гижда — свежеиспечённые каждый день.",
       content:
@@ -312,7 +312,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     en: {
       title: "Bread delivery in Tashkent — Boyxon Oshxonasi",
       description:
-        "Patir, yupqa and gijda — fresh Uzbek bread. Delivered hot across Tashkent in 30–45 minutes, daily 9:00–23:00.",
+        "Patir, yupqa and gijda — fresh Uzbek bread. Delivered hot across Tashkent in 30–45 minutes.",
       h1: "Bread — hot tandoor delivery in Tashkent",
       subtitle: "Patir, yupqa and gijda — baked fresh every day.",
       content:
@@ -327,7 +327,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     uz: {
       title: "Ovqatlar yetkazib berish Toshkentda — Boyxon Oshxonasi",
       description:
-        "Boyxon Oshxonasining mazali taomlari — yangi va issiq. Toshkent bo'ylab 30–45 daqiqada yetkazib berish, har kuni 9:00–23:00.",
+        "Boyxon Oshxonasining mazali taomlari — yangi va issiq. Toshkent bo'ylab 30–45 daqiqada yetkazib berish.",
       h1: "Ovqatlar — Toshkentda issiq yetkazib berish",
       subtitle:
         "Boyxon Oshxonasining barcha taomlari — buyurtmadan so'ng tayyorlanadi va issiq holda yetkaziladi.",
@@ -340,7 +340,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     ru: {
       title: "Доставка блюд в Ташкенте — Boyxon Oshxonasi",
       description:
-        "Вкусные блюда Boyxon Oshxonasi — свежие и горячие. Доставка по Ташкенту за 30–45 минут, ежедневно с 9:00 до 23:00.",
+        "Вкусные блюда Boyxon Oshxonasi — свежие и горячие. Доставка по Ташкенту за 30–45 минут.",
       h1: "Блюда — горячая доставка в Ташкенте",
       subtitle:
         "Все блюда Boyxon Oshxonasi — готовим после заказа и доставляем горячими.",
@@ -353,7 +353,7 @@ export const CATEGORY_SEO: Record<string, Record<SeoLang, CategorySeoCopy>> = {
     en: {
       title: "Food delivery in Tashkent — Boyxon Oshxonasi",
       description:
-        "Delicious dishes from Boyxon Oshxonasi — fresh and hot. Delivered across Tashkent in 30–45 minutes, daily 9:00–23:00.",
+        "Delicious dishes from Boyxon Oshxonasi — fresh and hot. Delivered across Tashkent in 30–45 minutes.",
       h1: "Dishes — hot delivery in Tashkent",
       subtitle:
         "All Boyxon Oshxonasi dishes — cooked after ordering and delivered hot.",

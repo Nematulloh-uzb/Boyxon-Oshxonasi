@@ -113,9 +113,10 @@ export default function HomePage() {
       areaServed: { '@type': 'City', name: 'Toshkent' },
       address: {
         '@type': 'PostalAddress',
-        streetAddress: 'Yunusobod tumani',
-        addressLocality: 'Toshkent',
-        addressRegion: 'Toshkent',
+        streetAddress: "Zirabuloq ko'chasi, 1-son texnikum yonida",
+        addressLocality: 'Namangan',
+        addressRegion: 'Namangan',
+        postalCode: '160104',
         addressCountry: 'UZ',
       },
       geo: {
@@ -123,22 +124,6 @@ export default function HomePage() {
         latitude: 41.0048,
         longitude: 71.6806,
       },
-      openingHoursSpecification: [
-        {
-          '@type': 'OpeningHoursSpecification',
-          dayOfWeek: [
-            'Monday',
-            'Tuesday',
-            'Wednesday',
-            'Thursday',
-            'Friday',
-            'Saturday',
-            'Sunday',
-          ],
-          opens: '09:00',
-          closes: '23:00',
-        },
-      ],
       hasMenu: homeUrl,
       acceptsReservations: false,
     },
